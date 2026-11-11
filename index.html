@@ -1,118 +1,4 @@
-<!DOCTYPE html>
-<html lang="vi" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Lê Nhật Minh | Business Card</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gold: {
-                            300: '#fde047',
-                            400: '#fbbf24',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            700: '#b45309',
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'spin-slow': 'spin 15s linear infinite',
-                        'float': 'float 3s ease-in-out infinite',
-                        'shimmer': 'shimmer 2.5s infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-8px)' },
-                        },
-                        shimmer: {
-                            '100%': { transform: 'translateX(100%)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Font Inter & Outfit -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .heading-font {
-            font-family: 'Cinzel', serif;
-        }
-
-        /* Glassmorphism Backgrounds - Black Gentlemen Theme */
-        .glass-card {
-            background: rgba(10, 10, 12, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        /* Noble Gold Metallic Text */
-        .gold-shimmer-text {
-            background: linear-gradient(90deg, #b45309, #fef08a, #f59e0b, #ffffff, #f59e0b, #b45309);
-            background-size: 200% auto;
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: textShimmer 5s linear infinite;
-        }
-        @keyframes textShimmer {
-            to { background-position: 200% center; }
-        }
-
-        /* Particle Canvas Background */
-        #particles-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-    </style>
-</head>
-<body class="bg-black text-slate-100 min-h-screen transition-colors duration-500 relative overflow-x-hidden selection:bg-amber-500 selection:text-black">
-
-    <!-- Canvas cho hiệu ứng hạt lấp lánh (Gold & Silver Bling Particles) -->
-    <canvas id="particles-canvas"></canvas>
-
-    <!-- Thanh chuyển đổi Light/Dark Mode & Share Quick Action -->
-    <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <button id="theme-toggle" aria-label="Toggle Mode" class="glass-card p-3 rounded-full shadow-2xl text-amber-400 hover:scale-110 active:scale-95 transition-all border border-amber-500/40">
-            <i id="theme-toggle-dark-icon" class="fa-solid fa-gem text-lg"></i>
-        </button>
-    </div>
-
-    <!-- Container Chính -->
-    <main class="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-10">
-        <div class="w-full max-w-md md:max-w-2xl mx-auto space-y-6">
-
-            <!-- THE MAIN BUSINESS CARD (Desktop Responsive Upgrade) -->
-            <div id="card-element" class="glass-card rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-amber-950/20 relative overflow-hidden transition-all duration-300">
-                
-                <!-- Background Glowing Orbs Inside Card -->
-                <div class="absolute -top-20 -left-20 w-40 h-40 bg-amber-600/10 rounded-full filter blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-yellow-500/10 rounded-full filter blur-3xl pointer-events-none"></div>
-
-                <!-- BỐ CỤC 2 CỘT TỐI ƯU DESKTOP / 1 CỘT MOBILE -->
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center">
-                    
+<!-- ... existing code ... -->
                     <!-- CỘT 1: PROFILE HEADER & BADGES (MD: 5 COLUMNS) -->
                     <div class="md:col-span-5 flex flex-col items-center text-center space-y-4 md:border-r md:border-zinc-800/80 md:pr-6">
                         
@@ -120,10 +6,8 @@
                         <div class="relative group">
                             <div class="absolute -inset-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-700 rounded-full blur opacity-80 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
                             <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-zinc-950 flex items-center justify-center">
-                                <!-- Hiển thị Avatar dạng Chữ viết tắt với Gradient Đen Vàng -->
-                                <div class="w-full h-full bg-gradient-to-tr from-zinc-950 via-zinc-900 to-amber-950 flex items-center justify-center text-amber-400 text-3xl md:text-4xl font-extrabold heading-font tracking-widest border border-amber-500/30">
-                                    NM
-                                </div>
+                                <!-- Hiển thị Avatar Chân Dung Nhật Minh -->
+                                <img src="image_223437.jpg" alt="Nguyễn Lê Nhật Minh" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
                             </div>
                             <!-- Verified Badge -->
                             <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - Chuyên Bến Tre">
@@ -133,29 +17,7 @@
 
                         <!-- Thông Tin Tên & Trường Học -->
                         <div class="space-y-1.5 w-full">
-                            <h1 class="text-xl sm:text-2xl md:text-2xl font-extrabold heading-font tracking-wider gold-shimmer-text uppercase">
-                                Nguyễn Lê Nhật Minh
-                            </h1>
-                            <p class="text-xs font-bold tracking-widest text-zinc-400 uppercase flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-graduation-cap text-amber-500"></i>
-                                THPT Chuyên Bến Tre
-                            </p>
-                            <p class="text-[11px] font-semibold tracking-wider text-amber-400/90 uppercase">
-                                Học Sinh Chuyên Lý
-                            </p>
-                            <div class="inline-block px-3 py-1 mt-2 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 shadow-inner">
-                                ✨ "Thành thạo mọi lĩnh vực"
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- CỘT 2: TƯƠNG TÁC XÃ HỘI (MD: 7 COLUMNS) -->
-                    <div class="md:col-span-7 space-y-3">
-                        <p class="text-[10px] font-extrabold uppercase tracking-widest text-zinc-500 text-center md:text-left mb-2">
-                            Kênh liên hệ chính thức
-                        </p>
-
+<!-- ... existing code ... -->
                         <!-- ZALO BUTTON -->
                         <a href="https://zalo.me/0818756723" target="_blank" rel="noopener noreferrer" 
                            class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
@@ -172,55 +34,40 @@
                         </a>
 
                         <!-- FACEBOOK BUTTON -->
-                        <a id="btn-facebook" href="#" onclick="handlePendingLink(event, 'Facebook')" 
+                        <a id="btn-facebook" href="https://www.facebook.com/share/1KLQaQE5Zk/" target="_blank" rel="noopener noreferrer" 
                            class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
                                     <i class="fa-brands fa-facebook-f"></i>
                                 </div>
                                 <div class="text-left">
-                                    <div class="font-bold text-sm tracking-wide">Facebook</div>
-                                    <div class="text-xs opacity-70">(Sắp bổ sung link)</div>
+                                    <div class="font-bold text-sm tracking-wide">Facebook Cá Nhân</div>
+                                    <div class="text-xs opacity-70">Nguyễn Lê Nhật Minh</div>
                                 </div>
                             </div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-zinc-800 group-hover:bg-black group-hover:text-amber-400 font-semibold border border-zinc-700">Chờ link</span>
+                            <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
                         </a>
 
                         <!-- BANK ACCOUNT BUTTON -->
-                        <button onclick="copyBankInfo()" 
+                        <button onclick="toggleBankModal()" 
                            class="w-full group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                    <i class="fa-solid fa-building-columns"></i>
+                                    <i class="fa-solid fa-qrcode"></i>
                                 </div>
                                 <div class="text-left">
-                                    <div class="font-bold text-sm tracking-wide">Tài Khoản Ngân Hàng</div>
-                                    <div class="text-xs opacity-70">Bấm để sao chép thông tin</div>
+                                    <div class="font-bold text-sm tracking-wide">Tài Khoản Agribank</div>
+                                    <div class="text-xs opacity-70">Quét mã QR / Sao chép STK</div>
                                 </div>
                             </div>
-                            <i class="fa-regular fa-copy text-sm group-hover:scale-125 transition-transform"></i>
+                            <i class="fa-solid fa-angle-right text-sm group-hover:translate-x-1 transition-transform"></i>
                         </button>
                     </div>
 
                 </div>
 
                 <!-- TÍNH NĂNG NHANH (QUICK ACTIONS) -->
-                <div class="mt-6 pt-6 border-t border-zinc-800/80 grid grid-cols-2 gap-3">
-                    <!-- Nút tải VCard danh bạ -->
-                    <button onclick="downloadVCard()" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-amber-500 text-zinc-300 hover:text-black border border-zinc-800 hover:border-amber-400 font-semibold text-xs transition-all active:scale-95 shadow-sm">
-                        <i class="fa-solid fa-address-book text-amber-500"></i>
-                        Lưu vCard Danh Bạ
-                    </button>
-
-                    <!-- Nút Hiện Mã QR -->
-                    <button onclick="toggleQRCodeModal()" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-amber-500 text-zinc-300 hover:text-black border border-zinc-800 hover:border-amber-400 font-semibold text-xs transition-all active:scale-95 shadow-sm">
-                        <i class="fa-solid fa-qrcode text-amber-500"></i>
-                        Mã QR Quét Nhanh
-                    </button>
-                </div>
-
-            </div>
-
+<!-- ... existing code ... -->
             <!-- FOOTER INFO -->
             <footer class="text-center space-y-1">
                 <p class="text-xs text-zinc-500 font-medium tracking-wide">
@@ -234,31 +81,33 @@
         </div>
     </main>
 
-    <!-- MODAL HIỂN THỊ MÃ QR CODE -->
-    <div id="qr-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
-        <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center space-y-4 transform scale-90 transition-transform duration-300 border border-amber-500/40" id="qr-modal-content">
+    <!-- MODAL HIỂN THỊ TÀI KHOẢN NGÂN HÀNG & MÃ QR AGRIBANK -->
+    <div id="bank-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="glass-card rounded-3xl p-5 sm:p-6 max-w-sm w-full text-center space-y-4 transform scale-90 transition-transform duration-300 border border-amber-500/40" id="bank-modal-content">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold heading-font text-lg text-amber-400 uppercase tracking-wider">Mã QR Danh Thiếp</h3>
-                <button onclick="toggleQRCodeModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center">
+                <h3 class="font-bold heading-font text-base sm:text-lg text-amber-400 uppercase tracking-wider">Mã QR Agribank</h3>
+                <button onclick="toggleBankModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <!-- QR Container -->
-            <div class="bg-white p-4 rounded-2xl shadow-2xl inline-block mx-auto border-2 border-amber-500/50" id="qrcode-container"></div>
+            <!-- Hiển thị Ảnh QR Agribank -->
+            <div class="rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-500/40 bg-white p-2">
+                <img src="image_223019.jpg" alt="VietQR Agribank NGUYEN LE NHAT MINH" class="w-full h-auto rounded-xl">
+            </div>
 
-            <p class="text-xs text-zinc-400">
-                Quét mã này bằng camera điện thoại để truy cập nhanh trang danh thiếp số Quý Ông của Nhật Minh.
-            </p>
+            <div class="space-y-2">
+                <button onclick="copyBankInfo()" class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg">
+                    <i class="fa-regular fa-copy text-sm"></i>
+                    Sao Chép STK: 8888818756723
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-zinc-900 text-amber-400 border border-amber-500/40 shadow-2xl text-xs font-bold opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-amber-400 text-sm"></i>
-        <span id="toast-message">Đã sao chép!</span>
-    </div>
-
+    <!-- MODAL HIỂN THỊ MÃ QR CODE -->
+    <div id="qr-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+<!-- ... existing code ... -->
     <!-- JAVASCRIPT XỬ LÝ INTERACTION & PARTICLES -->
     <script>
         // --- 1. TOAST NOTIFICATION ---
@@ -283,66 +132,12 @@
             }, 3000);
         }
 
-        // --- 2. XỬ LÝ CÁC NÚT DỰ PHÒNG & COPY ---
-        function handlePendingLink(e, platformName) {
-            e.preventDefault();
-            showToast(`Link ${platformName} chưa được bổ sung. Bạn vui lòng chờ nhé!`, true);
-        }
-
-        function copyBankInfo() {
-            const bankDetails = "STK Ngân Hàng: (Sẽ cập nhật sau khi Nhật Minh cung cấp STK chính thức)";
-            
-            const dummy = document.createElement("textarea");
-            document.body.appendChild(dummy);
-            dummy.value = bankDetails;
-            dummy.select();
-            document.execCommand("copy");
-            document.body.removeChild(dummy);
-
-            showToast("Đã lưu thông tin tài khoản ngân hàng!");
-        }
-
-        // --- 3. TẠO & LƯU TỆP vCARD (.VCF) ---
-        function downloadVCard() {
-            const vcardData = 
-`BEGIN:VCARD
-VERSION:3.0
-FN:Nguyễn Lê Nhật Minh
-ORG:THPT Chuyên Bến Tre
-TITLE:Học sinh Chuyên Lý
-TEL;TYPE=CELL:0818756723
-NOTE:Kỹ năng thành thạo mọi lĩnh vực
-END:VCARD`;
-
-            const blob = new Blob([vcardData], { type: 'text/vcard;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', 'Nguyen_Le_Nhat_Minh.vcf');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showToast("Đã tải danh thiếp vCard vào máy!");
-        }
-
-        // --- 4. QR CODE GENERATOR ---
-        let qrcodeGenerated = false;
-        function toggleQRCodeModal() {
-            const modal = document.getElementById('qr-modal');
-            const content = document.getElementById('qr-modal-content');
+        // --- 2. XỬ LÝ BANK MODAL & COPY STK ---
+        function toggleBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const content = document.getElementById('bank-modal-content');
 
             if (modal.classList.contains('opacity-0')) {
-                if (!qrcodeGenerated) {
-                    new QRCode(document.getElementById("qrcode-container"), {
-                        text: window.location.href || "https://zalo.me/0818756723",
-                        width: 180,
-                        height: 180,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                    qrcodeGenerated = true;
-                }
                 modal.classList.remove('opacity-0', 'pointer-events-none');
                 content.classList.remove('scale-90');
                 content.classList.add('scale-100');
@@ -353,88 +148,18 @@ END:VCARD`;
             }
         }
 
-        // --- 5. GOLD & SILVER PARTICLES CANVAS ANIMATION ---
-        const canvas = document.getElementById('particles-canvas');
-        const ctx = canvas.getContext('2d');
-        let particlesArray = [];
+        function copyBankInfo() {
+            const stk = "8888818756723";
+            
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = stk;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.3;
-                this.alpha = Math.random() * 0.7 + 0.1;
-                this.sparkleSpeed = Math.random() * 0.015 + 0.005;
-                // Tông màu Hạt Vàng Ánh Kim Sang Trọng (Champagne Gold & Silver)
-                const colors = ['#f59e0b', '#d97706', '#fbbf24', '#fef08a', '#ffffff', '#71717a'];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                this.alpha += this.sparkleSpeed;
-                if (this.alpha > 0.8 || this.alpha < 0.1) {
-                    this.sparkleSpeed = -this.sparkleSpeed;
-                }
-
-                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                    this.reset();
-                }
-            }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
+            showToast("Đã sao chép STK Agribank: 8888818756723");
         }
 
-        function initParticles() {
-            particlesArray = [];
-            const particleCount = Math.min(Math.floor(window.innerWidth / 18), 50);
-            for (let i = 0; i < particleCount; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.onload = function() {
-            initParticles();
-            animateParticles();
-        };
-
-        // --- 6. HIỆU ỨNG THẺ 3D TILT KHI RÊ CHUỘT ---
-        const card = document.getElementById('card-element');
-        window.addEventListener('mousemove', (e) => {
-            if (window.innerWidth < 768) return;
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-        });
-    </script>
-</body>
-</html>
+        // --- 3. TẠO & LƯU TỆP vCARD (.VCF) ---
+<!-- ... existing code -->
