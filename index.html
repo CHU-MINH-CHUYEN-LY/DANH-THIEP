@@ -1,4 +1,149 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nguyễn Lê Nhật Minh | Danh Thiếp Cá Nhân</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Cinzel (Quý tộc) & Plus Jakarta Sans (Hiện đại) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- QRCode.js Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* Cấu hình Font & Màu sắc chủ đạo */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #09090b;
+            color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        .heading-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Hiệu ứng kính mờ sang trọng (Royal Glassmorphism) */
+        .glass-card {
+            background: linear-gradient(145deg, rgba(24, 24, 27, 0.85) 0%, rgba(12, 12, 14, 0.92) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 
+                        0 0 30px rgba(245, 158, 11, 0.08);
+        }
+
+        /* Hiệu ứng ánh sáng lướt qua thẻ (Shimmer Sweep) */
+        .shimmer-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(251, 191, 36, 0.08),
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: 0.75s;
+            pointer-events: none;
+        }
+        .shimmer-card:hover::before {
+            left: 150%;
+            transition: 0.9s ease-in-out;
+        }
+
+        /* Hiệu ứng xoay chậm cho viền Avatar */
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+
+        /* Chữ vàng ánh kim */
+        .gold-text-gradient {
+            background: linear-gradient(to right, #fde68a, #f59e0b, #d97706, #fde68a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Tùy chỉnh thanh cuộn */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b45309;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center relative selection:bg-amber-500 selection:text-black">
+
+    <!-- CANVAS NỀN HẠT VẬT LÝ TƯƠNG TÁC THÔNG MINH -->
+    <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <!-- ÁNH SÁNG AMBIENT GLOW PHÍA SAU -->
+    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- THANH ĐIỀU HƯỚNG NHANH TRÊN CÙNG (DESKTOP & MOBILE) -->
+    <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-10 flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center text-black font-bold heading-font shadow-lg">
+                M
+            </div>
+            <span class="text-xs tracking-[0.25em] uppercase text-amber-400/80 font-semibold hidden sm:inline">
+                Official Digital Card
+            </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Nút bật/tắt hiệu ứng chuyển động 3D -->
+            <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-medium transition-all flex items-center gap-1.5 shadow-md">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span id="tilt-status-text">Hiệu Ứng 3D: Bật</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="w-full max-w-4xl px-4 py-6 z-10 flex-grow flex items-center justify-center">
+        <div class="w-full space-y-6">
+
+            <!-- THẺ DANH THIẾP CHÍNH (3D TILT INTERACTIVE CARD) -->
+            <div id="business-card" class="glass-card shimmer-card rounded-3xl p-6 sm:p-8 md:p-10 transition-transform duration-200 ease-out" style="transform-style: preserve-3d;">
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                    
                     <!-- CỘT 1: PROFILE HEADER & BADGES (MD: 5 COLUMNS) -->
                     <div class="md:col-span-5 flex flex-col items-center text-center space-y-4 md:border-r md:border-zinc-800/80 md:pr-6">
                         
@@ -6,68 +151,137 @@
                         <div class="relative group">
                             <div class="absolute -inset-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-700 rounded-full blur opacity-80 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
                             <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-zinc-950 flex items-center justify-center">
-                                <!-- Hiển thị Avatar Chân Dung Nhật Minh -->
-                                <img src="image_223437.jpg" alt="Nguyễn Lê Nhật Minh" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+                                <!-- Hiển thị Avatar Chân Dung Nhật Minh với Fallback sang trọng -->
+                                <img src="image_223437.jpg" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/18181b/f59e0b?text=NHAT+MINH';" 
+                                     alt="Nguyễn Lê Nhật Minh" 
+                                     class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
                             </div>
                             <!-- Verified Badge -->
-                            <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - Chuyên Bến Tre">
+                            <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - THPT Chuyên Bến Tre">
                                 <i class="fa-solid fa-crown text-[11px] md:text-xs"></i>
                             </div>
                         </div>
 
                         <!-- Thông Tin Tên & Trường Học -->
                         <div class="space-y-1.5 w-full">
-<!-- ... existing code ... -->
-                        <!-- ZALO BUTTON -->
-                        <a href="https://zalo.me/0818756723" target="_blank" rel="noopener noreferrer" 
-                           class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                    Z
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-bold text-sm tracking-wide">Zalo Cá Nhân</div>
-                                    <div class="text-xs opacity-70 font-mono">0818 756 723</div>
-                                </div>
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold tracking-wider uppercase">
+                                <i class="fa-solid fa-atom animate-spin-slow"></i>
+                                Chuyên Vật Lý
                             </div>
-                            <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
+                            <h1 class="heading-font text-2xl sm:text-3xl font-bold gold-text-gradient tracking-wide pt-1">
+                                Nguyễn Lê Nhật Minh
+                            </h1>
+                            <p class="text-xs sm:text-sm text-zinc-400 font-medium">
+                                Trường THPT Chuyên Bến Tre
+                            </p>
+                        </div>
 
-                        <!-- FACEBOOK BUTTON -->
-                        <a id="btn-facebook" href="https://www.facebook.com/share/1KLQaQE5Zk/" target="_blank" rel="noopener noreferrer" 
-                           class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                    <i class="fa-brands fa-facebook-f"></i>
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-bold text-sm tracking-wide">Facebook Cá Nhân</div>
-                                    <div class="text-xs opacity-70">Nguyễn Lê Nhật Minh</div>
-                                </div>
+                        <!-- Huy Hiệu Kỹ Năng Đa Lĩnh Vực -->
+                        <div class="pt-2 w-full">
+                            <div class="p-3 rounded-2xl bg-zinc-900/70 border border-zinc-800/90 text-xs text-zinc-300 leading-relaxed">
+                                <span class="text-amber-400 font-semibold block mb-1">
+                                    <i class="fa-solid fa-star mr-1"></i> Dấu Ấn Cá Nhân
+                                </span>
+                                Tư duy logic Vật lý sắc bén • Thành thạo đa lĩnh vực • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
                             </div>
-                            <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-
-                        <!-- BANK ACCOUNT BUTTON -->
-                        <button onclick="toggleBankModal()" 
-                           class="w-full group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                    <i class="fa-solid fa-qrcode"></i>
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-bold text-sm tracking-wide">Tài Khoản Agribank</div>
-                                    <div class="text-xs opacity-70">Quét mã QR / Sao chép STK</div>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-angle-right text-sm group-hover:translate-x-1 transition-transform"></i>
-                        </button>
+                        </div>
                     </div>
 
-                </div>
+                    <!-- CỘT 2: KẾT NỐI TRỰC TIẾP & TƯƠNG TÁC THÔNG MINH (MD: 7 COLUMNS) -->
+                    <div class="md:col-span-7 flex flex-col justify-between space-y-5">
+                        
+                        <div class="space-y-1">
+                            <h2 class="heading-font text-sm sm:text-base font-bold text-amber-400 tracking-widest uppercase flex items-center gap-2">
+                                <span class="w-6 h-[1px] bg-amber-500"></span>
+                                Kết Nối Trực Tiếp
+                            </h2>
+                            <p class="text-xs text-zinc-400">
+                                Lựa chọn kênh liên lạc bên dưới để kết nối công việc, học thuật hoặc giao lưu mạng lưới cá nhân.
+                            </p>
+                        </div>
 
-                <!-- TÍNH NĂNG NHANH (QUICK ACTIONS) -->
-<!-- ... existing code ... -->
+                        <!-- DANH SÁCH CÁC NÚT KẾT NỐI CHÍNH -->
+                        <div class="space-y-3">
+                            
+                            <!-- ZALO BUTTON -->
+                            <a href="https://zalo.me/0818756723" target="_blank" rel="noopener noreferrer" 
+                               class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
+                                        Z
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="font-bold text-sm tracking-wide">Zalo Cá Nhân</div>
+                                        <div class="text-xs opacity-75 font-mono">0818 756 723</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Nhắn tin</span>
+                                    <i class="fa-solid fa-chevron-right text-xs opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </a>
+
+                            <!-- FACEBOOK BUTTON -->
+                            <a id="btn-facebook" href="https://www.facebook.com/share/1KLQaQE5Zk/" target="_blank" rel="noopener noreferrer" 
+                               class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
+                                        <i class="fa-brands fa-facebook-f"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="font-bold text-sm tracking-wide">Facebook Cá Nhân</div>
+                                        <div class="text-xs opacity-75">Nguyễn Lê Nhật Minh</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Trang cá nhân</span>
+                                    <i class="fa-solid fa-chevron-right text-xs opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </a>
+
+                            <!-- BANK ACCOUNT BUTTON -->
+                            <button onclick="toggleBankModal()" 
+                               class="w-full group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
+                                        <i class="fa-solid fa-qrcode"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="font-bold text-sm tracking-wide">Tài Khoản Ngân Hàng</div>
+                                        <div class="text-xs opacity-75">Agribank • Quét mã QR / Sao chép STK</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Mở thẻ</span>
+                                    <i class="fa-solid fa-angle-right text-sm opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </button>
+
+                        </div>
+
+                        <!-- TÍNH NĂNG NHANH (QUICK ACTIONS BAR) -->
+                        <div class="pt-3 border-t border-zinc-800/80 grid grid-cols-3 gap-2.5">
+                            <button onclick="saveVCard()" class="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                <i class="fa-solid fa-address-book text-amber-400"></i>
+                                <span>Lưu Danh Bạ</span>
+                            </button>
+                            
+                            <button onclick="copyPhoneNumber()" class="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                <i class="fa-regular fa-copy text-amber-400"></i>
+                                <span>Chép SĐT</span>
+                            </button>
+
+                            <button onclick="toggleShareQRModal()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-lg shadow-amber-500/10">
+                                <i class="fa-solid fa-share-nodes"></i>
+                                <span>Chia Sẻ Thẻ</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
             <!-- FOOTER INFO -->
             <footer class="text-center space-y-1">
                 <p class="text-xs text-zinc-500 font-medium tracking-wide">
@@ -85,19 +299,23 @@
     <div id="bank-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
         <div class="glass-card rounded-3xl p-5 sm:p-6 max-w-sm w-full text-center space-y-4 transform scale-90 transition-transform duration-300 border border-amber-500/40" id="bank-modal-content">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold heading-font text-base sm:text-lg text-amber-400 uppercase tracking-wider">Mã QR Agribank</h3>
-                <button onclick="toggleBankModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center">
+                <h3 class="font-bold heading-font text-base sm:text-lg text-amber-400 uppercase tracking-wider">Tài Khoản Agribank</h3>
+                <button onclick="toggleBankModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <!-- Hiển thị Ảnh QR Agribank -->
+            <!-- Hiển thị Ảnh QR Agribank với Fallback -->
             <div class="rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-500/40 bg-white p-2">
-                <img src="image_223019.jpg" alt="VietQR Agribank NGUYEN LE NHAT MINH" class="w-full h-auto rounded-xl">
+                <img src="image_223019.jpg" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/400x400/ffffff/09090b?text=QR+AGRIBANK%0A8888818756723';" 
+                     alt="VietQR Agribank NGUYEN LE NHAT MINH" 
+                     class="w-full h-auto rounded-xl">
             </div>
 
             <div class="space-y-2">
-                <button onclick="copyBankInfo()" class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg">
+                <p class="text-xs text-zinc-400">Chủ TK: <strong class="text-zinc-200">NGUYEN LE NHAT MINH</strong></p>
+                <button onclick="copyBankInfo()" class="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg">
                     <i class="fa-regular fa-copy text-sm"></i>
                     Sao Chép STK: 8888818756723
                 </button>
@@ -105,10 +323,36 @@
         </div>
     </div>
 
-    <!-- MODAL HIỂN THỊ MÃ QR CODE -->
+    <!-- MODAL CHIA SẺ MÃ QR DANH THIẾP -->
     <div id="qr-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
-<!-- ... existing code ... -->
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION & PARTICLES -->
+        <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center space-y-4 transform scale-90 transition-transform duration-300 border border-amber-500/40" id="qr-modal-content">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold heading-font text-base sm:text-lg text-amber-400 uppercase tracking-wider">Chia Sẻ Danh Thiếp</h3>
+                <button onclick="toggleShareQRModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-zinc-400">Quét mã QR bên dưới để mở nhanh danh thiếp trên thiết bị khác.</p>
+
+            <div class="flex justify-center py-2">
+                <div id="qrcode-container" class="p-3 bg-white rounded-2xl shadow-xl border-2 border-amber-500/40"></div>
+            </div>
+
+            <button onclick="copyCurrentLink()" class="w-full py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95">
+                <i class="fa-solid fa-link"></i>
+                Sao Chép Đường Dẫn Trang
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION (THÔNG BÁO NỔI SANG TRỌNG) -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-full bg-zinc-900/95 border border-amber-500/50 text-zinc-100 text-xs font-medium shadow-2xl backdrop-blur-md flex items-center gap-2.5 opacity-0 pointer-events-none translate-y-4 transition-all duration-300">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-amber-400 text-sm"></i>
+        <span id="toast-message">Thông báo</span>
+    </div>
+
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, 3D TILT & PARTICLES -->
     <script>
         // --- 1. TOAST NOTIFICATION ---
         function showToast(message, isWarning = false) {
@@ -148,18 +392,221 @@
             }
         }
 
-        function copyBankInfo() {
-            const stk = "8888818756723";
-            
+        function copyTextToClipboard(text, successMessage) {
             const dummy = document.createElement("textarea");
             document.body.appendChild(dummy);
-            dummy.value = stk;
+            dummy.value = text;
             dummy.select();
             document.execCommand("copy");
             document.body.removeChild(dummy);
+            showToast(successMessage);
+        }
 
-            showToast("Đã sao chép STK Agribank: 8888818756723");
+        function copyBankInfo() {
+            copyTextToClipboard("8888818756723", "Đã sao chép STK Agribank: 8888818756723");
+        }
+
+        function copyPhoneNumber() {
+            copyTextToClipboard("0818756723", "Đã sao chép SĐT Zalo: 0818 756 723");
+        }
+
+        function copyCurrentLink() {
+            copyTextToClipboard(window.location.href, "Đã sao chép liên kết danh thiếp!");
         }
 
         // --- 3. TẠO & LƯU TỆP vCARD (.VCF) ---
-<!-- ... existing code -->
+        function saveVCard() {
+            const vcardContent = [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                "N:Nguyễn Lê;Nhật Minh;;;",
+                "FN:Nguyễn Lê Nhật Minh",
+                "ORG:Trường THPT Chuyên Bến Tre",
+                "TITLE:Học sinh Chuyên Vật Lý",
+                "TEL;TYPE=CELL,VOICE:0818756723",
+                "URL:https://www.facebook.com/share/1KLQaQE5Zk/",
+                "NOTE:Danh thiếp điện tử cá nhân - Nguyễn Lê Nhật Minh",
+                "END:VCARD"
+            ].join("\n");
+
+            const blob = new Blob([vcardContent], { type: "text/vcard;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "Nguyen_Le_Nhat_Minh.vcf");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast("Đang tải tệp danh bạ (.vcf) về thiết bị...");
+        }
+
+        // --- 4. XỬ LÝ MODAL MÃ QR CHIA SẺ TRANG ---
+        let qrGenerated = false;
+        function toggleShareQRModal() {
+            const modal = document.getElementById('qr-modal');
+            const content = document.getElementById('qr-modal-content');
+
+            if (!qrGenerated) {
+                const container = document.getElementById("qrcode-container");
+                container.innerHTML = "";
+                new QRCode(container, {
+                    text: window.location.href,
+                    width: 180,
+                    height: 180,
+                    colorDark: "#09090b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                qrGenerated = true;
+            }
+
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+        }
+
+        // --- 5. HIỆU ỨNG NGHIÊNG THẺ 3D THEO CHUỘT (DESKTOP INTERACTIVE TILT) ---
+        let is3DTiltEnabled = true;
+        const card = document.getElementById('business-card');
+
+        function toggle3DTilt() {
+            is3DTiltEnabled = !is3DTiltEnabled;
+            const statusText = document.getElementById('tilt-status-text');
+            if (is3DTiltEnabled) {
+                statusText.innerText = "Hiệu Ứng 3D: Bật";
+                showToast("Đã bật hiệu ứng nghiêng 3D tương tác");
+            } else {
+                statusText.innerText = "Hiệu Ứng 3D: Tắt";
+                card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
+                showToast("Đã tắt hiệu ứng nghiêng 3D");
+            }
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (!is3DTiltEnabled || window.innerWidth < 768) return;
+            const rect = card.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+            
+            const angleX = (e.clientY - cardCenterY) / 35;
+            const angleY = (cardCenterX - e.clientX) / 35;
+
+            card.style.transform = `perspective(1200px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            if (!is3DTiltEnabled) return;
+            card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
+        });
+
+        // --- 6. HỆ THỐNG HẠT VẬT LÝ TƯƠNG TÁC (CONSTELLATION PHYSICS CANVAS) ---
+        const canvas = document.getElementById('physics-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 140 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.6;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.55)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 90);
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Kết nối giữa các hạt gần nhau (Hiệu ứng mạng lưới vật lý)
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 110) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(245, 158, 11, ${0.15 * (1 - distance / 110)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+
+                // Tương tác hút/kết nối với con trỏ chuột
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dxMouse = particles[i].x - mouse.x;
+                    const dyMouse = particles[i].y - mouse.y;
+                    const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+                    if (distMouse < mouse.radius) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(251, 191, 36, ${0.35 * (1 - distMouse / mouse.radius)})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.onload = function() {
+            resizeCanvas();
+            animateParticles();
+        };
+    </script>
+</body>
+</html>
