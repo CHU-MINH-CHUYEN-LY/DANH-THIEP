@@ -142,27 +142,39 @@
     <div id="glow-right" class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none z-0 transition-all duration-500"></div>
 
     <!-- THANH ĐIỀU HƯỚNG NHANH TRÊN CÙNG (DESKTOP & MOBILE) -->
-    <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-10 flex justify-between items-center">
+    <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-10 flex flex-wrap justify-between items-center gap-3">
         <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center text-black font-bold heading-font shadow-lg">
                 M
             </div>
-            <span class="text-xs tracking-[0.25em] uppercase text-amber-400/80 font-semibold hidden sm:inline">
+            <span class="text-xs tracking-[0.25em] uppercase text-amber-400/80 font-semibold hidden md:inline">
                 Official Digital Card
             </span>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
+        <!-- THANH CHUYỂN TRANG (DANH THIẾP / THÍ NGHIỆM TỪ TRƯỜNG) -->
+        <nav class="flex items-center p-1 rounded-full bg-zinc-900/90 border border-amber-500/30 shadow-lg">
+            <button id="nav-card-btn" onclick="switchPage('card')" class="px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-id-card"></i>
+                <span>Danh Thiếp</span>
+            </button>
+            <button id="nav-magnetic-btn" onclick="switchPage('magnetic')" class="px-3.5 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-magnet"></i>
+                <span>Thí Nghiệm Từ Trường</span>
+            </button>
+        </nav>
+
+        <div class="flex items-center gap-2">
             <!-- Nút bật/tắt Bảng Điều Khiển Cơ - Điện - Sáng -->
             <button id="toggle-lab-btn" onclick="toggleLabConsole()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-black text-xs font-medium transition-all flex items-center gap-1.5 shadow-md">
                 <i class="fa-solid fa-sliders"></i>
-                <span id="lab-status-text">Bảng Lab: Mở</span>
+                <span id="lab-status-text" class="hidden sm:inline">Bảng Lab: Mở</span>
             </button>
 
             <!-- Nút bật/tắt hiệu ứng chuyển động 3D -->
             <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-medium transition-all flex items-center gap-1.5 shadow-md">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span id="tilt-status-text">Hiệu Ứng 3D: Bật</span>
+                <span id="tilt-status-text" class="hidden sm:inline">3D: Bật</span>
             </button>
         </div>
     </header>
@@ -171,155 +183,277 @@
     <main class="w-full max-w-4xl px-4 py-6 z-10 flex-grow flex items-center justify-center">
         <div class="w-full space-y-5">
 
-            <!-- THẺ DANH THIẾP CHÍNH (3D TILT INTERACTIVE CARD) -->
-            <div id="business-card" class="glass-card shimmer-card rounded-3xl p-6 sm:p-8 md:p-10 transition-transform duration-200 ease-out" style="transform-style: preserve-3d;">
-                
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <!-- ==================== TRANG 1: THẺ DANH THIẾP CHÍNH ==================== -->
+            <div id="page-card" class="space-y-5">
+                <div id="business-card" class="glass-card shimmer-card rounded-3xl p-6 sm:p-8 md:p-10 transition-transform duration-200 ease-out" style="transform-style: preserve-3d;">
                     
-                    <!-- CỘT 1: PROFILE HEADER & BADGES (MD: 5 COLUMNS) -->
-                    <div class="md:col-span-5 flex flex-col items-center text-center space-y-4 md:border-r md:border-zinc-800/80 md:pr-6">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
                         
-                        <!-- KHUNG AVATAR VỚI VIỀN VÀNG ÁNH KIM -->
-                        <div class="relative group">
-                            <div class="absolute -inset-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-700 rounded-full blur opacity-80 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
-                            <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-zinc-950 flex items-center justify-center">
-                                <!-- Đặt file ảnh của bạn vào thư mục images/avatar.jpg trên GitHub -->
-                                <img src="images/avatar.jpg" 
-                                     alt="Nguyễn Lê Nhật Minh" 
-                                     class="w-full h-full object-cover"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <!-- Khung dự phòng hiển thị khi chưa tải ảnh lên -->
-                                <div class="hidden w-full h-full flex-col items-center justify-center bg-gradient-to-br from-zinc-900 to-black text-amber-400">
-                                    <span class="heading-font text-3xl sm:text-4xl font-bold tracking-wider">NM</span>
-                                    <span class="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">images/avatar.jpg</span>
-                                </div>
-                            </div>
-                            <!-- Verified Badge -->
-                            <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - THPT Chuyên Bến Tre">
-                                <i class="fa-solid fa-crown text-[11px] md:text-xs"></i>
-                            </div>
-                        </div>
-
-                        <!-- Thông Tin Tên & Trường Học -->
-                        <div class="space-y-1.5 w-full">
-                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold tracking-wider uppercase">
-                                <i id="atom-icon" class="fa-solid fa-atom animate-spin-slow"></i>
-                                Chuyên Vật Lý
-                            </div>
-                            <h1 class="heading-font text-2xl sm:text-3xl font-bold gold-text-gradient tracking-wide pt-1">
-                                Nguyễn Lê Nhật Minh
-                            </h1>
-                            <p class="text-xs sm:text-sm text-zinc-400 font-medium">
-                                Trường THPT Chuyên Bến Tre
-                            </p>
-                        </div>
-
-                        <!-- Huy Hiệu Kỹ Năng Đa Lĩnh Vực -->
-                        <div class="pt-2 w-full">
-                            <div class="p-3 rounded-2xl bg-zinc-900/70 border border-zinc-800/90 text-xs text-zinc-300 leading-relaxed">
-                                <span class="text-amber-400 font-semibold block mb-1">
-                                    <i class="fa-solid fa-star mr-1"></i> Dấu Ấn Cá Nhân
-                                </span>
-                                Tư duy logic Vật lý sắc bén • Thành thạo đa lĩnh vực • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CỘT 2: KẾT NỐI TRỰC TIẾP & TƯƠNG TÁC THÔNG MINH (MD: 7 COLUMNS) -->
-                    <div class="md:col-span-7 flex flex-col justify-between space-y-5">
-                        
-                        <div class="space-y-1">
-                            <h2 class="heading-font text-sm sm:text-base font-bold text-amber-400 tracking-widest uppercase flex items-center gap-2">
-                                <span class="w-6 h-[1px] bg-amber-500"></span>
-                                Kết Nối Trực Tiếp
-                            </h2>
-                            <p class="text-xs text-zinc-400">
-                                Lựa chọn kênh liên lạc bên dưới để kết nối công việc, học thuật hoặc giao lưu mạng lưới cá nhân.
-                            </p>
-                        </div>
-
-                        <!-- DANH SÁCH CÁC NÚT KẾT NỐI CHÍNH -->
-                        <div class="space-y-3">
+                        <!-- CỘT 1: PROFILE HEADER & BADGES (MD: 5 COLUMNS) -->
+                        <div class="md:col-span-5 flex flex-col items-center text-center space-y-4 md:border-r md:border-zinc-800/80 md:pr-6">
                             
-                            <!-- ZALO BUTTON -->
-                            <a href="https://zalo.me/0818756723" target="_blank" rel="noopener noreferrer" 
-                               class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
-                                <div class="flex items-center gap-3.5">
-                                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                        Z
-                                    </div>
-                                    <div class="text-left">
-                                        <div class="font-bold text-sm tracking-wide">Zalo Cá Nhân</div>
-                                        <div class="text-xs opacity-75 font-mono">0818 756 723</div>
+                            <!-- KHUNG AVATAR VỚI VIỀN VÀNG ÁNH KIM -->
+                            <div class="relative group">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-700 rounded-full blur opacity-80 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
+                                <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-zinc-950 flex items-center justify-center">
+                                    <!-- Đặt file ảnh của bạn vào thư mục images/avatar.jpg trên GitHub -->
+                                    <img src="images/avatar.jpg" 
+                                         alt="Nguyễn Lê Nhật Minh" 
+                                         class="w-full h-full object-cover"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <!-- Khung dự phòng hiển thị khi chưa tải ảnh lên -->
+                                    <div class="hidden w-full h-full flex-col items-center justify-center bg-gradient-to-br from-zinc-900 to-black text-amber-400">
+                                        <span class="heading-font text-3xl sm:text-4xl font-bold tracking-wider">NM</span>
+                                        <span class="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">images/avatar.jpg</span>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Nhắn tin</span>
-                                    <i class="fa-solid fa-chevron-right text-xs opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                <!-- Verified Badge -->
+                                <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - THPT Chuyên Bến Tre">
+                                    <i class="fa-solid fa-crown text-[11px] md:text-xs"></i>
                                 </div>
-                            </a>
+                            </div>
 
-                            <!-- FACEBOOK BUTTON -->
-                            <a id="btn-facebook" href="https://www.facebook.com/share/1KLQaQE5Zk/" target="_blank" rel="noopener noreferrer" 
-                               class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
-                                <div class="flex items-center gap-3.5">
-                                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                        <i class="fa-brands fa-facebook-f"></i>
-                                    </div>
-                                    <div class="text-left">
-                                        <div class="font-bold text-sm tracking-wide">Facebook Cá Nhân</div>
-                                        <div class="text-xs opacity-75">Nguyễn Lê Nhật Minh</div>
-                                    </div>
+                            <!-- Thông Tin Tên & Trường Học -->
+                            <div class="space-y-1.5 w-full">
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold tracking-wider uppercase">
+                                    <i id="atom-icon" class="fa-solid fa-atom animate-spin-slow"></i>
+                                    Chuyên Vật Lý
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Trang cá nhân</span>
-                                    <i class="fa-solid fa-chevron-right text-xs opacity-60 group-hover:translate-x-1 transition-transform"></i>
-                                </div>
-                            </a>
+                                <h1 class="heading-font text-2xl sm:text-3xl font-bold gold-text-gradient tracking-wide pt-1">
+                                    Nguyễn Lê Nhật Minh
+                                </h1>
+                                <p class="text-xs sm:text-sm text-zinc-400 font-medium">
+                                    Trường THPT Chuyên Bến Tre
+                                </p>
+                            </div>
 
-                            <!-- BANK ACCOUNT BUTTON -->
-                            <button onclick="toggleBankModal()" 
-                               class="w-full group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
-                                <div class="flex items-center gap-3.5">
-                                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
-                                        <i class="fa-solid fa-building-columns"></i>
-                                    </div>
-                                    <div class="text-left">
-                                        <div class="font-bold text-sm tracking-wide">Tài Khoản Ngân Hàng</div>
-                                        <div class="text-xs opacity-75">Agribank • Quét mã QR & Sao chép STK</div>
-                                    </div>
+                            <!-- Huy Hiệu Kỹ Năng Đa Lĩnh Vực -->
+                            <div class="pt-2 w-full">
+                                <div class="p-3 rounded-2xl bg-zinc-900/70 border border-zinc-800/90 text-xs text-zinc-300 leading-relaxed">
+                                    <span class="text-amber-400 font-semibold block mb-1">
+                                        <i class="fa-solid fa-star mr-1"></i> Dấu Ấn Cá Nhân
+                                    </span>
+                                    Tư duy logic Vật lý sắc bén • Thành thạo đa lĩnh vực • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Mở thẻ</span>
-                                    <i class="fa-solid fa-angle-right text-sm opacity-60 group-hover:translate-x-1 transition-transform"></i>
-                                </div>
-                            </button>
-
+                            </div>
                         </div>
 
-                        <!-- TÍNH NĂNG NHANH (QUICK ACTIONS BAR) -->
-                        <div class="pt-3 border-t border-zinc-800/80 grid grid-cols-3 gap-2.5">
-                            <button onclick="saveVCard()" class="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                                <i class="fa-solid fa-address-book text-amber-400"></i>
-                                <span>Lưu Danh Bạ</span>
-                            </button>
+                        <!-- CỘT 2: KẾT NỐI TRỰC TIẾP & TƯƠNG TÁC THÔNG MINH (MD: 7 COLUMNS) -->
+                        <div class="md:col-span-7 flex flex-col justify-between space-y-5">
                             
-                            <button onclick="copyPhoneNumber()" class="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                                <i class="fa-regular fa-copy text-amber-400"></i>
-                                <span>Chép SĐT</span>
-                            </button>
+                            <div class="space-y-1">
+                                <h2 class="heading-font text-sm sm:text-base font-bold text-amber-400 tracking-widest uppercase flex items-center gap-2">
+                                    <span class="w-6 h-[1px] bg-amber-500"></span>
+                                    Kết Nối Trực Tiếp
+                                </h2>
+                                <p class="text-xs text-zinc-400">
+                                    Lựa chọn kênh liên lạc bên dưới để kết nối công việc, học thuật hoặc giao lưu mạng lưới cá nhân.
+                                </p>
+                            </div>
 
-                            <button onclick="toggleShareQRModal()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-lg shadow-amber-500/10">
-                                <i class="fa-solid fa-share-nodes"></i>
-                                <span>Chia Sẻ QR</span>
-                            </button>
+                            <!-- DANH SÁCH CÁC NÚT KẾT NỐI CHÍNH -->
+                            <div class="space-y-3">
+                                
+                                <!-- ZALO BUTTON -->
+                                <a href="https://zalo.me/0818756723" target="_blank" rel="noopener noreferrer" 
+                                   class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
+                                            Z
+                                        </div>
+                                        <div class="text-left">
+                                            <div class="font-bold text-sm tracking-wide">Zalo Cá Nhân</div>
+                                            <div class="text-xs opacity-75 font-mono">0818 756 723</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Nhắn tin</span>
+                                        <i class="fa-solid fa-chevron-right text-xs opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                    </div>
+                                </a>
+
+                                <!-- FACEBOOK BUTTON -->
+                                <a id="btn-facebook" href="https://www.facebook.com/share/1KLQaQE5Zk/" target="_blank" rel="noopener noreferrer" 
+                                   class="group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
+                                            <i class="fa-brands fa-facebook-f"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <div class="font-bold text-sm tracking-wide">Facebook Cá Nhân</div>
+                                            <div class="text-xs opacity-75">Nguyễn Lê Nhật Minh</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Trang cá nhân</span>
+                                        <i class="fa-solid fa-chevron-right text-xs opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                    </div>
+                                </a>
+
+                                <!-- BANK ACCOUNT BUTTON -->
+                                <button onclick="toggleBankModal()" 
+                                   class="w-full group relative flex items-center justify-between p-3.5 rounded-2xl bg-zinc-900/90 hover:bg-amber-500 text-zinc-200 hover:text-black border border-amber-500/20 hover:border-amber-400 transition-all duration-300 shadow-md hover:shadow-amber-500/20 active:scale-98">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 group-hover:bg-black group-hover:text-amber-400 group-hover:border-black transition-colors">
+                                            <i class="fa-solid fa-building-columns"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <div class="font-bold text-sm tracking-wide">Tài Khoản Ngân Hàng</div>
+                                            <div class="text-xs opacity-75">Agribank • Quét mã QR & Sao chép STK</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Mở thẻ</span>
+                                        <i class="fa-solid fa-angle-right text-sm opacity-60 group-hover:translate-x-1 transition-transform"></i>
+                                    </div>
+                                </button>
+
+                            </div>
+
+                            <!-- TÍNH NĂNG NHANH (QUICK ACTIONS BAR) -->
+                            <div class="pt-3 border-t border-zinc-800/80 grid grid-cols-3 gap-2.5">
+                                <button onclick="saveVCard()" class="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                    <i class="fa-solid fa-address-book text-amber-400"></i>
+                                    <span>Lưu Danh Bạ</span>
+                                </button>
+                                
+                                <button onclick="copyPhoneNumber()" class="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                    <i class="fa-regular fa-copy text-amber-400"></i>
+                                    <span>Chép SĐT</span>
+                                </button>
+
+                                <button onclick="toggleShareQRModal()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-lg shadow-amber-500/10">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                    <span>Chia Sẻ QR</span>
+                                </button>
+                            </div>
+
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- BẢNG ĐIỀU KHIỂN CƠ - ĐIỆN - SÁNG THU NHỎ (DIY & LAB CONSOLE) -->
+            <!-- ==================== TRANG 2: PHÒNG THÍ NGHIỆM TỪ TRƯỜNG ==================== -->
+            <div id="page-magnetic" class="hidden space-y-5">
+                <div class="glass-card rounded-3xl p-5 sm:p-7 border border-amber-500/35 space-y-5">
+                    
+                    <!-- Header Trang Thí Nghiệm -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-1">
+                                <i class="fa-solid fa-magnet"></i>
+                                Interactive Physics Lab • Điện Từ Học
+                            </div>
+                            <h2 class="heading-font text-lg sm:text-2xl font-bold gold-text-gradient tracking-wide">
+                                Mô Phỏng Đường Sức Từ & Lực Lorenxơ
+                            </h2>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="flipMagnetPolarity()" class="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/35 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span id="polarity-btn-text">Đảo Cực (N ⇄ S)</span>
+                            </button>
+                            <button onclick="fireElectronBeam()" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold transition-all active:scale-95 shadow-lg flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>Bắn Chùm Điện Tích</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khung Canvas Thí Nghiệm Từ Trường + Bảng Chỉ Số Đo -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                        
+                        <!-- Canvas Thí Nghiệm (8 cột) -->
+                        <div class="lg:col-span-8 relative rounded-2xl overflow-hidden bg-zinc-950 border border-amber-500/30 shadow-inner">
+                            <canvas id="magnetic-canvas" class="w-full h-[300px] sm:h-[340px] block cursor-grab active:cursor-grabbing"></canvas>
+                            
+                            <!-- Nhãn hướng dẫn góc trên canvas -->
+                            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/70 border border-amber-500/25 text-[10px] text-amber-300/90 backdrop-blur-md pointer-events-none">
+                                <i class="fa-solid fa-hand-pointer mr-1"></i> Kéo chuột / chạm để xoay trục nam châm
+                            </div>
+
+                            <!-- Công thức góc dưới canvas -->
+                            <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/75 border border-zinc-800 text-[10px] font-mono text-zinc-400 pointer-events-none">
+                                ∇ · B = 0 &nbsp;|&nbsp; F = |q|·v·B·sinα
+                            </div>
+                        </div>
+
+                        <!-- Bảng Thông Số & Nguyên Lý (4 cột) -->
+                        <div class="lg:col-span-4 flex flex-col justify-between space-y-3">
+                            <div class="grid grid-cols-2 lg:grid-cols-1 gap-2.5">
+                                <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/90">
+                                    <div class="text-[10px] uppercase tracking-wider text-zinc-500">Cảm Ứng Từ Cực Đại (B)</div>
+                                    <div id="mag-readout-b" class="text-sm sm:text-base font-mono font-bold text-amber-400 mt-0.5">1.25 Tesla</div>
+                                </div>
+                                <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/90">
+                                    <div class="text-[10px] uppercase tracking-wider text-zinc-500">Từ Thông Qua Vòng (Φ)</div>
+                                    <div id="mag-readout-flux" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">3.14 × 10⁻² Wb</div>
+                                </div>
+                                <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/90">
+                                    <div class="text-[10px] uppercase tracking-wider text-zinc-500">Góc Trục Nam Châm (θ)</div>
+                                    <div id="mag-readout-angle" class="text-sm sm:text-base font-mono font-bold text-emerald-400 mt-0.5">0° • N → S</div>
+                                </div>
+                                <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800/90">
+                                    <div class="text-[10px] uppercase tracking-wider text-zinc-500">Lực Lorenxơ Tức Thời</div>
+                                    <div id="mag-readout-force" class="text-sm sm:text-base font-mono font-bold text-zinc-200 mt-0.5">2.00 × 10⁻¹³ N</div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-[11px] text-zinc-300 leading-relaxed">
+                                <span class="text-amber-400 font-semibold block mb-0.5">
+                                    <i class="fa-solid fa-lightbulb mr-1"></i> Nguyên Lý Quan Sát
+                                </span>
+                                Đường sức từ luôn là các đường cong kín: đi ra từ <strong>cực Bắc (N)</strong> và đi vào ở <strong>cực Nam (S)</strong>. Khi chùm điện tích bay cắt ngang từ trường, lực Lorenxơ làm lệch quỹ đạo chuyển động của hạt.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3 Thanh Trượt Điều Chỉnh Thí Nghiệm Từ Trường -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/65 border border-zinc-800/80 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-semibold text-amber-300">Cảm Ứng Từ (B)</span>
+                                <span id="mag-b-label" class="font-mono text-zinc-400">1.25 T</span>
+                            </div>
+                            <input id="mag-b-slider" type="range" min="20" max="250" value="125" oninput="updateMagneticParams()" class="w-full lab-slider">
+                            <p class="text-[11px] text-zinc-500">Tăng độ rực đường sức & bán kính uốn cong quỹ đạo hạt.</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/65 border border-zinc-800/80 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-semibold text-amber-300">Mật Độ Đường Sức</span>
+                                <span id="mag-lines-label" class="font-mono text-zinc-400">10 đường</span>
+                            </div>
+                            <input id="mag-lines-slider" type="range" min="4" max="16" step="2" value="10" oninput="updateMagneticParams()" class="w-full lab-slider">
+                            <p class="text-[11px] text-zinc-500">Thay đổi số lượng vòng đường sức từ bao quanh lưỡng cực.</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/65 border border-zinc-800/80 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-semibold text-amber-300">Tốc Độ Dòng Hạt</span>
+                                <span id="mag-flow-label" class="font-mono text-zinc-400">1.2x</span>
+                            </div>
+                            <input id="mag-flow-slider" type="range" min="2" max="30" value="12" oninput="updateMagneticParams()" class="w-full lab-slider">
+                            <p class="text-[11px] text-zinc-500">Điều chỉnh vận tốc các hạt sáng dịch chuyển theo chiều đường sức.</p>
+                        </div>
+                    </div>
+
+                    <!-- Thanh điều hướng nhanh dưới đáy trang thí nghiệm -->
+                    <div class="pt-2 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
+                        <button onclick="switchPage('card')" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                            <span>Quay Lại Danh Thiếp</span>
+                        </button>
+                        <button onclick="resetMagneticLab()" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Đặt Lại Thí Nghiệm</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== BẢNG ĐIỀU KHIỂN CƠ - ĐIỆN - SÁNG THU NHỎ ==================== -->
             <section id="lab-console" class="glass-card rounded-3xl p-5 sm:p-6 border border-amber-500/30 space-y-4 transition-all duration-300">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
                     <div class="flex items-center gap-2.5">
@@ -500,8 +634,303 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, 3D TILT, LAB CONSOLE & PARTICLES -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, TRANG TỪ TRƯỜNG, 3D TILT & PARTICLES -->
     <script>
+        // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & TRANG THÍ NGHIỆM TỪ TRƯỜNG ---
+        let currentPage = 'card';
+        function switchPage(pageName) {
+            currentPage = pageName;
+            const pageCard = document.getElementById('page-card');
+            const pageMag = document.getElementById('page-magnetic');
+            const btnCard = document.getElementById('nav-card-btn');
+            const btnMag = document.getElementById('nav-magnetic-btn');
+
+            if (pageName === 'card') {
+                pageCard.classList.remove('hidden');
+                pageMag.classList.add('hidden');
+                btnCard.className = "px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
+                btnMag.className = "px-3.5 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
+            } else {
+                pageCard.classList.add('hidden');
+                pageMag.classList.remove('hidden');
+                btnMag.className = "px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
+                btnCard.className = "px-3.5 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
+                resizeMagneticCanvas();
+                updateMagneticParams();
+            }
+        }
+
+        // --- MÔ PHỎNG THÍ NGHIỆM TỪ TRƯỜNG & ĐƯỜNG SỨC TỪ ---
+        const magCanvas = document.getElementById('magnetic-canvas');
+        const magCtx = magCanvas ? magCanvas.getContext('2d') : null;
+        let magState = {
+            B: 1.25,          // Tesla
+            numLines: 10,     // Số đường sức từ
+            flowSpeed: 1.2,   // Tốc độ dòng hạt trên đường sức
+            polarity: 1,      // 1: N bên trái -> S bên phải, -1: Đảo cực
+            angle: 0,         // Góc xoay nam châm (radian)
+            phase: 0,
+            isDragging: false
+        };
+        let lorentzCharges = [];
+
+        function resizeMagneticCanvas() {
+            if (!magCanvas) return;
+            const rect = magCanvas.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                magCanvas.width = rect.width;
+                magCanvas.height = rect.height;
+            }
+        }
+
+        function updateMagneticParams() {
+            const bVal = Number(document.getElementById('mag-b-slider').value) / 100;
+            const linesVal = Number(document.getElementById('mag-lines-slider').value);
+            const flowVal = Number(document.getElementById('mag-flow-slider').value) / 10;
+
+            magState.B = bVal;
+            magState.numLines = linesVal;
+            magState.flowSpeed = flowVal;
+
+            document.getElementById('mag-b-label').innerText = `${bVal.toFixed(2)} T`;
+            document.getElementById('mag-lines-label').innerText = `${linesVal} đường`;
+            document.getElementById('mag-flow-label').innerText = `${flowVal.toFixed(1)}x`;
+
+            const flux = (bVal * 2.51).toFixed(2);
+            const deg = Math.round(((magState.angle * 180 / Math.PI) % 360 + 360) % 360);
+            const dirLabel = magState.polarity === 1 ? "N → S" : "S ← N";
+            const forceVal = (1.6 * bVal).toFixed(2);
+
+            document.getElementById('mag-readout-b').innerText = `${bVal.toFixed(2)} Tesla`;
+            document.getElementById('mag-readout-flux').innerText = `${flux} × 10⁻² Wb`;
+            document.getElementById('mag-readout-angle').innerText = `${deg}° • ${dirLabel}`;
+            document.getElementById('mag-readout-force').innerText = `${forceVal} × 10⁻¹³ N`;
+        }
+
+        function flipMagnetPolarity() {
+            magState.polarity *= -1;
+            updateMagneticParams();
+            showToast(magState.polarity === 1 ? "Cực Bắc (N) bên trái • Cực Nam (S) bên phải" : "Đã đảo cực từ: Cực Nam (S) bên trái • Cực Bắc (N) bên phải");
+        }
+
+        function fireElectronBeam() {
+            if (!magCanvas) return;
+            const h = magCanvas.height || 320;
+            for (let i = 0; i < 6; i++) {
+                lorentzCharges.push({
+                    x: 15,
+                    y: h * (0.28 + i * 0.085),
+                    vx: 3.4 + Math.random() * 0.6,
+                    vy: 0,
+                    trail: [],
+                    charge: i % 2 === 0 ? 1 : -1
+                });
+            }
+            showToast("Đã phóng chùm hạt điện tích qua vùng từ trường!");
+        }
+
+        function resetMagneticLab() {
+            magState.B = 1.25;
+            magState.numLines = 10;
+            magState.flowSpeed = 1.2;
+            magState.polarity = 1;
+            magState.angle = 0;
+            lorentzCharges = [];
+            document.getElementById('mag-b-slider').value = 125;
+            document.getElementById('mag-lines-slider').value = 10;
+            document.getElementById('mag-flow-slider').value = 12;
+            updateMagneticParams();
+            showToast("Đã đặt lại thí nghiệm từ trường về mặc định");
+        }
+
+        if (magCanvas) {
+            const updateAngleFromPointer = (clientX, clientY) => {
+                const rect = magCanvas.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                magState.angle = Math.atan2(clientY - cy, clientX - cx);
+                updateMagneticParams();
+            };
+
+            magCanvas.addEventListener('mousedown', (e) => {
+                magState.isDragging = true;
+                updateAngleFromPointer(e.clientX, e.clientY);
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (magState.isDragging && currentPage === 'magnetic') {
+                    updateAngleFromPointer(e.clientX, e.clientY);
+                }
+            });
+            window.addEventListener('mouseup', () => {
+                magState.isDragging = false;
+            });
+
+            magCanvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    magState.isDragging = true;
+                    updateAngleFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+            magCanvas.addEventListener('touchmove', (e) => {
+                if (magState.isDragging && e.touches.length > 0) {
+                    updateAngleFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            }, { passive: true });
+            magCanvas.addEventListener('touchend', () => {
+                magState.isDragging = false;
+            });
+        }
+
+        function drawMagneticSimulation() {
+            if (!magCtx || currentPage !== 'magnetic') return;
+            const w = magCanvas.width;
+            const h = magCanvas.height;
+            magCtx.clearRect(0, 0, w, h);
+
+            // Lưới tọa độ đo đạc mờ phía sau
+            magCtx.strokeStyle = 'rgba(245, 158, 11, 0.06)';
+            magCtx.lineWidth = 1;
+            const step = 28;
+            for (let x = 0; x < w; x += step) {
+                magCtx.beginPath();
+                magCtx.moveTo(x, 0);
+                magCtx.lineTo(x, h);
+                magCtx.stroke();
+            }
+            for (let y = 0; y < h; y += step) {
+                magCtx.beginPath();
+                magCtx.moveTo(0, y);
+                magCtx.lineTo(w, y);
+                magCtx.stroke();
+            }
+
+            const cx = w / 2;
+            const cy = h / 2;
+            const magnetW = Math.min(150, w * 0.34);
+            const magnetH = 38;
+            const poleOffset = magnetW * 0.46;
+
+            magState.phase += 0.015 * magState.flowSpeed * magState.polarity;
+
+            magCtx.save();
+            magCtx.translate(cx, cy);
+            magCtx.rotate(magState.angle);
+
+            // Vẽ các đường sức từ lưỡng cực (trên và dưới trục nam châm)
+            const halfLines = Math.floor(magState.numLines / 2);
+            const intensityAlpha = Math.min(0.85, 0.25 + (magState.B / 2.5) * 0.55);
+
+            for (let side of [-1, 1]) {
+                for (let k = 1; k <= halfLines; k++) {
+                    const spread = k / halfLines;
+                    const loopHeight = (34 + spread * (h * 0.42)) * (0.85 + magState.B * 0.14);
+                    const loopSpan = poleOffset + spread * (magnetW * 0.75);
+
+                    magCtx.beginPath();
+                    magCtx.moveTo(-poleOffset, 0);
+                    magCtx.bezierCurveTo(
+                        -loopSpan, side * loopHeight,
+                        loopSpan, side * loopHeight,
+                        poleOffset, 0
+                    );
+                    magCtx.strokeStyle = `rgba(251, 191, 36, ${(intensityAlpha * (1.1 - spread * 0.45)).toFixed(3)})`;
+                    magCtx.lineWidth = 1.2 + (1 - spread) * 0.8;
+                    magCtx.stroke();
+
+                    // Vẽ hạt sáng chạy dọc theo đường sức từ (theo chiều N -> S)
+                    const tRaw = (magState.phase + k * 0.19) % 1;
+                    const t = tRaw < 0 ? tRaw + 1 : tRaw;
+                    const u = 1 - t;
+                    const p0x = -poleOffset, p0y = 0;
+                    const p1x = -loopSpan, p1y = side * loopHeight;
+                    const p2x = loopSpan, p2y = side * loopHeight;
+                    const p3x = poleOffset, p3y = 0;
+
+                    const bx = u*u*u*p0x + 3*u*u*t*p1x + 3*u*t*t*p2x + t*t*t*p3x;
+                    const by = u*u*u*p0y + 3*u*u*t*p1y + 3*u*t*t*p2y + t*t*t*p3y;
+
+                    magCtx.beginPath();
+                    magCtx.arc(bx, by, 2.3, 0, Math.PI * 2);
+                    magCtx.fillStyle = '#fde68a';
+                    magCtx.shadowColor = '#f59e0b';
+                    magCtx.shadowBlur = 8;
+                    magCtx.fill();
+                    magCtx.shadowBlur = 0;
+                }
+            }
+
+            // Vẽ thanh nam châm lưỡng cực N - S
+            const leftIsNorth = magState.polarity === 1;
+
+            // Nửa trái
+            magCtx.fillStyle = leftIsNorth ? '#b45309' : '#27272a';
+            magCtx.strokeStyle = '#fbbf24';
+            magCtx.lineWidth = 1.5;
+            magCtx.beginPath();
+            magCtx.roundRect(-magnetW / 2, -magnetH / 2, magnetW / 2, magnetH, [8, 0, 0, 8]);
+            magCtx.fill();
+            magCtx.stroke();
+
+            // Nửa phải
+            magCtx.fillStyle = !leftIsNorth ? '#b45309' : '#27272a';
+            magCtx.beginPath();
+            magCtx.roundRect(0, -magnetH / 2, magnetW / 2, magnetH, [0, 8, 8, 0]);
+            magCtx.fill();
+            magCtx.stroke();
+
+            // Chữ N và S trên hai cực
+            magCtx.font = 'bold 15px Cinzel, serif';
+            magCtx.textAlign = 'center';
+            magCtx.textBaseline = 'middle';
+            magCtx.fillStyle = leftIsNorth ? '#fef3c7' : '#fbbf24';
+            magCtx.fillText(leftIsNorth ? 'N' : 'S', -magnetW / 4, 1);
+            magCtx.fillStyle = !leftIsNorth ? '#fef3c7' : '#fbbf24';
+            magCtx.fillText(!leftIsNorth ? 'N' : 'S', magnetW / 4, 1);
+
+            magCtx.restore();
+
+            // Vẽ và cập nhật chùm hạt điện tích chịu lực Lorenxơ
+            for (let i = lorentzCharges.length - 1; i >= 0; i--) {
+                const c = lorentzCharges[i];
+                const dx = c.x - cx;
+                const dy = c.y - cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const fieldInfluence = Math.exp(-(dist * dist) / (150 * 150)) * magState.B * magState.polarity;
+
+                // Gia tốc vuông góc vận tốc (Lực Lorenxơ)
+                const ax = -c.vy * fieldInfluence * 0.08 * c.charge;
+                const ay = c.vx * fieldInfluence * 0.08 * c.charge;
+
+                c.vx += ax;
+                c.vy += ay;
+                c.x += c.vx;
+                c.y += c.vy;
+
+                c.trail.push({ x: c.x, y: c.y });
+                if (c.trail.length > 22) c.trail.shift();
+
+                if (c.trail.length > 1) {
+                    magCtx.beginPath();
+                    magCtx.moveTo(c.trail[0].x, c.trail[0].y);
+                    for (let p = 1; p < c.trail.length; p++) {
+                        magCtx.lineTo(c.trail[p].x, c.trail[p].y);
+                    }
+                    magCtx.strokeStyle = c.charge > 0 ? 'rgba(251, 191, 36, 0.7)' : 'rgba(52, 211, 153, 0.75)';
+                    magCtx.lineWidth = 2;
+                    magCtx.stroke();
+                }
+
+                magCtx.beginPath();
+                magCtx.arc(c.x, c.y, 3.2, 0, Math.PI * 2);
+                magCtx.fillStyle = c.charge > 0 ? '#fde68a' : '#6ee7b7';
+                magCtx.fill();
+
+                if (c.x < -20 || c.x > w + 20 || c.y < -20 || c.y > h + 20) {
+                    lorentzCharges.splice(i, 1);
+                }
+            }
+        }
+
         // --- TRẠNG THÁI BẢNG ĐIỀU KHIỂN CƠ - ĐIỆN - SÁNG ---
         let labState = {
             lightPercent: 50,     // 15% - 100%
@@ -732,17 +1161,17 @@
             is3DTiltEnabled = !is3DTiltEnabled;
             const statusText = document.getElementById('tilt-status-text');
             if (is3DTiltEnabled) {
-                statusText.innerText = "Hiệu Ứng 3D: Bật";
+                statusText.innerText = "3D: Bật";
                 showToast("Đã bật hiệu ứng nghiêng 3D tương tác");
             } else {
-                statusText.innerText = "Hiệu Ứng 3D: Tắt";
+                statusText.innerText = "3D: Tắt";
                 card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
                 showToast("Đã tắt hiệu ứng nghiêng 3D");
             }
         }
 
         document.addEventListener('mousemove', (e) => {
-            if (!is3DTiltEnabled || window.innerWidth < 768) return;
+            if (!is3DTiltEnabled || window.innerWidth < 768 || currentPage !== 'card') return;
             const rect = card.getBoundingClientRect();
             const cardCenterX = rect.left + rect.width / 2;
             const cardCenterY = rect.top + rect.height / 2;
@@ -778,6 +1207,7 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             initParticles();
+            resizeMagneticCanvas();
         }
 
         class Particle {
@@ -825,6 +1255,9 @@
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ khung thí nghiệm từ trường nếu đang ở trang Từ Trường
+            drawMagneticSimulation();
 
             // Chế độ quét tín hiệu RADAR SWEEP: vẽ tia quét ngang
             if (labState.scanModeIndex === 1) {
@@ -898,6 +1331,7 @@
         window.onload = function() {
             resizeCanvas();
             updateTelemetryReadouts();
+            updateMagneticParams();
             animateParticles();
         };
     </script>
