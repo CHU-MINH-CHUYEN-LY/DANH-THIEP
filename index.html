@@ -28,6 +28,12 @@
             overflow-x: hidden;
         }
 
+        @media (pointer: fine) {
+            body, a, button, input, textarea, select {
+                cursor: none !important;
+            }
+        }
+
         .heading-font {
             font-family: 'Be Vietnam Pro', sans-serif;
             letter-spacing: -0.01em;
@@ -94,49 +100,57 @@
             }
         }
 
-        /* Con trỏ vật lý chuyên nghiệp & phá cách (Field Reticle + Ring) */
-        #physics-cursor {
+        /* Thanh trượt kiểu thiết bị cơ học */
+        input[type="range"].mech-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(39, 39, 42, 0.95);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            outline: none;
+        }
+        input[type="range"].mech-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fde68a, #f59e0b);
+            border: 2px solid #09090b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        /* Con trỏ mới: Mũi nhọn vectơ động lực học + Quầng sáng động năng */
+        #kinetic-cursor {
+            position: fixed;
+            width: 22px;
+            height: 22px;
+            pointer-events: none;
+            z-index: 60;
+            transform: translate(-50%, -50%) rotate(0deg);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.06s linear;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.75));
+        }
+        #kinetic-halo {
             position: fixed;
             width: 44px;
             height: 44px;
             border-radius: 999px;
             pointer-events: none;
-            z-index: 40;
+            z-index: 55;
             transform: translate(-50%, -50%);
-            border: 1.5px solid rgba(251, 191, 36, 0.75);
-            box-shadow: 0 0 18px rgba(245, 158, 11, 0.35), inset 0 0 10px rgba(251, 191, 36, 0.15);
-            transition: width 0.18s ease, height 0.18s ease, border-color 0.18s ease, opacity 0.25s ease;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.22) 0%, rgba(245, 158, 11, 0.05) 55%, transparent 75%);
             opacity: 0;
+            transition: opacity 0.2s ease, width 0.16s ease, height 0.16s ease;
         }
-        #physics-cursor::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 6px;
-            height: 6px;
-            border-radius: 999px;
-            background: #fde047;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px #fbbf24;
-        }
-        #physics-cursor::after {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            width: 2px;
-            height: 8px;
-            background: rgba(253, 224, 71, 0.85);
-            transform: translateX(-50%);
-        }
-        #physics-cursor.repel-mode {
-            border-color: rgba(251, 113, 133, 0.9);
-            box-shadow: 0 0 22px rgba(244, 63, 94, 0.45), inset 0 0 12px rgba(244, 63, 94, 0.2);
-        }
-        #physics-cursor.active-click {
-            width: 58px;
-            height: 58px;
+        #kinetic-halo.clicking {
+            width: 62px;
+            height: 62px;
+            background: radial-gradient(circle, rgba(253, 224, 71, 0.34) 0%, rgba(245, 158, 11, 0.08) 60%, transparent 80%);
         }
 
         /* Tùy chỉnh thanh cuộn */
@@ -154,8 +168,11 @@
 </head>
 <body class="min-h-screen flex flex-col justify-center items-center relative selection:bg-amber-500 selection:text-black">
 
-    <!-- CON TRỎ VẬT LÝ TƯƠNG TÁC -->
-    <div id="physics-cursor"></div>
+    <!-- CON TRỎ MỚI: QUẦNG ĐỘNG NĂNG & MŨI NHỌN VECTƠ -->
+    <div id="kinetic-halo"></div>
+    <svg id="kinetic-cursor" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L20 20L12 15.5L4 20L12 2Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.3" stroke-linejoin="round"/>
+    </svg>
 
     <!-- CANVAS NỀN HẠT VẬT LÝ TƯƠNG TÁC THÔNG MINH -->
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
@@ -175,25 +192,19 @@
             </span>
         </div>
 
-        <!-- THANH CHUYỂN TRANG (DANH THIẾP / TRÒ CHƠI VẬT LÝ TỪ TRƯỜNG) -->
+        <!-- THANH CHUYỂN TRANG (DANH THIẾP / GAME NÉM XIÊN & NÉM NGANG) -->
         <nav class="flex items-center p-1 rounded-full bg-zinc-900/90 border border-amber-500/30 shadow-lg">
             <button id="nav-card-btn" onclick="switchPage('card')" class="px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Danh Thiếp</span>
             </button>
-            <button id="nav-magnetic-btn" onclick="switchPage('magnetic')" class="px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-magnet"></i>
-                <span>Game Từ Trường</span>
+            <button id="nav-projectile-btn" onclick="switchPage('projectile')" class="px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <span>Game Ném Xiên & Ngang</span>
             </button>
         </nav>
 
         <div class="flex items-center gap-2">
-            <!-- Nút chuyển chế độ trường chuột (Hút / Đẩy) -->
-            <button id="toggle-field-mode-btn" onclick="toggleCursorFieldMode()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md" title="Chuyển chế độ từ trường của con trỏ chuột">
-                <i class="fa-solid fa-wave-square"></i>
-                <span id="field-mode-text">Trường Chuột: Hút</span>
-            </button>
-
             <!-- Nút bật/tắt hiệu ứng chuyển động 3D -->
             <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md">
                 <i class="fa-solid fa-atom"></i>
@@ -260,7 +271,7 @@
                                     <span class="text-amber-400 font-semibold block mb-1">
                                         <i class="fa-solid fa-bolt mr-1"></i> Dấu Ấn Vật Lý & Sáng Tạo
                                     </span>
-                                    Tư duy logic Vật lý sắc bén • Khám phá điện từ & cơ học • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
+                                    Tư duy logic Vật lý sắc bén • Khám phá động lực & điện từ • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
                                 </div>
                             </div>
                         </div>
@@ -410,17 +421,6 @@
                                         <div class="text-xs sm:text-sm font-semibold text-zinc-200 font-mono">+84 818 756 723</div>
                                     </div>
                                 </div>
-
-                                <!-- Địa chỉ (Điền sau) -->
-                                <div class="flex items-center gap-3.5">
-                                    <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-base shrink-0">
-                                        <i class="fa-solid fa-location-dot"></i>
-                                    </div>
-                                    <div class="text-left">
-                                        <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">ĐỊA CHỈ</div>
-                                        <div class="text-xs sm:text-sm font-semibold text-zinc-200">[Điền địa chỉ của bạn sau]</div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -472,99 +472,118 @@
                 </section>
             </div>
 
-            <!-- ==================== TRANG 2: TRÒ CHƠI TƯƠNG TÁC VẬT LÝ TỪ TRƯỜNG ==================== -->
-            <div id="page-magnetic" class="hidden space-y-5">
+            <!-- ==================== TRANG 2: GAME NÉM XIÊN & NÉM NGANG ==================== -->
+            <div id="page-projectile" class="hidden space-y-5">
                 <div class="glass-card rounded-3xl p-5 sm:p-7 border border-amber-500/35 space-y-5">
                     
-                    <!-- Header Trò Chơi Vật Lý -->
+                    <!-- Header Trò Chơi -->
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
                         <div>
                             <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
-                                <i class="fa-solid fa-magnet"></i>
-                                Magnetic Flux Arcade • Lực Lorenxơ & Từ Trường
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                Chuyển Động Ném Xiên & Ném Ngang • g = 9.8 m/s²
                             </div>
                             <h2 class="heading-font text-lg sm:text-2xl font-bold gold-text-gradient">
-                                Bắn Phá Quỹ Đạo Từ Trường
+                                Thử Thách Quỹ Đạo Parabol
                             </h2>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="toggleGameFieldPolarity()" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/35 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5">
-                                <i class="fa-solid fa-arrows-rotate"></i>
-                                <span id="game-polarity-text">Trường B: Hướng Vào (⊙)</span>
+                            <button id="mode-oblique-btn" onclick="setThrowMode('oblique')" class="px-3 py-2 rounded-xl bg-amber-500 text-black border border-amber-400 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                <span>Ném Xiên</span>
                             </button>
-                            <button onclick="shootMagneticProjectile()" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold transition-all active:scale-95 shadow-lg flex items-center gap-1.5">
-                                <i class="fa-solid fa-bolt"></i>
-                                <span>Bắn Hạt (Space)</span>
+                            <button id="mode-horizontal-btn" onclick="setThrowMode('horizontal')" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/35 text-xs font-semibold transition-all active:scale-95 flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-right"></i>
+                                <span>Ném Ngang</span>
                             </button>
-                            <button onclick="resetMagneticGame()" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold transition-all active:scale-95 flex items-center gap-1.5">
-                                <i class="fa-solid fa-rotate-left text-amber-400"></i>
-                                <span>Chơi Lại</span>
+                            <button onclick="launchProjectile()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold transition-all active:scale-95 shadow-lg flex items-center gap-1.5">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Phóng Vật (Space)</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Khung Canvas Trò Chơi + Bảng Điểm & Chỉ Số Vật Lý -->
+                    <!-- Khung Canvas Parabol + Bảng Chỉ Số Vật Lý -->
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                         
                         <!-- Canvas Trò Chơi (8 cột) -->
                         <div class="lg:col-span-8 relative rounded-2xl overflow-hidden bg-zinc-950 border border-amber-500/30 shadow-inner">
-                            <canvas id="magnetic-canvas" class="w-full h-[350px] sm:h-[390px] block cursor-crosshair"></canvas>
+                            <canvas id="projectile-canvas" class="w-full h-[350px] sm:h-[390px] block"></canvas>
                             
                             <!-- Nhãn hướng dẫn góc trên canvas -->
                             <div class="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-black/75 border border-amber-500/25 text-[11px] text-amber-200 backdrop-blur-md pointer-events-none flex items-center gap-1.5">
                                 <i class="fa-solid fa-compass text-amber-400"></i>
-                                <span>Di chuột để ngắm pháo từ • Nhấp chuột/Space để bắn • Hạt cong theo lực Lorenxơ!</span>
+                                <span>Di chuột trên canvas để chỉnh góc & vận tốc • Nhấp chuột để phóng vật</span>
                             </div>
 
-                            <!-- Công thức góc dưới canvas -->
-                            <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/80 border border-zinc-800 text-[11px] font-mono text-amber-300 pointer-events-none">
-                                F_L = q(v × B) &nbsp;|&nbsp; R = mv / (|q|B)
+                            <!-- Phương trình quỹ đạo góc dưới canvas -->
+                            <div id="projectile-formula" class="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/80 border border-zinc-800 text-[11px] font-mono text-amber-300 pointer-events-none">
+                                y = x·tanα − (g·x²) / (2·v₀²·cos²α)
                             </div>
                         </div>
 
-                        <!-- Bảng Điểm & Thông Số Vật Lý (4 cột) -->
+                        <!-- Bảng Điểm & Thông Số Chuyển Động (4 cột) -->
                         <div class="lg:col-span-4 flex flex-col justify-between space-y-3">
                             <div class="grid grid-cols-2 lg:grid-cols-1 gap-2.5">
                                 <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
                                     <div>
-                                        <div class="text-[11px] text-zinc-400">Điểm Năng Lượng</div>
-                                        <div id="game-score" class="text-lg font-mono font-extrabold text-amber-400">0</div>
+                                        <div class="text-[11px] text-zinc-400">Điểm Quỹ Đạo</div>
+                                        <div id="proj-score" class="text-lg font-mono font-extrabold text-amber-400">0</div>
                                     </div>
                                     <i class="fa-solid fa-atom text-amber-500/50 text-xl"></i>
                                 </div>
 
                                 <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
                                     <div>
-                                        <div class="text-[11px] text-zinc-400">Chuỗi Combo & Cấp</div>
-                                        <div id="game-combo-level" class="text-sm sm:text-base font-mono font-bold text-emerald-400 mt-0.5">x1 • Cấp 1</div>
+                                        <div class="text-[11px] text-zinc-400">Chuỗi & Màn Chơi</div>
+                                        <div id="proj-streak-level" class="text-sm sm:text-base font-mono font-bold text-emerald-400 mt-0.5">x1 • Màn 1</div>
                                     </div>
                                     <i class="fa-solid fa-bolt text-emerald-400/50 text-lg"></i>
                                 </div>
 
                                 <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
                                     <div>
-                                        <div class="text-[11px] text-zinc-400">Năng Lượng Pháo (J)</div>
-                                        <div id="game-energy" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">100%</div>
+                                        <div class="text-[11px] text-zinc-400">Tầm Xa Lý Thuyết (L)</div>
+                                        <div id="proj-range" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">42.5 m</div>
                                     </div>
-                                    <i class="fa-solid fa-wave-square text-amber-400/50 text-lg"></i>
+                                    <i class="fa-solid fa-ruler-horizontal text-amber-400/50 text-lg"></i>
                                 </div>
 
                                 <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
                                     <div>
-                                        <div class="text-[11px] text-zinc-400">Mục Tiêu Còn Lại</div>
-                                        <div id="game-targets-left" class="text-sm sm:text-base font-mono font-bold text-zinc-100 mt-0.5">4 Lõi Từ</div>
+                                        <div class="text-[11px] text-zinc-400">Vòng Mục Tiêu Còn Lại</div>
+                                        <div id="proj-targets-left" class="text-sm sm:text-base font-mono font-bold text-zinc-100 mt-0.5">3 Vòng</div>
                                     </div>
-                                    <i class="fa-solid fa-magnet text-rose-400/60 text-lg"></i>
+                                    <i class="fa-solid fa-circle-dot text-amber-400/60 text-lg"></i>
                                 </div>
                             </div>
 
                             <div class="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 leading-relaxed">
                                 <span class="text-amber-400 font-semibold block mb-1">
-                                    <i class="fa-solid fa-lightbulb mr-1"></i> Luật Chơi Vật Lý Ngoạn Mục
+                                    <i class="fa-solid fa-lightbulb mr-1"></i> Nguyên Lý Ném Xiên & Ném Ngang
                                 </span>
-                                Hạt điện tích bay qua vùng từ trường <strong>B</strong> sẽ chịu <strong>lực Lorenxơ vuông góc</strong> làm quỹ đạo uốn cong. Hãy tính toán độ cong để bắn trúng các <strong>Lõi Từ Vàng</strong>, tránh <strong>Tâm Phản Từ Đỏ</strong> và bấm <strong>Đảo Chiều B</strong> khi cần bẻ lái!
+                                Trong <strong>Ném xiên</strong>, chuyển động tách thành thẳng đều theo phương ngang ($x = v_0\cos\alpha \cdot t$) và nhanh/chậm dần đều theo phương thẳng đứng. Trong <strong>Ném ngang</strong> ($\alpha = 0^\circ$), thời gian rơi phụ thuộc độ cao bệ phóng $t = \sqrt{2h/g}$.
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Thanh trượt điều chỉnh thông số động học -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-semibold text-amber-300">Vận Tốc Ban Đầu (v₀)</span>
+                                <span id="proj-v0-label" class="font-mono text-zinc-300">22.0 m/s</span>
+                            </div>
+                            <input id="proj-v0-slider" type="range" min="10" max="38" step="0.5" value="22" oninput="updateProjectileSliders()" class="w-full mech-slider">
+                        </div>
+
+                        <div id="proj-angle-box" class="p-3.5 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-semibold text-amber-300">Góc Ném Xiên (α)</span>
+                                <span id="proj-angle-label" class="font-mono text-zinc-300">45°</span>
+                            </div>
+                            <input id="proj-angle-slider" type="range" min="10" max="75" step="1" value="45" oninput="updateProjectileSliders()" class="w-full mech-slider">
                         </div>
                     </div>
 
@@ -574,10 +593,10 @@
                             <i class="fa-solid fa-arrow-left text-amber-400"></i>
                             <span>Quay Lại Danh Thiếp</span>
                         </button>
-                        <span class="text-[11px] text-zinc-400 font-mono">
-                            <i class="fa-solid fa-compass text-amber-400 mr-1"></i>
-                            Mẹo: Đảo chiều B (⊙ / ⊗) đổi chiều cong quỹ đạo tức thì
-                        </span>
+                        <button onclick="resetProjectileGame()" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Đặt Lại Màn Chơi</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -707,7 +726,7 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, TRÒ CHƠI VẬT LÝ TỪ TRƯỜNG, CON TRỎ VẬT LÝ & PARTICLES -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, GAME NÉM XIÊN & NÉM NGANG, CON TRỎ MỚI & PARTICLES -->
     <script>
         // --- XỬ LÝ GỬI FORM LIÊN HỆ ---
         function handleContactSubmit(event) {
@@ -717,408 +736,378 @@
             event.target.reset();
         }
 
-        // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & TRÒ CHƠI VẬT LÝ TỪ TRƯỜNG ---
+        // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & GAME NÉM XIÊN / NÉM NGANG ---
         let currentPage = 'card';
         function switchPage(pageName) {
             currentPage = pageName;
             const pageCard = document.getElementById('page-card');
-            const pageMag = document.getElementById('page-magnetic');
+            const pageProj = document.getElementById('page-projectile');
             const btnCard = document.getElementById('nav-card-btn');
-            const btnMag = document.getElementById('nav-magnetic-btn');
+            const btnProj = document.getElementById('nav-projectile-btn');
 
             if (pageName === 'card') {
                 pageCard.classList.remove('hidden');
-                pageMag.classList.add('hidden');
+                pageProj.classList.add('hidden');
                 btnCard.className = "px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
-                btnMag.className = "px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
+                btnProj.className = "px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
             } else {
                 pageCard.classList.add('hidden');
-                pageMag.classList.remove('hidden');
-                btnMag.className = "px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
+                pageProj.classList.remove('hidden');
+                btnProj.className = "px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
                 btnCard.className = "px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
-                resizeMagneticCanvas();
-                if (gameState.targets.length === 0) {
-                    spawnGameWave();
+                resizeProjectileCanvas();
+                if (projGame.rings.length === 0) {
+                    spawnProjectileRings();
                 }
-                syncGameHUD();
+                updateProjectileStatsUI();
             }
         }
 
-        // --- TRÒ CHƠI TƯƠNG TÁC VẬT LÝ: BẮN PHÁ QUỸ ĐẠO TỪ TRƯỜNG (LORENTZ ARCADE) ---
-        const magCanvas = document.getElementById('magnetic-canvas');
-        const magCtx = magCanvas ? magCanvas.getContext('2d') : null;
+        // --- GAME NÉM XIÊN & NÉM NGANG (PROJECTILE KINEMATICS ARCADE) ---
+        const projCanvas = document.getElementById('projectile-canvas');
+        const projCtx = projCanvas ? projCanvas.getContext('2d') : null;
+        const GRAVITY = 9.8; // m/s^2
+        const PX_PER_METER = 11;
 
-        const gameState = {
+        const projGame = {
+            mode: 'oblique', // 'oblique' | 'horizontal'
+            v0: 22,          // m/s
+            angleDeg: 45,    // độ (khi ở chế độ ném ngang sẽ tự đặt 0°)
             score: 0,
-            combo: 1,
+            streak: 1,
             level: 1,
-            energy: 100,
-            fieldDir: 1,       // 1: B hướng vào (⊗/⊙), -1: đảo chiều lực Lorenxơ
-            aimAngle: -0.25,
             projectiles: [],
-            targets: [],
-            hazards: [],
-            sparks: [],
-            pulsePhase: 0
+            rings: [],
+            particles: []
         };
 
-        function resizeMagneticCanvas() {
-            if (!magCanvas) return;
-            const rect = magCanvas.getBoundingClientRect();
+        function resizeProjectileCanvas() {
+            if (!projCanvas) return;
+            const rect = projCanvas.getBoundingClientRect();
             if (rect.width > 0 && rect.height > 0) {
-                magCanvas.width = rect.width;
-                magCanvas.height = rect.height;
+                projCanvas.width = rect.width;
+                projCanvas.height = rect.height;
             }
         }
 
-        function syncGameHUD() {
-            const scoreEl = document.getElementById('game-score');
-            const comboEl = document.getElementById('game-combo-level');
-            const energyEl = document.getElementById('game-energy');
-            const leftEl = document.getElementById('game-targets-left');
+        function getLauncherPos() {
+            const w = projCanvas ? (projCanvas.width || 600) : 600;
+            const h = projCanvas ? (projCanvas.height || 380) : 380;
+            const groundY = h - 34;
+            const x = 48;
+            const y = projGame.mode === 'horizontal' ? h * 0.34 : groundY - 12;
+            return { x, y, groundY };
+        }
+
+        function setThrowMode(mode) {
+            projGame.mode = mode;
+            const btnObl = document.getElementById('mode-oblique-btn');
+            const btnHor = document.getElementById('mode-horizontal-btn');
+            const angleBox = document.getElementById('proj-angle-box');
+            const formulaEl = document.getElementById('projectile-formula');
+
+            if (mode === 'oblique') {
+                projGame.angleDeg = Number(document.getElementById('proj-angle-slider').value) || 45;
+                btnObl.className = "px-3 py-2 rounded-xl bg-amber-500 text-black border border-amber-400 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5";
+                btnHor.className = "px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/35 text-xs font-semibold transition-all active:scale-95 flex items-center gap-1.5";
+                angleBox.classList.remove('opacity-45', 'pointer-events-none');
+                formulaEl.innerText = "y = x·tanα − (g·x²) / (2·v₀²·cos²α)";
+                showToast("Chế độ Ném Xiên: Điều chỉnh góc α và vận tốc v₀");
+            } else {
+                projGame.angleDeg = 0;
+                btnHor.className = "px-3 py-2 rounded-xl bg-amber-500 text-black border border-amber-400 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5";
+                btnObl.className = "px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/35 text-xs font-semibold transition-all active:scale-95 flex items-center gap-1.5";
+                angleBox.classList.add('opacity-45', 'pointer-events-none');
+                formulaEl.innerText = "x = v₀·t  |  y = h₀ − ½·g·t²";
+                showToast("Chế độ Ném Ngang (α = 0°): Rơi tự do thẳng đứng kết hợp đều ngang");
+            }
+
+            spawnProjectileRings();
+            updateProjectileStatsUI();
+        }
+
+        function updateProjectileSliders() {
+            projGame.v0 = Number(document.getElementById('proj-v0-slider').value);
+            if (projGame.mode === 'oblique') {
+                projGame.angleDeg = Number(document.getElementById('proj-angle-slider').value);
+            } else {
+                projGame.angleDeg = 0;
+            }
+            document.getElementById('proj-v0-label').innerText = `${projGame.v0.toFixed(1)} m/s`;
+            document.getElementById('proj-angle-label').innerText = `${projGame.angleDeg}°`;
+            updateProjectileStatsUI();
+        }
+
+        function updateProjectileStatsUI() {
+            const scoreEl = document.getElementById('proj-score');
             if (!scoreEl) return;
 
-            scoreEl.innerText = gameState.score.toLocaleString('vi-VN');
-            comboEl.innerText = `x${gameState.combo} • Cấp ${gameState.level}`;
-            energyEl.innerText = `${Math.round(gameState.energy)}%`;
-            leftEl.innerText = `${gameState.targets.length} Lõi Từ`;
-        }
+            const rad = (projGame.angleDeg * Math.PI) / 180;
+            const { y, groundY } = getLauncherPos();
+            const hMeters = Math.max(0.5, (groundY - y) / PX_PER_METER);
 
-        function spawnGameWave() {
-            const w = magCanvas ? (magCanvas.width || 600) : 600;
-            const h = magCanvas ? (magCanvas.height || 380) : 380;
-            gameState.targets = [];
-            gameState.hazards = [];
-
-            const targetCount = Math.min(4 + Math.floor(gameState.level / 2), 7);
-            for (let i = 0; i < targetCount; i++) {
-                const tx = w * (0.45 + Math.random() * 0.44);
-                const ty = h * (0.18 + ((i + 0.5) / targetCount) * 0.64);
-                gameState.targets.push({
-                    x: tx,
-                    y: ty,
-                    baseY: ty,
-                    r: 16,
-                    phase: Math.random() * Math.PI * 2,
-                    orbitSpeed: 0.015 + gameState.level * 0.0025,
-                    orbitAmp: 14 + Math.min(gameState.level * 3, 24)
-                });
+            let rangeMeters = 0;
+            if (projGame.mode === 'oblique') {
+                rangeMeters = (projGame.v0 * projGame.v0 * Math.sin(2 * rad)) / GRAVITY;
+            } else {
+                const tFlight = Math.sqrt((2 * hMeters) / GRAVITY);
+                rangeMeters = projGame.v0 * tFlight;
             }
 
-            const hazardCount = Math.min(1 + Math.floor(gameState.level / 2), 4);
-            for (let j = 0; j < hazardCount; j++) {
-                gameState.hazards.push({
-                    x: w * (0.35 + j * 0.18),
-                    y: h * (j % 2 === 0 ? 0.3 : 0.7),
-                    baseY: h * (j % 2 === 0 ? 0.3 : 0.7),
-                    r: 15,
-                    phase: j * 1.4
-                });
-            }
-            syncGameHUD();
+            scoreEl.innerText = projGame.score.toLocaleString('vi-VN');
+            document.getElementById('proj-streak-level').innerText = `x${projGame.streak} • Màn ${projGame.level}`;
+            document.getElementById('proj-range').innerText = `${Math.max(0, rangeMeters).toFixed(1)} m`;
+            document.getElementById('proj-targets-left').innerText = `${projGame.rings.length} Vòng`;
         }
 
-        function toggleGameFieldPolarity() {
-            gameState.fieldDir *= -1;
-            const label = document.getElementById('game-polarity-text');
-            if (label) {
-                label.innerText = gameState.fieldDir === 1 ? "Trường B: Hướng Vào (⊙)" : "Trường B: Hướng Ra (⊗)";
-            }
-            showToast(gameState.fieldDir === 1 ? "Đã đổi chiều từ trường B (quỹ đạo uốn theo chiều dương)" : "Đã đảo chiều từ trường B (quỹ đạo uốn ngược chiều)");
-        }
+        function spawnProjectileRings() {
+            const w = projCanvas ? (projCanvas.width || 600) : 600;
+            const h = projCanvas ? (projCanvas.height || 380) : 380;
+            const { groundY } = getLauncherPos();
+            projGame.rings = [];
 
-        function createBurstSparks(x, y, color = '#fbbf24', count = 16) {
+            const count = Math.min(2 + projGame.level, 5);
             for (let i = 0; i < count; i++) {
-                const ang = (i / count) * Math.PI * 2 + Math.random() * 0.3;
-                const spd = 1.5 + Math.random() * 3.8;
-                gameState.sparks.push({
-                    x, y,
-                    vx: Math.cos(ang) * spd,
-                    vy: Math.sin(ang) * spd,
-                    life: 1,
-                    color
+                const rx = w * (0.34 + (i / Math.max(1, count - 1)) * 0.54);
+                const ry = projGame.mode === 'horizontal'
+                    ? Math.min(groundY - 26, h * (0.42 + i * 0.14))
+                    : Math.min(groundY - 28, h * (0.26 + ((i % 2) * 0.25) + i * 0.06));
+
+                projGame.rings.push({
+                    x: rx,
+                    y: ry,
+                    baseY: ry,
+                    radius: 22,
+                    phase: i * 1.1,
+                    passed: false
                 });
             }
+            updateProjectileStatsUI();
         }
 
-        function shootMagneticProjectile() {
-            if (!magCanvas || currentPage !== 'magnetic') return;
-            if (gameState.energy < 15) {
-                showToast("Năng lượng từ đang nạp lại (cần tối thiểu 15%)!", true);
-                return;
-            }
-            gameState.energy = Math.max(0, gameState.energy - 15);
+        function launchProjectile() {
+            if (!projCanvas || currentPage !== 'projectile') return;
+            const { x, y } = getLauncherPos();
+            const rad = (projGame.angleDeg * Math.PI) / 180;
+            const speedPx = projGame.v0 * 0.26;
 
-            const h = magCanvas.height || 380;
-            const cannonX = 42;
-            const cannonY = h * 0.5;
-            const speed = 5.4;
-
-            gameState.projectiles.push({
-                x: cannonX + Math.cos(gameState.aimAngle) * 26,
-                y: cannonY + Math.sin(gameState.aimAngle) * 26,
-                vx: Math.cos(gameState.aimAngle) * speed,
-                vy: Math.sin(gameState.aimAngle) * speed,
-                trail: []
+            projGame.projectiles.push({
+                x,
+                y,
+                vx: Math.cos(rad) * speedPx,
+                vy: -Math.sin(rad) * speedPx,
+                trail: [],
+                scoredRings: new Set()
             });
-            createBurstSparks(cannonX + Math.cos(gameState.aimAngle) * 24, cannonY + Math.sin(gameState.aimAngle) * 24, '#fde047', 7);
-            syncGameHUD();
         }
 
-        function resetMagneticGame() {
-            gameState.score = 0;
-            gameState.combo = 1;
-            gameState.level = 1;
-            gameState.energy = 100;
-            gameState.fieldDir = 1;
-            gameState.projectiles = [];
-            gameState.sparks = [];
-            const label = document.getElementById('game-polarity-text');
-            if (label) label.innerText = "Trường B: Hướng Vào (⊙)";
-            spawnGameWave();
-            showToast("Đã khởi động lại trò chơi Bắn Phá Quỹ Đạo Từ Trường!");
+        function resetProjectileGame() {
+            projGame.score = 0;
+            projGame.streak = 1;
+            projGame.level = 1;
+            projGame.projectiles = [];
+            projGame.particles = [];
+            spawnProjectileRings();
+            updateProjectileStatsUI();
+            showToast("Đã đặt lại màn chơi Ném Xiên & Ném Ngang!");
         }
 
-        if (magCanvas) {
-            magCanvas.addEventListener('mousemove', (e) => {
-                if (currentPage !== 'magnetic') return;
-                const rect = magCanvas.getBoundingClientRect();
+        if (projCanvas) {
+            projCanvas.addEventListener('mousemove', (e) => {
+                if (currentPage !== 'projectile' || projGame.mode !== 'oblique') return;
+                const rect = projCanvas.getBoundingClientRect();
                 const mx = e.clientX - rect.left;
                 const my = e.clientY - rect.top;
-                const cannonX = 42;
-                const cannonY = rect.height * 0.5;
-                gameState.aimAngle = Math.atan2(my - cannonY, mx - cannonX);
+                const { x, y } = getLauncherPos();
+                const dx = Math.max(20, mx - x);
+                const dy = Math.max(5, y - my);
+                const deg = Math.round((Math.atan2(dy, dx) * 180) / Math.PI);
+                const clampedDeg = Math.max(10, Math.min(75, deg));
+
+                projGame.angleDeg = clampedDeg;
+                const slider = document.getElementById('proj-angle-slider');
+                if (slider) slider.value = clampedDeg;
+                updateProjectileSliders();
             });
 
-            magCanvas.addEventListener('mousedown', (e) => {
-                if (currentPage !== 'magnetic') return;
-                const rect = magCanvas.getBoundingClientRect();
-                const mx = e.clientX - rect.left;
-                const my = e.clientY - rect.top;
-                const cannonX = 42;
-                const cannonY = rect.height * 0.5;
-                gameState.aimAngle = Math.atan2(my - cannonY, mx - cannonX);
-                shootMagneticProjectile();
+            projCanvas.addEventListener('mousedown', (e) => {
+                if (currentPage !== 'projectile') return;
+                if (projGame.mode === 'oblique') {
+                    const rect = projCanvas.getBoundingClientRect();
+                    const mx = e.clientX - rect.left;
+                    const my = e.clientY - rect.top;
+                    const { x, y } = getLauncherPos();
+                    const dx = Math.max(20, mx - x);
+                    const dy = Math.max(5, y - my);
+                    const deg = Math.max(10, Math.min(75, Math.round((Math.atan2(dy, dx) * 180) / Math.PI)));
+                    projGame.angleDeg = deg;
+                    const slider = document.getElementById('proj-angle-slider');
+                    if (slider) slider.value = deg;
+                    updateProjectileSliders();
+                }
+                launchProjectile();
             });
         }
 
         window.addEventListener('keydown', (e) => {
-            if (currentPage === 'magnetic' && e.code === 'Space') {
+            if (currentPage === 'projectile' && e.code === 'Space') {
                 e.preventDefault();
-                shootMagneticProjectile();
+                launchProjectile();
             }
         });
 
-        function drawMagneticGame() {
-            if (!magCtx || currentPage !== 'magnetic') return;
-            const w = magCanvas.width;
-            const h = magCanvas.height;
-            magCtx.clearRect(0, 0, w, h);
+        function drawProjectileGame() {
+            if (!projCtx || currentPage !== 'projectile') return;
+            const w = projCanvas.width;
+            const h = projCanvas.height;
+            projCtx.clearRect(0, 0, w, h);
 
-            gameState.pulsePhase += 0.04;
-            gameState.energy = Math.min(100, gameState.energy + 0.24);
+            const { x: lx, y: ly, groundY } = getLauncherPos();
+            const rad = (projGame.angleDeg * Math.PI) / 180;
+            const speedPx = projGame.v0 * 0.26;
+            const gPxPerFrame = GRAVITY * 0.016;
 
-            // Vẽ vùng từ trường trung tâm (từ x = 0.22*w đến 0.92*w)
-            const fieldStartX = w * 0.22;
-            const fieldWidth = w * 0.72;
-            const fieldGrad = magCtx.createLinearGradient(fieldStartX, 0, fieldStartX + fieldWidth, h);
-            fieldGrad.addColorStop(0, 'rgba(245, 158, 11, 0.07)');
-            fieldGrad.addColorStop(1, 'rgba(251, 191, 36, 0.02)');
-            magCtx.fillStyle = fieldGrad;
-            magCtx.fillRect(fieldStartX, 12, fieldWidth, h - 24);
-            magCtx.strokeStyle = 'rgba(251, 191, 36, 0.22)';
-            magCtx.setLineDash([6, 6]);
-            magCtx.strokeRect(fieldStartX, 12, fieldWidth, h - 24);
-            magCtx.setLineDash([]);
+            // Mặt đất tham chiếu
+            projCtx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+            projCtx.lineWidth = 1.5;
+            projCtx.beginPath();
+            projCtx.moveTo(0, groundY);
+            projCtx.lineTo(w, groundY);
+            projCtx.stroke();
 
-            // Ký hiệu vectơ từ trường B đều trong vùng
-            magCtx.font = 'bold 12px monospace';
-            magCtx.fillStyle = 'rgba(251, 191, 36, 0.34)';
-            for (let gx = fieldStartX + 28; gx < fieldStartX + fieldWidth - 16; gx += 54) {
-                for (let gy = 38; gy < h - 24; gy += 52) {
-                    magCtx.fillText(gameState.fieldDir === 1 ? '⊙ B' : '⊗ B', gx - 10, gy);
-                }
+            // Vẽ quỹ đạo dự báo (chấm nét parabol)
+            projCtx.beginPath();
+            for (let step = 0; step <= 48; step++) {
+                const t = step * 1.4;
+                const px = lx + Math.cos(rad) * speedPx * t;
+                const py = ly - Math.sin(rad) * speedPx * t + 0.5 * gPxPerFrame * t * t;
+                if (py > groundY) break;
+                if (step === 0) projCtx.moveTo(px, py);
+                else projCtx.lineTo(px, py);
+            }
+            projCtx.strokeStyle = 'rgba(253, 224, 71, 0.32)';
+            projCtx.setLineDash([5, 6]);
+            projCtx.lineWidth = 1.4;
+            projCtx.stroke();
+            projCtx.setLineDash([]);
+
+            // Bệ phóng / giá đỡ ném ngang
+            if (projGame.mode === 'horizontal') {
+                projCtx.fillStyle = 'rgba(245, 158, 11, 0.18)';
+                projCtx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
+                projCtx.fillRect(0, ly + 6, lx + 12, groundY - (ly + 6));
+                projCtx.strokeRect(0, ly + 6, lx + 12, groundY - (ly + 6));
             }
 
-            // Cập nhật & vẽ các Lõi Từ mục tiêu (Vàng)
-            for (const t of gameState.targets) {
-                t.phase += t.orbitSpeed;
-                t.y = t.baseY + Math.sin(t.phase) * t.orbitAmp;
+            // Vẽ nòng phóng
+            projCtx.save();
+            projCtx.translate(lx, ly);
+            projCtx.rotate(-rad);
+            projCtx.fillStyle = '#f59e0b';
+            projCtx.beginPath();
+            projCtx.roundRect(-6, -5, 28, 10, 4);
+            projCtx.fill();
+            projCtx.restore();
 
-                const ringR = t.r + 5 + Math.sin(gameState.pulsePhase * 2 + t.phase) * 2.5;
-                magCtx.beginPath();
-                magCtx.arc(t.x, t.y, ringR, 0, Math.PI * 2);
-                magCtx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
-                magCtx.lineWidth = 1.4;
-                magCtx.stroke();
+            // Cập nhật & vẽ các vòng mục tiêu
+            for (let i = projGame.rings.length - 1; i >= 0; i--) {
+                const ring = projGame.rings[i];
+                ring.phase += 0.025;
+                ring.y = ring.baseY + Math.sin(ring.phase) * 8;
 
-                magCtx.beginPath();
-                magCtx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
-                magCtx.fillStyle = 'rgba(245, 158, 11, 0.25)';
-                magCtx.fill();
-                magCtx.strokeStyle = '#fbbf24';
-                magCtx.lineWidth = 2;
-                magCtx.stroke();
+                projCtx.beginPath();
+                projCtx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2);
+                projCtx.strokeStyle = '#fbbf24';
+                projCtx.lineWidth = 2.5;
+                projCtx.stroke();
 
-                magCtx.beginPath();
-                magCtx.arc(t.x, t.y, 5, 0, Math.PI * 2);
-                magCtx.fillStyle = '#fef08a';
-                magCtx.fill();
+                projCtx.beginPath();
+                projCtx.arc(ring.x, ring.y, 5, 0, Math.PI * 2);
+                projCtx.fillStyle = '#fef08a';
+                projCtx.fill();
             }
 
-            // Cập nhật & vẽ Tâm Phản Từ nguy hiểm (Đỏ)
-            for (const hz of gameState.hazards) {
-                hz.phase += 0.022;
-                hz.y = hz.baseY + Math.cos(hz.phase) * 22;
-
-                magCtx.beginPath();
-                magCtx.arc(hz.x, hz.y, hz.r, 0, Math.PI * 2);
-                magCtx.fillStyle = 'rgba(244, 63, 94, 0.22)';
-                magCtx.fill();
-                magCtx.strokeStyle = '#fb7185';
-                magCtx.lineWidth = 2;
-                magCtx.stroke();
-
-                magCtx.font = 'bold 11px monospace';
-                magCtx.fillStyle = '#fda4af';
-                magCtx.textAlign = 'center';
-                magCtx.textBaseline = 'middle';
-                magCtx.fillText('S−', hz.x, hz.y + 1);
-            }
-
-            // Vẽ Pháo Từ Trường bên trái
-            const cannonX = 42;
-            const cannonY = h * 0.5;
-            magCtx.save();
-            magCtx.translate(cannonX, cannonY);
-            magCtx.rotate(gameState.aimAngle);
-
-            // Đường ngắm dự báo quỹ đạo cong nhẹ
-            magCtx.beginPath();
-            magCtx.moveTo(22, 0);
-            magCtx.lineTo(68, 0);
-            magCtx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
-            magCtx.setLineDash([4, 4]);
-            magCtx.stroke();
-            magCtx.setLineDash([]);
-
-            magCtx.fillStyle = '#18181b';
-            magCtx.strokeStyle = '#fbbf24';
-            magCtx.lineWidth = 2;
-            magCtx.beginPath();
-            magCtx.roundRect(-14, -12, 36, 24, 6);
-            magCtx.fill();
-            magCtx.stroke();
-
-            magCtx.fillStyle = '#f59e0b';
-            magCtx.fillRect(16, -5, 10, 10);
-            magCtx.restore();
-
-            // Vẽ bệ pháo tròn
-            magCtx.beginPath();
-            magCtx.arc(cannonX, cannonY, 18, 0, Math.PI * 2);
-            magCtx.fillStyle = '#09090b';
-            magCtx.fill();
-            magCtx.strokeStyle = '#f59e0b';
-            magCtx.lineWidth = 2;
-            magCtx.stroke();
-
-            // Cập nhật & vẽ Hạt Điện Tích chịu lực Lorenxơ (F_L = q * v x B)
-            const lorentzStrength = (0.042 + gameState.level * 0.004) * gameState.fieldDir;
-            for (let i = gameState.projectiles.length - 1; i >= 0; i--) {
-                const p = gameState.projectiles[i];
-                if (p.x > fieldStartX) {
-                    const ax = -p.vy * lorentzStrength;
-                    const ay = p.vx * lorentzStrength;
-                    p.vx += ax;
-                    p.vy += ay;
-                }
+            // Cập nhật & vẽ các vật thể đang bay
+            for (let i = projGame.projectiles.length - 1; i >= 0; i--) {
+                const p = projGame.projectiles[i];
+                p.vy += gPxPerFrame;
                 p.x += p.vx;
                 p.y += p.vy;
 
                 p.trail.push({ x: p.x, y: p.y });
-                if (p.trail.length > 26) p.trail.shift();
+                if (p.trail.length > 34) p.trail.shift();
 
                 if (p.trail.length > 1) {
-                    magCtx.beginPath();
-                    magCtx.moveTo(p.trail[0].x, p.trail[0].y);
+                    projCtx.beginPath();
+                    projCtx.moveTo(p.trail[0].x, p.trail[0].y);
                     for (let k = 1; k < p.trail.length; k++) {
-                        magCtx.lineTo(p.trail[k].x, p.trail[k].y);
+                        projCtx.lineTo(p.trail[k].x, p.trail[k].y);
                     }
-                    magCtx.strokeStyle = 'rgba(253, 224, 71, 0.8)';
-                    magCtx.lineWidth = 2.4;
-                    magCtx.stroke();
+                    projCtx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
+                    projCtx.lineWidth = 2.2;
+                    projCtx.stroke();
                 }
 
-                magCtx.beginPath();
-                magCtx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
-                magCtx.fillStyle = '#fef08a';
-                magCtx.fill();
+                projCtx.beginPath();
+                projCtx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                projCtx.fillStyle = '#fef08a';
+                projCtx.fill();
 
-                // Va chạm với Lõi Từ mục tiêu
-                let hitSomething = false;
-                for (let tIdx = gameState.targets.length - 1; tIdx >= 0; tIdx--) {
-                    const t = gameState.targets[tIdx];
-                    if (Math.hypot(p.x - t.x, p.y - t.y) <= t.r + 5) {
-                        const gained = 100 * gameState.combo;
-                        gameState.score += gained;
-                        gameState.combo = Math.min(8, gameState.combo + 1);
-                        gameState.energy = Math.min(100, gameState.energy + 12);
-                        createBurstSparks(t.x, t.y, '#fde047', 18);
-                        gameState.targets.splice(tIdx, 1);
-                        hitSomething = true;
-                        showToast(`Chính xác! +${gained} điểm (Combo x${gameState.combo})`);
+                // Kiểm tra bay xuyên qua vòng mục tiêu
+                for (let rIdx = projGame.rings.length - 1; rIdx >= 0; rIdx--) {
+                    const ring = projGame.rings[rIdx];
+                    if (Math.hypot(p.x - ring.x, p.y - ring.y) <= ring.radius + 4) {
+                        const pts = 100 * projGame.streak;
+                        projGame.score += pts;
+                        projGame.streak = Math.min(8, projGame.streak + 1);
+                        for (let s = 0; s < 14; s++) {
+                            const ang = (s / 14) * Math.PI * 2;
+                            projGame.particles.push({
+                                x: ring.x,
+                                y: ring.y,
+                                vx: Math.cos(ang) * 2.8,
+                                vy: Math.sin(ang) * 2.8,
+                                life: 1
+                            });
+                        }
+                        projGame.rings.splice(rIdx, 1);
+                        showToast(`Xuyên vòng chuẩn xác! +${pts} điểm (Chuỗi x${projGame.streak})`);
+                        updateProjectileStatsUI();
                         break;
                     }
                 }
 
-                // Va chạm với Tâm Phản Từ nguy hiểm
-                if (!hitSomething) {
-                    for (const hz of gameState.hazards) {
-                        if (Math.hypot(p.x - hz.x, p.y - hz.y) <= hz.r + 4) {
-                            gameState.combo = 1;
-                            gameState.score = Math.max(0, gameState.score - 50);
-                            createBurstSparks(p.x, p.y, '#fb7185', 14);
-                            hitSomething = true;
-                            showToast("Va chạm Tâm Phản Từ! Reset hệ số Combo", true);
-                            break;
-                        }
+                if (p.y >= groundY || p.x > w + 25) {
+                    if (p.y >= groundY && projGame.rings.length > 0) {
+                        projGame.streak = 1;
+                        updateProjectileStatsUI();
                     }
+                    projGame.projectiles.splice(i, 1);
                 }
-
-                if (hitSomething || p.x < -30 || p.x > w + 30 || p.y < -30 || p.y > h + 30) {
-                    if (!hitSomething && p.x > w + 20) {
-                        gameState.combo = 1;
-                    }
-                    gameState.projectiles.splice(i, 1);
-                }
-                syncGameHUD();
             }
 
-            // Lên cấp khi phá hết Lõi Từ của đợt hiện tại
-            if (gameState.targets.length === 0) {
-                gameState.level += 1;
-                gameState.energy = 100;
-                showToast(`Hoàn thành đợt! Tiến lên Cấp ${gameState.level}!`);
-                spawnGameWave();
-            }
-
-            // Vẽ tia năng lượng / hạt nổ
-            for (let s = gameState.sparks.length - 1; s >= 0; s--) {
-                const sp = gameState.sparks[s];
+            // Vẽ tia sáng khi xuyên vòng
+            for (let s = projGame.particles.length - 1; s >= 0; s--) {
+                const sp = projGame.particles[s];
                 sp.x += sp.vx;
                 sp.y += sp.vy;
-                sp.life -= 0.035;
+                sp.life -= 0.04;
                 if (sp.life <= 0) {
-                    gameState.sparks.splice(s, 1);
+                    projGame.particles.splice(s, 1);
                     continue;
                 }
-                magCtx.beginPath();
-                magCtx.arc(sp.x, sp.y, 2.5 * sp.life + 0.6, 0, Math.PI * 2);
-                magCtx.fillStyle = sp.color;
-                magCtx.globalAlpha = Math.max(0, sp.life);
-                magCtx.fill();
-                magCtx.globalAlpha = 1;
+                projCtx.beginPath();
+                projCtx.arc(sp.x, sp.y, 2.5, 0, Math.PI * 2);
+                projCtx.fillStyle = `rgba(253, 224, 71, ${sp.life.toFixed(2)})`;
+                projCtx.fill();
+            }
+
+            // Lên màn khi hoàn thành hết vòng
+            if (projGame.rings.length === 0) {
+                projGame.level += 1;
+                showToast(`Hoàn thành! Bước sang Màn ${projGame.level}`);
+                spawnProjectileRings();
+                updateProjectileStatsUI();
             }
         }
 
@@ -1292,117 +1281,97 @@
             card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
         });
 
-        // --- 7. CON TRỎ VẬT LÝ CHUYÊN NGHIỆP & HỆ THỐNG HẠT TƯƠNG TÁC LỰC TỪ ---
+        // --- 7. CON TRỎ MỚI (VECTƠ ĐỘNG LỰC HỌC + QUẦNG ĐỘNG NĂNG) & PARTICLES ---
         const canvas = document.getElementById('physics-canvas');
         const ctx = canvas.getContext('2d');
-        const physicsCursor = document.getElementById('physics-cursor');
+        const kineticCursor = document.getElementById('kinetic-cursor');
+        const kineticHalo = document.getElementById('kinetic-halo');
         let particles = [];
         let clickRipples = [];
         let cursorTrail = [];
-        let cursorAttractMode = true; // true: hút nhẹ hạt về trường chuột, false: đẩy hạt bật ra
-        let mouse = { x: null, y: null, radius: 175 };
-
-        function toggleCursorFieldMode() {
-            cursorAttractMode = !cursorAttractMode;
-            const textEl = document.getElementById('field-mode-text');
-            if (cursorAttractMode) {
-                textEl.innerText = "Trường Chuột: Hút";
-                physicsCursor.classList.remove('repel-mode');
-                showToast("Con trỏ vật lý: Chế độ Hút Từ Trường");
-            } else {
-                textEl.innerText = "Trường Chuột: Đẩy";
-                physicsCursor.classList.add('repel-mode');
-                showToast("Con trỏ vật lý: Chế độ Đẩy Phản Từ");
-            }
-        }
+        let mouse = { x: null, y: null, prevX: null, prevY: null, headingDeg: 0, radius: 150 };
 
         window.addEventListener('mousemove', (e) => {
+            if (mouse.prevX !== null && mouse.prevY !== null) {
+                const dx = e.clientX - mouse.prevX;
+                const dy = e.clientY - mouse.prevY;
+                if (Math.hypot(dx, dy) > 2) {
+                    mouse.headingDeg = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+                }
+            }
+            mouse.prevX = e.clientX;
+            mouse.prevY = e.clientY;
             mouse.x = e.clientX;
             mouse.y = e.clientY;
 
-            if (physicsCursor) {
-                physicsCursor.style.left = `${e.clientX}px`;
-                physicsCursor.style.top = `${e.clientY}px`;
-                physicsCursor.style.opacity = '1';
+            if (kineticCursor) {
+                kineticCursor.style.left = `${e.clientX}px`;
+                kineticCursor.style.top = `${e.clientY}px`;
+                kineticCursor.style.transform = `translate(-50%, -50%) rotate(${mouse.headingDeg}deg)`;
+                kineticCursor.style.opacity = '1';
+            }
+            if (kineticHalo) {
+                kineticHalo.style.left = `${e.clientX}px`;
+                kineticHalo.style.top = `${e.clientY}px`;
+                kineticHalo.style.opacity = '1';
             }
 
             cursorTrail.push({
                 x: e.clientX,
                 y: e.clientY,
-                alpha: 0.75,
-                size: 3
+                alpha: 0.7,
+                size: 2.6
             });
-            if (cursorTrail.length > 20) cursorTrail.shift();
+            if (cursorTrail.length > 16) cursorTrail.shift();
         });
 
         window.addEventListener('mousedown', (e) => {
-            if (physicsCursor) physicsCursor.classList.add('active-click');
+            if (kineticHalo) kineticHalo.classList.add('clicking');
             clickRipples.push({
                 x: e.clientX,
                 y: e.clientY,
-                radius: 8,
-                maxRadius: 130,
-                alpha: 0.85
+                radius: 6,
+                maxRadius: 115,
+                alpha: 0.8
             });
         });
 
         window.addEventListener('mouseup', () => {
-            if (physicsCursor) physicsCursor.classList.remove('active-click');
+            if (kineticHalo) kineticHalo.classList.remove('clicking');
         });
 
         window.addEventListener('mouseout', () => {
             mouse.x = null;
             mouse.y = null;
-            if (physicsCursor) physicsCursor.style.opacity = '0';
+            if (kineticCursor) kineticCursor.style.opacity = '0';
+            if (kineticHalo) kineticHalo.style.opacity = '0';
         });
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             initParticles();
-            resizeMagneticCanvas();
+            resizeProjectileCanvas();
         }
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.7;
-                this.vx = (Math.random() - 0.5) * 0.7;
-                this.vy = (Math.random() - 0.5) * 0.7;
+                this.size = Math.random() * 2 + 0.6;
+                this.vx = (Math.random() - 0.5) * 0.65;
+                this.vy = (Math.random() - 0.5) * 0.65;
             }
             update() {
-                // Tương tác lực hút hoặc đẩy quanh con trỏ vật lý
-                if (mouse.x !== null && mouse.y !== null) {
-                    const dx = mouse.x - this.x;
-                    const dy = mouse.y - this.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < mouse.radius && dist > 4) {
-                        const force = ((mouse.radius - dist) / mouse.radius) * 0.045;
-                        const dir = cursorAttractMode ? 1 : -1;
-                        this.vx += (dx / dist) * force * dir;
-                        this.vy += (dy / dist) * force * dir;
-                    }
-                }
-
-                // Hạt phản ứng với sóng xung kích khi nhấp chuột
                 clickRipples.forEach((rip) => {
                     const dx = this.x - rip.x;
                     const dy = this.y - rip.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (Math.abs(dist - rip.radius) < 24 && dist > 1) {
-                        this.x += (dx / dist) * 2.1;
-                        this.y += (dy / dist) * 2.1;
+                    if (Math.abs(dist - rip.radius) < 22 && dist > 1) {
+                        this.x += (dx / dist) * 1.9;
+                        this.y += (dy / dist) * 1.9;
                     }
                 });
-
-                // Giới hạn vận tốc để quỹ đạo ổn định
-                const maxSpeed = 2.6;
-                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                if (speed > maxSpeed) {
-                    this.vx = (this.vx / speed) * maxSpeed;
-                    this.vy = (this.vy / speed) * maxSpeed;
-                }
 
                 this.x += this.vx;
                 this.y += this.vy;
@@ -1413,14 +1382,14 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = cursorAttractMode ? "rgba(245, 158, 11, 0.58)" : "rgba(251, 113, 133, 0.55)";
+                ctx.fillStyle = "rgba(245, 158, 11, 0.55)";
                 ctx.fill();
             }
         }
 
         function initParticles() {
             particles = [];
-            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 13500), 95);
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 90);
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle());
             }
@@ -1429,38 +1398,34 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Vẽ trò chơi vật lý từ trường nếu đang ở tab Game Từ Trường
-            drawMagneticGame();
+            // Vẽ trò chơi Ném Xiên & Ném Ngang nếu đang ở tab đó
+            drawProjectileGame();
 
-            // Vẽ vệt sáng đuôi chuột (Magnetic Trail)
+            // Vẽ vệt quỹ đạo sau mũi nhọn con trỏ
             for (let t = 0; t < cursorTrail.length; t++) {
                 const item = cursorTrail[t];
                 item.alpha *= 0.89;
                 item.size *= 0.93;
                 ctx.beginPath();
                 ctx.arc(item.x, item.y, item.size, 0, Math.PI * 2);
-                ctx.fillStyle = cursorAttractMode
-                    ? `rgba(253, 224, 71, ${item.alpha.toFixed(3)})`
-                    : `rgba(251, 113, 133, ${item.alpha.toFixed(3)})`;
+                ctx.fillStyle = `rgba(253, 224, 71, ${item.alpha.toFixed(3)})`;
                 ctx.fill();
             }
             cursorTrail = cursorTrail.filter(item => item.alpha > 0.04);
 
-            // Vẽ vòng gợn sóng khi nhấp chuột (Click Ripple)
+            // Vẽ vòng gợn sóng khi nhấp chuột
             for (let r = clickRipples.length - 1; r >= 0; r--) {
                 const rip = clickRipples[r];
-                rip.radius += 4.2;
-                rip.alpha -= 0.026;
+                rip.radius += 3.8;
+                rip.alpha -= 0.025;
                 if (rip.alpha <= 0 || rip.radius > rip.maxRadius) {
                     clickRipples.splice(r, 1);
                     continue;
                 }
                 ctx.beginPath();
                 ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = cursorAttractMode
-                    ? `rgba(251, 191, 36, ${rip.alpha.toFixed(3)})`
-                    : `rgba(251, 113, 133, ${rip.alpha.toFixed(3)})`;
-                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = `rgba(251, 191, 36, ${rip.alpha.toFixed(3)})`;
+                ctx.lineWidth = 1.4;
                 ctx.stroke();
             }
 
@@ -1468,7 +1433,6 @@
                 particles[i].update();
                 particles[i].draw();
 
-                // Kết nối giữa các hạt gần nhau
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
@@ -1484,7 +1448,6 @@
                     }
                 }
 
-                // Tương tác đường sức kết nối với con trỏ vật lý
                 if (mouse.x !== null && mouse.y !== null) {
                     const dxMouse = particles[i].x - mouse.x;
                     const dyMouse = particles[i].y - mouse.y;
@@ -1492,9 +1455,7 @@
 
                     if (distMouse < mouse.radius) {
                         ctx.beginPath();
-                        ctx.strokeStyle = cursorAttractMode
-                            ? `rgba(251, 191, 36, ${(0.45 * (1 - distMouse / mouse.radius)).toFixed(3)})`
-                            : `rgba(251, 113, 133, ${(0.45 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
+                        ctx.strokeStyle = `rgba(251, 191, 36, ${(0.42 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
                         ctx.lineWidth = 0.9;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(mouse.x, mouse.y);
@@ -1508,7 +1469,8 @@
         window.addEventListener('resize', resizeCanvas);
         window.onload = function() {
             resizeCanvas();
-            spawnGameWave();
+            updateProjectileSliders();
+            spawnProjectileRings();
             animateParticles();
         };
     </script>
