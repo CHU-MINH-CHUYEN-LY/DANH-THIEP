@@ -123,34 +123,38 @@
             transition: transform 0.15s ease;
         }
 
-        /* Con trỏ mới: Mũi nhọn vectơ động lực học + Quầng sáng động năng */
-        #kinetic-cursor {
+        /* Phần trường chuột tạo lại: Vùng thế trung tâm + Vòng trường thế động */
+        #mouse-field-core {
             position: fixed;
-            width: 22px;
-            height: 22px;
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
             pointer-events: none;
             z-index: 60;
-            transform: translate(-50%, -50%) rotate(0deg);
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, #fef9c3 0%, #fbbf24 65%, rgba(245, 158, 11, 0) 100%);
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.9);
             opacity: 0;
-            transition: opacity 0.2s ease, transform 0.06s linear;
-            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.75));
+            transition: opacity 0.2s ease, transform 0.08s ease-out;
         }
-        #kinetic-halo {
+        #mouse-field-ring {
             position: fixed;
-            width: 44px;
-            height: 44px;
+            width: 68px;
+            height: 68px;
             border-radius: 999px;
             pointer-events: none;
             z-index: 55;
             transform: translate(-50%, -50%);
-            background: radial-gradient(circle, rgba(251, 191, 36, 0.22) 0%, rgba(245, 158, 11, 0.05) 55%, transparent 75%);
+            border: 1px dashed rgba(251, 191, 36, 0.55);
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.02) 65%, transparent 100%);
             opacity: 0;
-            transition: opacity 0.2s ease, width 0.16s ease, height 0.16s ease;
+            transition: opacity 0.2s ease, width 0.18s ease, height 0.18s ease, border-color 0.18s ease;
         }
-        #kinetic-halo.clicking {
-            width: 62px;
-            height: 62px;
-            background: radial-gradient(circle, rgba(253, 224, 71, 0.34) 0%, rgba(245, 158, 11, 0.08) 60%, transparent 80%);
+        #mouse-field-ring.pulse {
+            width: 96px;
+            height: 96px;
+            border-style: solid;
+            border-color: rgba(254, 240, 138, 0.85);
         }
 
         /* Tùy chỉnh thanh cuộn */
@@ -168,13 +172,11 @@
 </head>
 <body class="min-h-screen flex flex-col justify-center items-center relative selection:bg-amber-500 selection:text-black">
 
-    <!-- CON TRỎ MỚI: QUẦNG ĐỘNG NĂNG & MŨI NHỌN VECTƠ -->
-    <div id="kinetic-halo"></div>
-    <svg id="kinetic-cursor" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L20 20L12 15.5L4 20L12 2Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.3" stroke-linejoin="round"/>
-    </svg>
+    <!-- TRƯỜNG CHUỘT MỚI: TÂM THẾ & VÒNG TRƯỜNG THẾ ĐỘNG -->
+    <div id="mouse-field-ring"></div>
+    <div id="mouse-field-core"></div>
 
-    <!-- CANVAS NỀN HẠT VẬT LÝ TƯƠNG TÁC THÔNG MINH -->
+    <!-- CANVAS NỀN HẠT VẬT LÝ & TRƯỜNG THẾ TƯƠNG TÁC -->
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
     <!-- ÁNH SÁNG AMBIENT GLOW PHÍA SAU -->
@@ -192,15 +194,19 @@
             </span>
         </div>
 
-        <!-- THANH CHUYỂN TRANG (DANH THIẾP / GAME NÉM XIÊN & NÉM NGANG) -->
-        <nav class="flex items-center p-1 rounded-full bg-zinc-900/90 border border-amber-500/30 shadow-lg">
-            <button id="nav-card-btn" onclick="switchPage('card')" class="px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5">
+        <!-- THANH CHUYỂN TRANG (DANH THIẾP / GIỚI THIỆU / GAME NÉM XIÊN & NÉM NGANG) -->
+        <nav class="flex items-center p-1 rounded-full bg-zinc-900/90 border border-amber-500/30 shadow-lg flex-wrap gap-1">
+            <button id="nav-card-btn" onclick="switchPage('card')" class="px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Danh Thiếp</span>
             </button>
-            <button id="nav-projectile-btn" onclick="switchPage('projectile')" class="px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
+            <button id="nav-about-btn" onclick="switchPage('about')" class="px-3.5 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-user-graduate"></i>
+                <span>Giới Thiệu</span>
+            </button>
+            <button id="nav-projectile-btn" onclick="switchPage('projectile')" class="px-3.5 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-arrow-trend-up"></i>
-                <span>Game Ném Xiên & Ngang</span>
+                <span>Ném Xiên & Ngang</span>
             </button>
         </nav>
 
@@ -472,7 +478,107 @@
                 </section>
             </div>
 
-            <!-- ==================== TRANG 2: GAME NÉM XIÊN & NÉM NGANG ==================== -->
+            <!-- ==================== TRANG 2: GIỚI THIỆU BẢN THÂN & THÀNH TÍCH ==================== -->
+            <div id="page-about" class="hidden space-y-5">
+                <div class="glass-card rounded-3xl p-6 sm:p-8 md:p-10 border border-amber-500/35 space-y-7">
+                    
+                    <!-- Phần mở đầu hồ sơ -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+                        <div class="space-y-1.5">
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold uppercase tracking-wider">
+                                <i class="fa-solid fa-atom"></i>
+                                Hồ Sơ Học Tập & Hoạt Động
+                            </div>
+                            <h2 class="heading-font text-2xl sm:text-3xl font-extrabold gold-text-gradient">
+                                Giới Thiệu Bản Thân
+                            </h2>
+                            <p class="text-xs sm:text-sm text-zinc-300">
+                                Nguyễn Lê Nhật Minh • Chuyên Vật Lý – Trường THPT Chuyên Bến Tre
+                            </p>
+                        </div>
+
+                        <button onclick="switchPage('card')" class="self-start sm:self-auto px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-arrow-left text-amber-400"></i>
+                            <span>Về Danh Thiếp</span>
+                        </button>
+                    </div>
+
+                    <!-- Tóm tắt năng lực đa lĩnh vực -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/5 border border-amber-500/25 space-y-2">
+                        <div class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group"></i>
+                            Năng Lực Đa Lĩnh Vực
+                        </div>
+                        <p class="text-xs sm:text-sm text-zinc-200 leading-relaxed">
+                            Thành thạo trên nhiều lĩnh vực từ tư duy Vật lý nền tảng, lập trình & trí tuệ nhân tạo đến nghiên cứu STEM, khoa học – kỹ thuật và triển khai dự án thực tiễn.
+                        </p>
+                    </div>
+
+                    <!-- Danh sách các thành tích & cuộc thi nổi bật -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Thành tựu học sinh xuất sắc -->
+                        <div class="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/90 space-y-1.5">
+                            <div class="flex items-center gap-2.5 text-amber-400 font-bold text-sm">
+                                <i class="fa-solid fa-award text-base"></i>
+                                <span>Học Sinh Xuất Sắc Nhiều Năm Liền</span>
+                            </div>
+                            <p class="text-xs text-zinc-300 leading-relaxed">
+                                Duy trì thành tích học sinh xuất sắc liên tục qua các năm học với nền tảng kiến thức vững vàng và tinh thần chủ động học hỏi.
+                            </p>
+                        </div>
+
+                        <!-- Giải nhì HSG cấp thành phố 24-25 -->
+                        <div class="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/90 space-y-1.5">
+                            <div class="flex items-center gap-2.5 text-amber-400 font-bold text-sm">
+                                <i class="fa-solid fa-medal text-base"></i>
+                                <span>Giải Nhì Học Sinh Giỏi Cấp Thành Phố (24–25)</span>
+                            </div>
+                            <p class="text-xs text-zinc-300 leading-relaxed">
+                                Đạt giải Nhì kỳ thi Học sinh giỏi cấp thành phố năm học 2024–2025 nhờ khả năng phân tích bài toán và giải quyết vấn đề chính xác.
+                            </p>
+                        </div>
+
+                        <!-- Giải khuyến khích HSG cấp tỉnh 24-25 -->
+                        <div class="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/90 space-y-1.5">
+                            <div class="flex items-center gap-2.5 text-amber-400 font-bold text-sm">
+                                <i class="fa-solid fa-trophy text-base"></i>
+                                <span>Giải Khuyến Khích Học Sinh Giỏi Cấp Tỉnh (24–25)</span>
+                            </div>
+                            <p class="text-xs text-zinc-300 leading-relaxed">
+                                Ghi dấu ấn tại kỳ thi Học sinh giỏi cấp tỉnh năm học 2024–2025, khẳng định bản lĩnh thi đấu và năng lực chuyên môn nổi bật.
+                            </p>
+                        </div>
+
+                        <!-- Olympic Trí tuệ nhân tạo 25-26 & STEM KHKT -->
+                        <div class="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/90 space-y-1.5">
+                            <div class="flex items-center gap-2.5 text-amber-400 font-bold text-sm">
+                                <i class="fa-solid fa-microchip text-base"></i>
+                                <span>OLYMPIC AI (25–26) & Các Cuộc Thi STEM, KHKT</span>
+                            </div>
+                            <p class="text-xs text-zinc-300 leading-relaxed">
+                                Tham gia cuộc thi OLYMPIC Trí tuệ nhân tạo năm học 2025–2026 cùng các sân chơi STEM, khoa học & kỹ thuật để ứng dụng công nghệ vào thực tế.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Chân trang điều hướng nhanh -->
+                    <div class="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
+                        <span class="text-xs text-zinc-400">
+                            <i class="fa-solid fa-envelope text-amber-400 mr-1.5"></i>
+                            Liên hệ hợp tác: <span class="text-amber-300 font-mono">cbter.nguyenminh.vn@gmail.com</span>
+                        </span>
+                        <button onclick="switchPage('projectile')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                            <span>Thử Game Ném Xiên & Ngang</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ==================== TRANG 3: GAME NÉM XIÊN & NÉM NGANG ==================== -->
             <div id="page-projectile" class="hidden space-y-5">
                 <div class="glass-card rounded-3xl p-5 sm:p-7 border border-amber-500/35 space-y-5">
                     
@@ -726,7 +832,7 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, GAME NÉM XIÊN & NÉM NGANG, CON TRỎ MỚI & PARTICLES -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, TRƯỜNG CHUỘT TẠO LẠI, TRANG GIỚI THIỆU & GAME NÉM XIÊN / NGANG -->
     <script>
         // --- XỬ LÝ GỬI FORM LIÊN HỆ ---
         function handleContactSubmit(event) {
@@ -736,25 +842,38 @@
             event.target.reset();
         }
 
-        // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & GAME NÉM XIÊN / NÉM NGANG ---
+        // --- CHUYỂN ĐỔI GIỮA 3 TRANG: DANH THIẾP / GIỚI THIỆU / GAME NÉM XIÊN & NÉM NGANG ---
         let currentPage = 'card';
         function switchPage(pageName) {
             currentPage = pageName;
             const pageCard = document.getElementById('page-card');
+            const pageAbout = document.getElementById('page-about');
             const pageProj = document.getElementById('page-projectile');
+
             const btnCard = document.getElementById('nav-card-btn');
+            const btnAbout = document.getElementById('nav-about-btn');
             const btnProj = document.getElementById('nav-projectile-btn');
+
+            const activeCls = "px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
+            const idleCls = "px-3.5 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
+
+            pageCard.classList.add('hidden');
+            pageAbout.classList.add('hidden');
+            pageProj.classList.add('hidden');
+
+            btnCard.className = idleCls;
+            btnAbout.className = idleCls;
+            btnProj.className = idleCls;
 
             if (pageName === 'card') {
                 pageCard.classList.remove('hidden');
-                pageProj.classList.add('hidden');
-                btnCard.className = "px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
-                btnProj.className = "px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
+                btnCard.className = activeCls;
+            } else if (pageName === 'about') {
+                pageAbout.classList.remove('hidden');
+                btnAbout.className = activeCls;
             } else {
-                pageCard.classList.add('hidden');
                 pageProj.classList.remove('hidden');
-                btnProj.className = "px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
-                btnCard.className = "px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
+                btnProj.className = activeCls;
                 resizeProjectileCanvas();
                 if (projGame.rings.length === 0) {
                     spawnProjectileRings();
@@ -791,7 +910,6 @@
         }
 
         function getLauncherPos() {
-            const w = projCanvas ? (projCanvas.width || 600) : 600;
             const h = projCanvas ? (projCanvas.height || 380) : 380;
             const groundY = h - 34;
             const x = 48;
@@ -878,8 +996,7 @@
                     y: ry,
                     baseY: ry,
                     radius: 22,
-                    phase: i * 1.1,
-                    passed: false
+                    phase: i * 1.1
                 });
             }
             updateProjectileStatsUI();
@@ -896,8 +1013,7 @@
                 y,
                 vx: Math.cos(rad) * speedPx,
                 vy: -Math.sin(rad) * speedPx,
-                trail: [],
-                scoredRings: new Set()
+                trail: []
             });
         }
 
@@ -921,12 +1037,11 @@
                 const { x, y } = getLauncherPos();
                 const dx = Math.max(20, mx - x);
                 const dy = Math.max(5, y - my);
-                const deg = Math.round((Math.atan2(dy, dx) * 180) / Math.PI);
-                const clampedDeg = Math.max(10, Math.min(75, deg));
+                const deg = Math.max(10, Math.min(75, Math.round((Math.atan2(dy, dx) * 180) / Math.PI)));
 
-                projGame.angleDeg = clampedDeg;
+                projGame.angleDeg = deg;
                 const slider = document.getElementById('proj-angle-slider');
-                if (slider) slider.value = clampedDeg;
+                if (slider) slider.value = deg;
                 updateProjectileSliders();
             });
 
@@ -967,7 +1082,6 @@
             const speedPx = projGame.v0 * 0.26;
             const gPxPerFrame = GRAVITY * 0.016;
 
-            // Mặt đất tham chiếu
             projCtx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
             projCtx.lineWidth = 1.5;
             projCtx.beginPath();
@@ -975,7 +1089,6 @@
             projCtx.lineTo(w, groundY);
             projCtx.stroke();
 
-            // Vẽ quỹ đạo dự báo (chấm nét parabol)
             projCtx.beginPath();
             for (let step = 0; step <= 48; step++) {
                 const t = step * 1.4;
@@ -991,7 +1104,6 @@
             projCtx.stroke();
             projCtx.setLineDash([]);
 
-            // Bệ phóng / giá đỡ ném ngang
             if (projGame.mode === 'horizontal') {
                 projCtx.fillStyle = 'rgba(245, 158, 11, 0.18)';
                 projCtx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
@@ -999,7 +1111,6 @@
                 projCtx.strokeRect(0, ly + 6, lx + 12, groundY - (ly + 6));
             }
 
-            // Vẽ nòng phóng
             projCtx.save();
             projCtx.translate(lx, ly);
             projCtx.rotate(-rad);
@@ -1009,7 +1120,6 @@
             projCtx.fill();
             projCtx.restore();
 
-            // Cập nhật & vẽ các vòng mục tiêu
             for (let i = projGame.rings.length - 1; i >= 0; i--) {
                 const ring = projGame.rings[i];
                 ring.phase += 0.025;
@@ -1027,7 +1137,6 @@
                 projCtx.fill();
             }
 
-            // Cập nhật & vẽ các vật thể đang bay
             for (let i = projGame.projectiles.length - 1; i >= 0; i--) {
                 const p = projGame.projectiles[i];
                 p.vy += gPxPerFrame;
@@ -1053,7 +1162,6 @@
                 projCtx.fillStyle = '#fef08a';
                 projCtx.fill();
 
-                // Kiểm tra bay xuyên qua vòng mục tiêu
                 for (let rIdx = projGame.rings.length - 1; rIdx >= 0; rIdx--) {
                     const ring = projGame.rings[rIdx];
                     if (Math.hypot(p.x - ring.x, p.y - ring.y) <= ring.radius + 4) {
@@ -1086,7 +1194,6 @@
                 }
             }
 
-            // Vẽ tia sáng khi xuyên vòng
             for (let s = projGame.particles.length - 1; s >= 0; s--) {
                 const sp = projGame.particles[s];
                 sp.x += sp.vx;
@@ -1102,7 +1209,6 @@
                 projCtx.fill();
             }
 
-            // Lên màn khi hoàn thành hết vòng
             if (projGame.rings.length === 0) {
                 projGame.level += 1;
                 showToast(`Hoàn thành! Bước sang Màn ${projGame.level}`);
@@ -1281,70 +1387,60 @@
             card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
         });
 
-        // --- 7. CON TRỎ MỚI (VECTƠ ĐỘNG LỰC HỌC + QUẦNG ĐỘNG NĂNG) & PARTICLES ---
+        // --- 7. TẠO LẠI PHẦN TRƯỜNG CHUỘT (TRƯỜNG THẾ & HẠT DÒ ĐỊNH HƯỚNG) ---
         const canvas = document.getElementById('physics-canvas');
         const ctx = canvas.getContext('2d');
-        const kineticCursor = document.getElementById('kinetic-cursor');
-        const kineticHalo = document.getElementById('kinetic-halo');
+        const fieldCore = document.getElementById('mouse-field-core');
+        const fieldRing = document.getElementById('mouse-field-ring');
         let particles = [];
-        let clickRipples = [];
-        let cursorTrail = [];
-        let mouse = { x: null, y: null, prevX: null, prevY: null, headingDeg: 0, radius: 150 };
+        let fieldWaves = [];
+        let fieldWakePoints = [];
+        let mouse = { x: null, y: null, radius: 185 };
 
         window.addEventListener('mousemove', (e) => {
-            if (mouse.prevX !== null && mouse.prevY !== null) {
-                const dx = e.clientX - mouse.prevX;
-                const dy = e.clientY - mouse.prevY;
-                if (Math.hypot(dx, dy) > 2) {
-                    mouse.headingDeg = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
-                }
-            }
-            mouse.prevX = e.clientX;
-            mouse.prevY = e.clientY;
             mouse.x = e.clientX;
             mouse.y = e.clientY;
 
-            if (kineticCursor) {
-                kineticCursor.style.left = `${e.clientX}px`;
-                kineticCursor.style.top = `${e.clientY}px`;
-                kineticCursor.style.transform = `translate(-50%, -50%) rotate(${mouse.headingDeg}deg)`;
-                kineticCursor.style.opacity = '1';
+            if (fieldCore) {
+                fieldCore.style.left = `${e.clientX}px`;
+                fieldCore.style.top = `${e.clientY}px`;
+                fieldCore.style.opacity = '1';
             }
-            if (kineticHalo) {
-                kineticHalo.style.left = `${e.clientX}px`;
-                kineticHalo.style.top = `${e.clientY}px`;
-                kineticHalo.style.opacity = '1';
+            if (fieldRing) {
+                fieldRing.style.left = `${e.clientX}px`;
+                fieldRing.style.top = `${e.clientY}px`;
+                fieldRing.style.opacity = '1';
             }
 
-            cursorTrail.push({
+            fieldWakePoints.push({
                 x: e.clientX,
                 y: e.clientY,
-                alpha: 0.7,
-                size: 2.6
+                alpha: 0.65,
+                r: 3.2
             });
-            if (cursorTrail.length > 16) cursorTrail.shift();
+            if (fieldWakePoints.length > 14) fieldWakePoints.shift();
         });
 
         window.addEventListener('mousedown', (e) => {
-            if (kineticHalo) kineticHalo.classList.add('clicking');
-            clickRipples.push({
+            if (fieldRing) fieldRing.classList.add('pulse');
+            fieldWaves.push({
                 x: e.clientX,
                 y: e.clientY,
-                radius: 6,
-                maxRadius: 115,
-                alpha: 0.8
+                radius: 10,
+                maxRadius: 145,
+                alpha: 0.85
             });
         });
 
         window.addEventListener('mouseup', () => {
-            if (kineticHalo) kineticHalo.classList.remove('clicking');
+            if (fieldRing) fieldRing.classList.remove('pulse');
         });
 
         window.addEventListener('mouseout', () => {
             mouse.x = null;
             mouse.y = null;
-            if (kineticCursor) kineticCursor.style.opacity = '0';
-            if (kineticHalo) kineticHalo.style.opacity = '0';
+            if (fieldCore) fieldCore.style.opacity = '0';
+            if (fieldRing) fieldRing.style.opacity = '0';
         });
 
         function resizeCanvas() {
@@ -1358,20 +1454,39 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.6;
-                this.vx = (Math.random() - 0.5) * 0.65;
-                this.vy = (Math.random() - 0.5) * 0.65;
+                this.size = Math.random() * 1.9 + 0.7;
+                this.vx = (Math.random() - 0.5) * 0.55;
+                this.vy = (Math.random() - 0.5) * 0.55;
+                this.angle = Math.random() * Math.PI * 2;
             }
             update() {
-                clickRipples.forEach((rip) => {
-                    const dx = this.x - rip.x;
-                    const dy = this.y - rip.y;
+                // Hạt dò trường hướng về tâm thế chuột khi nằm trong bán kính trường
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (Math.abs(dist - rip.radius) < 22 && dist > 1) {
-                        this.x += (dx / dist) * 1.9;
-                        this.y += (dy / dist) * 1.9;
+                    if (dist < mouse.radius && dist > 10) {
+                        this.angle = Math.atan2(dy, dx);
+                        const pull = ((mouse.radius - dist) / mouse.radius) * 0.025;
+                        this.vx += Math.cos(this.angle) * pull;
+                        this.vy += Math.sin(this.angle) * pull;
+                    }
+                }
+
+                // Sóng xung kích đẩy nhẹ hạt ra khi nhấp chuột
+                fieldWaves.forEach((wv) => {
+                    const dx = this.x - wv.x;
+                    const dy = this.y - wv.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (Math.abs(dist - wv.radius) < 26 && dist > 1) {
+                        this.vx += (dx / dist) * 0.65;
+                        this.vy += (dy / dist) * 0.65;
                     }
                 });
+
+                // Lực cản nhớt nhẹ giúp chuyển động mượt và ổn định
+                this.vx *= 0.985;
+                this.vy *= 0.985;
 
                 this.x += this.vx;
                 this.y += this.vy;
@@ -1380,16 +1495,30 @@
                 if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
             }
             draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+
+                // Vẽ hạt dò định hướng dạng thanh trường nhỏ + tâm sáng
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(245, 158, 11, 0.55)";
+                ctx.moveTo(-this.size * 2.2, 0);
+                ctx.lineTo(this.size * 2.2, 0);
+                ctx.strokeStyle = "rgba(251, 191, 36, 0.55)";
+                ctx.lineWidth = 1.1;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(this.size * 2.2, 0, this.size * 0.85, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(254, 240, 138, 0.78)";
                 ctx.fill();
+
+                ctx.restore();
             }
         }
 
         function initParticles() {
             particles = [];
-            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 90);
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 14500), 88);
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle());
             }
@@ -1401,31 +1530,31 @@
             // Vẽ trò chơi Ném Xiên & Ném Ngang nếu đang ở tab đó
             drawProjectileGame();
 
-            // Vẽ vệt quỹ đạo sau mũi nhọn con trỏ
-            for (let t = 0; t < cursorTrail.length; t++) {
-                const item = cursorTrail[t];
-                item.alpha *= 0.89;
-                item.size *= 0.93;
+            // Vẽ vệt trường thế mờ dần theo đường di chuyển chuột
+            for (let wIdx = 0; wIdx < fieldWakePoints.length; wIdx++) {
+                const pt = fieldWakePoints[wIdx];
+                pt.alpha *= 0.88;
+                pt.r *= 0.94;
                 ctx.beginPath();
-                ctx.arc(item.x, item.y, item.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(253, 224, 71, ${item.alpha.toFixed(3)})`;
+                ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(251, 191, 36, ${pt.alpha.toFixed(3)})`;
                 ctx.fill();
             }
-            cursorTrail = cursorTrail.filter(item => item.alpha > 0.04);
+            fieldWakePoints = fieldWakePoints.filter(pt => pt.alpha > 0.04);
 
-            // Vẽ vòng gợn sóng khi nhấp chuột
-            for (let r = clickRipples.length - 1; r >= 0; r--) {
-                const rip = clickRipples[r];
-                rip.radius += 3.8;
-                rip.alpha -= 0.025;
-                if (rip.alpha <= 0 || rip.radius > rip.maxRadius) {
-                    clickRipples.splice(r, 1);
+            // Vẽ sóng trường xung kích khi nhấp chuột
+            for (let r = fieldWaves.length - 1; r >= 0; r--) {
+                const wv = fieldWaves[r];
+                wv.radius += 4.2;
+                wv.alpha -= 0.025;
+                if (wv.alpha <= 0 || wv.radius > wv.maxRadius) {
+                    fieldWaves.splice(r, 1);
                     continue;
                 }
                 ctx.beginPath();
-                ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(251, 191, 36, ${rip.alpha.toFixed(3)})`;
-                ctx.lineWidth = 1.4;
+                ctx.arc(wv.x, wv.y, wv.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(251, 191, 36, ${wv.alpha.toFixed(3)})`;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
             }
 
@@ -1448,6 +1577,7 @@
                     }
                 }
 
+                // Đường sức nối từ hạt dò về tâm trường chuột
                 if (mouse.x !== null && mouse.y !== null) {
                     const dxMouse = particles[i].x - mouse.x;
                     const dyMouse = particles[i].y - mouse.y;
@@ -1455,8 +1585,8 @@
 
                     if (distMouse < mouse.radius) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(251, 191, 36, ${(0.42 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
-                        ctx.lineWidth = 0.9;
+                        ctx.strokeStyle = `rgba(251, 191, 36, ${(0.38 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
+                        ctx.lineWidth = 0.85;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(mouse.x, mouse.y);
                         ctx.stroke();
