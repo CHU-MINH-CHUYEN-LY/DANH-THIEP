@@ -54,13 +54,12 @@
 
         /* Hiệu ứng kính mờ sang trọng (Royal Glassmorphism) */
         .glass-card {
-            background: linear-gradient(145deg, rgba(24, 24, 27, 0.84) 0%, rgba(12, 12, 14, 0.92) 100%);
+            background: linear-gradient(145deg, rgba(24, 24, 27, 0.82) 0%, rgba(12, 12, 14, 0.90) 100%);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border: 1px solid rgba(245, 158, 11, 0.28);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 
-                        0 0 30px rgba(245, 158, 11, 0.08),
-                        inset 0 1px 0 0 rgba(254, 240, 138, 0.12);
+                        0 0 30px rgba(245, 158, 11, 0.08);
         }
 
         /* Hiệu ứng ánh sáng lướt qua thẻ (Shimmer Sweep) */
@@ -78,7 +77,7 @@
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(251, 191, 36, 0.09),
+                rgba(251, 191, 36, 0.08),
                 transparent
             );
             transform: skewX(-25deg);
@@ -196,7 +195,7 @@
     <!-- CANVAS NỀN HẠT BAY TỰ DO + ICON VẬT LÝ KHI BẤM CHUỘT -->
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
-    <!-- CANVAS HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN (KHÔNG BỊ ẨN SAU DANH THIẾP) -->
+    <!-- CANVAS HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN (HỖ TRỢ NHẤN CHỌN CHI TIẾT TRÊN TRANG CHÍNH) -->
     <canvas id="solar-overlay-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-20"></canvas>
 
     <!-- ÁNH SÁNG AMBIENT GLOW PHÍA SAU -->
@@ -297,25 +296,13 @@
                                 </p>
                             </div>
 
-                            <!-- Huy Hiệu Thành Tích Thể Thao Nhanh -->
-                            <div class="w-full grid grid-cols-2 gap-2 pt-0.5">
-                                <div class="px-2.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-left flex items-center gap-2">
-                                    <i class="fa-solid fa-medal text-amber-400 text-xs shrink-0"></i>
-                                    <span class="text-[11px] font-bold text-amber-200 leading-tight">HCV Bơi Lội</span>
-                                </div>
-                                <div class="px-2.5 py-2 rounded-xl bg-zinc-900/90 border border-amber-500/20 text-left flex items-center gap-2">
-                                    <i class="fa-solid fa-medal text-amber-500/80 text-xs shrink-0"></i>
-                                    <span class="text-[11px] font-bold text-zinc-200 leading-tight">HCĐ Điền Kinh</span>
-                                </div>
-                            </div>
-
-                            <!-- Huy Hiệu Kỹ Năng Đa Lĩnh Vực & Hoạt Động Cộng Đồng -->
-                            <div class="w-full">
-                                <div class="p-3.5 rounded-2xl bg-zinc-900/75 border border-zinc-800/90 text-xs text-zinc-300 leading-relaxed space-y-1">
-                                    <span class="text-amber-400 font-semibold block">
-                                        <i class="fa-solid fa-bolt mr-1"></i> Dấu Ấn Vật Lý • Thể Thao • Cộng Đồng
+                            <!-- Huy Hiệu Kỹ Năng Đa Lĩnh Vực -->
+                            <div class="pt-2 w-full">
+                                <div class="p-3.5 rounded-2xl bg-zinc-900/75 border border-zinc-800/90 text-xs text-zinc-300 leading-relaxed">
+                                    <span class="text-amber-400 font-semibold block mb-1">
+                                        <i class="fa-solid fa-bolt mr-1"></i> Dấu Ấn Vật Lý & Sáng Tạo
                                     </span>
-                                    <span>Tư duy Vật lý sắc bén, yêu thể thao (HCV Bơi lội, HCĐ Điền kinh) và tích cực tham gia hoạt động tập thể trường, lớp & cộng đồng.</span>
+                                    Tư duy logic Vật lý sắc bén • Khám phá động lực & điện từ • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
                                 </div>
                             </div>
                         </div>
@@ -525,7 +512,7 @@
                         <div class="space-y-1.5">
                             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold uppercase tracking-wider">
                                 <i class="fa-solid fa-atom"></i>
-                                Hồ Sơ Học Tập • Thể Thao & Hoạt Động
+                                Hồ Sơ Học Tập & Hoạt Động
                             </div>
                             <h2 class="heading-font text-2xl sm:text-3xl font-extrabold gold-text-gradient">
                                 Giới Thiệu Bản Thân
@@ -541,14 +528,14 @@
                         </button>
                     </div>
 
-                    <!-- Tóm tắt năng lực đa lĩnh vực & phong cách sống năng động -->
+                    <!-- Tóm tắt năng lực đa lĩnh vực -->
                     <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/5 border border-amber-500/25 space-y-2">
                         <div class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
                             <i class="fa-solid fa-layer-group"></i>
-                            Năng Lực Đa Lĩnh Vực & Tinh Thần Năng Động
+                            Năng Lực Đa Lĩnh Vực
                         </div>
                         <p class="text-xs sm:text-sm text-zinc-200 leading-relaxed">
-                            Thành thạo trên nhiều lĩnh vực từ tư duy Vật lý nền tảng, lập trình & trí tuệ nhân tạo đến nghiên cứu STEM, khoa học – kỹ thuật và triển khai dự án thực tiễn. Bên cạnh học tập, tôi biết chơi thể thao, đạt <strong class="text-amber-300">Huy chương Vàng môn bơi lội</strong> và <strong class="text-amber-300">Huy chương Đồng môn điền kinh</strong>, đồng thời luôn <strong class="text-amber-300">tích cực tham gia các hoạt động tập thể của trường, lớp và cộng đồng</strong>.
+                            Thành thạo trên nhiều lĩnh vực từ tư duy Vật lý nền tảng, lập trình & trí tuệ nhân tạo đến nghiên cứu STEM, khoa học – kỹ thuật, thể thao và triển khai dự án thực tiễn.
                         </p>
                     </div>
 
@@ -599,14 +586,14 @@
                             </p>
                         </div>
 
-                        <!-- Thành tích thể thao: HCV Bơi lội & HCĐ Điền kinh -->
+                        <!-- Thể thao: HCV Bơi lội & HCĐ Điền kinh -->
                         <div class="p-4 rounded-2xl bg-zinc-900/80 border border-amber-500/25 space-y-1.5">
                             <div class="flex items-center gap-2.5 text-amber-400 font-bold text-sm">
                                 <i class="fa-solid fa-person-swimming text-base"></i>
                                 <span>Thể Thao: HCV Bơi Lội & HCĐ Điền Kinh</span>
                             </div>
                             <p class="text-xs text-zinc-300 leading-relaxed">
-                                Biết chơi thể thao, rèn luyện thể lực bền bỉ và kỷ luật thi đấu; đạt <strong class="text-amber-300">Huy chương Vàng môn bơi lội</strong> và <strong class="text-amber-300">Huy chương Đồng môn điền kinh</strong>.
+                                Biết chơi thể thao, rèn luyện thể lực bền bỉ và kỷ luật thi đấu; đạt Huy chương Vàng môn bơi lội và Huy chương Đồng môn điền kinh.
                             </p>
                         </div>
 
@@ -617,7 +604,7 @@
                                 <span>Hoạt Động Tập Thể Trường, Lớp & Cộng Đồng</span>
                             </div>
                             <p class="text-xs text-zinc-300 leading-relaxed">
-                                Tích cực tham gia các hoạt động tập thể, phong trào của trường, lớp và cộng đồng; đề cao tinh thần gắn kết, trách nhiệm và lan tỏa năng lượng tích cực.
+                                Tích cực tham gia các hoạt động tập thể của trường, lớp và cộng đồng; đề cao tinh thần đồng đội, trách nhiệm và lan tỏa năng lượng tích cực.
                             </p>
                         </div>
 
@@ -792,6 +779,49 @@
         </div>
     </main>
 
+    <!-- MODAL CHI TIẾT HỆ MẶT TRỜI KHI NHẤN VÀO PHẦN HỆ MẶT TRỜI TRÊN TRANG CHÍNH -->
+    <div id="solar-detail-modal" onclick="if(event.target === this) toggleSolarDetailModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div id="solar-detail-modal-content" class="glass-card rounded-3xl p-5 sm:p-7 max-w-xl w-full space-y-5 transform scale-90 transition-transform duration-300 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between gap-3 border-b border-zinc-800/80 pb-4">
+                <div class="flex items-center gap-3">
+                    <div id="solar-selected-dot" class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 text-lg shrink-0">
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold uppercase tracking-widest text-amber-400">Khám Phá Hệ Mặt Trời</div>
+                        <h3 id="solar-selected-title" class="heading-font text-lg sm:text-xl font-extrabold text-white">Mặt Trời & Quỹ Đạo Hành Tinh</h3>
+                    </div>
+                </div>
+                <button onclick="toggleSolarDetailModal()" class="w-9 h-9 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center transition-colors shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Khối thông tin chi tiết thiên thể đang được chọn -->
+            <div id="solar-selected-card" class="p-4 rounded-2xl bg-zinc-900/85 border border-amber-500/30 space-y-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span id="solar-selected-badge" class="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-semibold">
+                        Ngôi sao trung tâm
+                    </span>
+                    <span id="solar-selected-orbit" class="text-xs font-mono text-zinc-300">
+                        Khoảng cách: 0.0 AU
+                    </span>
+                </div>
+                <p id="solar-selected-desc" class="text-xs sm:text-sm text-zinc-200 leading-relaxed">
+                    Chiếm hơn 99,8% tổng khối lượng Hệ Mặt Trời, duy trì trường hấp dẫn giữ 8 hành tinh chuyển động trên các quỹ đạo ổn định.
+                </p>
+            </div>
+
+            <!-- Danh sách chọn nhanh mọi thiên thể trong Hệ Mặt Trời -->
+            <div class="space-y-2">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                    Chọn thiên thể để xem thông số chi tiết:
+                </div>
+                <div id="solar-body-selector" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL XEM ẢNH AVATAR PHÓNG TO -->
     <div id="avatar-modal" onclick="if(event.target === this) toggleAvatarModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
         <div id="avatar-modal-content" class="glass-card rounded-3xl p-5 sm:p-6 max-w-md w-full text-center space-y-4 transform scale-90 transition-transform duration-300 border border-amber-500/40">
@@ -914,7 +944,7 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, HỆ MẶT TRỜI HIỂN THỊ RÕ, GAME NÉM XIÊN & NGANG NÂNG CAO, HẠT BAY TỰ DO & ICON VẬT LÝ -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, HỆ MẶT TRỜI TƯƠNG TÁC CHI TIẾT, GAME NÉM XIÊN & NGANG NÂNG CAO, HẠT BAY TỰ DO & ICON VẬT LÝ -->
     <script>
         // --- THANH TIẾN TRÌNH CUỘN TRANG ---
         window.addEventListener('scroll', () => {
@@ -973,31 +1003,127 @@
             }
         }
 
-        // --- HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN LỚP OVERLAY CANVAS (KHÔNG BỊ ẨN SAU DANH THIẾP) ---
+        // --- HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN & TƯƠNG TÁC NHẤN CHỌN CHI TIẾT TRÊN TRANG CHÍNH ---
         const solarOverlayCanvas = document.getElementById('solar-overlay-canvas');
         const solarOverlayCtx = solarOverlayCanvas ? solarOverlayCanvas.getContext('2d') : null;
 
         const BG_SOLAR_BODIES = [
-            { name: 'Mặt Trời', color: '#fbbf24', orbit: 0, size: 15, speed: 0, angle: 0 },
-            { name: 'Sao Thủy', color: '#d4d4d8', orbit: 42, size: 3.6, speed: 0.016, angle: 0.5 },
-            { name: 'Sao Kim', color: '#facc15', orbit: 68, size: 5.2, speed: 0.011, angle: 1.8 },
-            { name: 'Trái Đất', color: '#38bdf8', orbit: 96, size: 5.8, speed: 0.0085, angle: 3.1 },
-            { name: 'Sao Hỏa', color: '#fb923c', orbit: 124, size: 4.4, speed: 0.0065, angle: 4.6 },
-            { name: 'Sao Mộc', color: '#fed7aa', orbit: 160, size: 9.5, speed: 0.004, angle: 1.1 },
-            { name: 'Sao Thổ', color: '#fef08a', orbit: 196, size: 8, speed: 0.003, angle: 2.7 },
-            { name: 'Thiên Vương', color: '#67e8f9', orbit: 228, size: 6.2, speed: 0.0021, angle: 4.2 },
-            { name: 'Hải Vương', color: '#60a5fa', orbit: 256, size: 6, speed: 0.0016, angle: 5.4 }
+            {
+                name: 'Mặt Trời',
+                category: 'Ngôi sao trung tâm',
+                distance: '0.00 AU',
+                color: '#fbbf24',
+                orbit: 0,
+                size: 15,
+                speed: 0,
+                angle: 0,
+                desc: 'Chiếm hơn 99,8% khối lượng Hệ Mặt Trời, tạo ra lực hấp dẫn chi phối toàn bộ quỹ đạo của các hành tinh và thiên thể quay quanh.'
+            },
+            {
+                name: 'Sao Thủy',
+                category: 'Hành tinh đất đá',
+                distance: '0.39 AU',
+                color: '#d4d4d8',
+                orbit: 42,
+                size: 3.6,
+                speed: 0.016,
+                angle: 0.5,
+                desc: 'Hành tinh gần Mặt Trời nhất và nhỏ nhất, có chu kỳ tự quay và quỹ đạo nhanh nhất nên vận tốc góc trên quỹ đạo lớn nhất.'
+            },
+            {
+                name: 'Sao Kim',
+                category: 'Hành tinh đất đá',
+                distance: '0.72 AU',
+                color: '#facc15',
+                orbit: 68,
+                size: 5.2,
+                speed: 0.011,
+                angle: 1.8,
+                desc: 'Được bao phủ bởi lớp mây dày phản xạ ánh sáng mạnh, là thiên thể sáng nổi bật trên bầu trời gần Trái Đất.'
+            },
+            {
+                name: 'Trái Đất',
+                category: 'Hành tinh đất đá',
+                distance: '1.00 AU',
+                color: '#38bdf8',
+                orbit: 96,
+                size: 5.8,
+                speed: 0.0085,
+                angle: 3.1,
+                desc: 'Hành tinh thứ ba tính từ Mặt Trời với khí quyển, từ trường và thủy quyển cân bằng tạo điều kiện cho sự sống phát triển.'
+            },
+            {
+                name: 'Sao Hỏa',
+                category: 'Hành tinh đất đá',
+                distance: '1.52 AU',
+                color: '#fb923c',
+                orbit: 124,
+                size: 4.4,
+                speed: 0.0065,
+                angle: 4.6,
+                desc: 'Nổi bật với sắc đỏ cam đặc trưng của oxit sắt trên bề mặt, có các núi lửa lớn và thung lũng sâu bậc nhất hệ hành tinh.'
+            },
+            {
+                name: 'Sao Mộc',
+                category: 'Hành tinh khí khổng lồ',
+                distance: '5.20 AU',
+                color: '#fed7aa',
+                orbit: 160,
+                size: 9.5,
+                speed: 0.004,
+                angle: 1.1,
+                desc: 'Hành tinh lớn nhất Hệ Mặt Trời với khối lượng gấp hơn hai lần tổng khối lượng các hành tinh khác cộng lại.'
+            },
+            {
+                name: 'Sao Thổ',
+                category: 'Hành tinh khí khổng lồ',
+                distance: '9.58 AU',
+                color: '#fef08a',
+                orbit: 196,
+                size: 8,
+                speed: 0.003,
+                angle: 2.7,
+                desc: 'Nổi tiếng với hệ thống vành đai băng và đá rộng lớn, sắc nét bao quanh xích đạo hành tinh.'
+            },
+            {
+                name: 'Thiên Vương',
+                category: 'Hành tinh băng khổng lồ',
+                distance: '19.2 AU',
+                color: '#67e8f9',
+                orbit: 228,
+                size: 6.2,
+                speed: 0.0021,
+                angle: 4.2,
+                desc: 'Có trục tự quay nghiêng lớn khiến hành tinh dường như lăn dọc theo quỹ đạo quanh Mặt Trời.'
+            },
+            {
+                name: 'Hải Vương',
+                category: 'Hành tinh băng khổng lồ',
+                distance: '30.1 AU',
+                color: '#60a5fa',
+                orbit: 256,
+                size: 6,
+                speed: 0.0016,
+                angle: 5.4,
+                desc: 'Hành tinh ngoài cùng trong hệ 8 hành tinh, chuyển động chậm nhất trên quỹ đạo rộng lớn ở vùng rìa hệ.'
+            }
         ];
 
         let isSolarBgEnabled = true;
+        let hoveredSolarBody = null;
+        let selectedSolarBody = BG_SOLAR_BODIES[0];
+        let solarHitTargets = [];
+
         function toggleBackgroundSolar() {
             isSolarBgEnabled = !isSolarBgEnabled;
+            hoveredSolarBody = null;
             const label = document.getElementById('solar-bg-status-text');
             if (label) {
                 label.innerText = isSolarBgEnabled ? "Hệ MT: Bật" : "Hệ MT: Tắt";
             }
             if (!isSolarBgEnabled && solarOverlayCtx && solarOverlayCanvas) {
                 solarOverlayCtx.clearRect(0, 0, solarOverlayCanvas.width, solarOverlayCanvas.height);
+                solarHitTargets = [];
             }
             showToast(isSolarBgEnabled ? "Đã bật Hệ Mặt Trời hiển thị rõ trên nền" : "Đã ẩn Hệ Mặt Trời");
         }
@@ -1008,9 +1134,96 @@
             solarOverlayCanvas.height = window.innerHeight;
         }
 
+        function renderSolarDetailContent(body) {
+            selectedSolarBody = body;
+            const titleEl = document.getElementById('solar-selected-title');
+            const badgeEl = document.getElementById('solar-selected-badge');
+            const orbitEl = document.getElementById('solar-selected-orbit');
+            const descEl = document.getElementById('solar-selected-desc');
+            const dotEl = document.getElementById('solar-selected-dot');
+
+            if (titleEl) titleEl.innerText = body.name;
+            if (badgeEl) badgeEl.innerText = body.category;
+            if (orbitEl) {
+                orbitEl.innerText = body.orbit > 0
+                    ? `Khoảng cách: ${body.distance} • Tốc độ quỹ đạo tương đối: ${(body.speed * 1000).toFixed(1)}`
+                    : `Khoảng cách: ${body.distance} • Tâm hấp dẫn Hệ Mặt Trời`;
+            }
+            if (descEl) descEl.innerText = body.desc;
+            if (dotEl) {
+                dotEl.style.borderColor = body.color;
+                dotEl.style.color = body.color;
+            }
+
+            const selectorWrap = document.getElementById('solar-body-selector');
+            if (selectorWrap) {
+                selectorWrap.innerHTML = '';
+                BG_SOLAR_BODIES.forEach((item) => {
+                    const isSelected = item.name === body.name;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.onclick = () => renderSolarDetailContent(item);
+                    btn.className = isSelected
+                        ? "px-3 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold flex items-center gap-2 transition-all text-left"
+                        : "px-3 py-2 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-semibold flex items-center gap-2 transition-all text-left";
+                    btn.innerHTML = `<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${item.color}"></span><span class="truncate">${item.name}</span>`;
+                    selectorWrap.appendChild(btn);
+                });
+            }
+        }
+
+        function toggleSolarDetailModal(body = null) {
+            const modal = document.getElementById('solar-detail-modal');
+            const content = document.getElementById('solar-detail-modal-content');
+            if (!modal || !content) return;
+
+            if (body) {
+                renderSolarDetailContent(body);
+            } else if (!selectedSolarBody) {
+                renderSolarDetailContent(BG_SOLAR_BODIES[0]);
+            }
+
+            if (modal.classList.contains('opacity-0')) {
+                renderSolarDetailContent(body || selectedSolarBody);
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+        }
+
+        function findSolarHitAt(clientX, clientY) {
+            if (!isSolarBgEnabled || currentPage !== 'card') return null;
+            for (let i = solarHitTargets.length - 1; i >= 0; i--) {
+                const t = solarHitTargets[i];
+                const d = Math.hypot(clientX - t.x, clientY - t.y);
+                if (d <= t.hitRadius) {
+                    return t.body;
+                }
+            }
+            return null;
+        }
+
+        // Lắng nghe nhấp vào phần Hệ Mặt Trời phía sau danh thiếp ở trang chính
+        document.addEventListener('click', (e) => {
+            if (!isSolarBgEnabled || currentPage !== 'card') return;
+            // Không can thiệp nếu nhấp vào các phần tử tương tác/nút/link/modal
+            if (e.target.closest('a, button, input, textarea, select, form, nav, #avatar-modal, #bank-modal, #qr-modal, #solar-detail-modal')) {
+                return;
+            }
+            const hitBody = findSolarHitAt(e.clientX, e.clientY);
+            if (hitBody) {
+                toggleSolarDetailModal(hitBody);
+            }
+        });
+
         function drawVisibleSolarSystem() {
             if (!solarOverlayCtx || !solarOverlayCanvas) return;
             solarOverlayCtx.clearRect(0, 0, solarOverlayCanvas.width, solarOverlayCanvas.height);
+            solarHitTargets = [];
             if (!isSolarBgEnabled) return;
 
             const w = solarOverlayCanvas.width;
@@ -1019,6 +1232,8 @@
             const cy = w > 1024 ? h * 0.52 : h * 0.78;
             const maxSpan = Math.min(w * 0.36, h * 0.42);
             const scale = Math.max(0.45, Math.min(1.15, maxSpan / 256));
+
+            let currentHover = null;
 
             BG_SOLAR_BODIES.forEach((b) => {
                 if (b.speed > 0) {
@@ -1042,6 +1257,13 @@
                     const py = cy + localX * Math.sin(rot) + localY * Math.cos(rot);
                     const rPlanet = Math.max(2.6, b.size * scale);
 
+                    const hitRadius = Math.max(14, rPlanet + 9);
+                    solarHitTargets.push({ body: b, x: px, y: py, hitRadius });
+
+                    if (mouse.x !== null && mouse.y !== null && Math.hypot(mouse.x - px, mouse.y - py) <= hitRadius) {
+                        currentHover = b;
+                    }
+
                     if (b.name === 'Sao Thổ') {
                         solarOverlayCtx.save();
                         solarOverlayCtx.translate(px, py);
@@ -1054,20 +1276,35 @@
                         solarOverlayCtx.restore();
                     }
 
+                    if (hoveredSolarBody && hoveredSolarBody.name === b.name) {
+                        solarOverlayCtx.beginPath();
+                        solarOverlayCtx.arc(px, py, rPlanet + 5, 0, Math.PI * 2);
+                        solarOverlayCtx.strokeStyle = "rgba(254, 240, 138, 0.9)";
+                        solarOverlayCtx.lineWidth = 1.5;
+                        solarOverlayCtx.stroke();
+                    }
+
                     solarOverlayCtx.beginPath();
                     solarOverlayCtx.arc(px, py, rPlanet, 0, Math.PI * 2);
                     solarOverlayCtx.fillStyle = b.color;
-                    solarOverlayCtx.globalAlpha = 0.78;
+                    solarOverlayCtx.globalAlpha = 0.82;
                     solarOverlayCtx.fill();
 
                     if (w >= 640) {
                         solarOverlayCtx.font = "600 10px 'Be Vietnam Pro', sans-serif";
-                        solarOverlayCtx.fillStyle = "rgba(254, 240, 138, 0.65)";
+                        solarOverlayCtx.fillStyle = "rgba(254, 240, 138, 0.72)";
                         solarOverlayCtx.fillText(b.name, px + rPlanet + 4, py + 3);
                     }
                     solarOverlayCtx.globalAlpha = 1;
                 } else {
                     const sunR = Math.max(10, b.size * scale);
+                    const hitRadius = Math.max(22, sunR + 10);
+                    solarHitTargets.push({ body: b, x: cx, y: cy, hitRadius });
+
+                    if (mouse.x !== null && mouse.y !== null && Math.hypot(mouse.x - cx, mouse.y - cy) <= hitRadius) {
+                        currentHover = b;
+                    }
+
                     const glow = solarOverlayCtx.createRadialGradient(cx, cy, sunR * 0.2, cx, cy, sunR * 3.4);
                     glow.addColorStop(0, "rgba(254, 240, 138, 0.65)");
                     glow.addColorStop(0.5, "rgba(245, 158, 11, 0.22)");
@@ -1080,10 +1317,42 @@
 
                     solarOverlayCtx.beginPath();
                     solarOverlayCtx.arc(cx, cy, sunR, 0, Math.PI * 2);
-                    solarOverlayCtx.fillStyle = "rgba(251, 191, 36, 0.88)";
+                    solarOverlayCtx.fillStyle = "rgba(251, 191, 36, 0.9)";
                     solarOverlayCtx.fill();
                 }
             });
+
+            hoveredSolarBody = currentHover;
+
+            // Nhãn gợi ý nhỏ khi trỏ vào thiên thể trên trang chính
+            if (hoveredSolarBody && currentPage === 'card') {
+                const target = solarHitTargets.find((t) => t.body.name === hoveredSolarBody.name);
+                if (target) {
+                    const label = `Nhấn xem ${hoveredSolarBody.name}`;
+                    solarOverlayCtx.save();
+                    solarOverlayCtx.font = "600 11px 'Be Vietnam Pro', sans-serif";
+                    const padX = 8;
+                    const textW = solarOverlayCtx.measureText(label).width;
+                    const boxW = textW + padX * 2;
+                    const boxH = 22;
+                    const bx = Math.min(w - boxW - 10, Math.max(10, target.x - boxW / 2));
+                    const by = Math.max(10, target.y - target.hitRadius - boxH - 6);
+
+                    solarOverlayCtx.fillStyle = "rgba(9, 9, 11, 0.88)";
+                    solarOverlayCtx.strokeStyle = "rgba(251, 191, 36, 0.65)";
+                    solarOverlayCtx.lineWidth = 1;
+                    solarOverlayCtx.beginPath();
+                    solarOverlayCtx.roundRect(bx, by, boxW, boxH, 8);
+                    solarOverlayCtx.fill();
+                    solarOverlayCtx.stroke();
+
+                    solarOverlayCtx.fillStyle = "#fef08a";
+                    solarOverlayCtx.textAlign = "center";
+                    solarOverlayCtx.textBaseline = "middle";
+                    solarOverlayCtx.fillText(label, bx + boxW / 2, by + boxH / 2 + 0.5);
+                    solarOverlayCtx.restore();
+                }
+            }
         }
 
         // --- GAME NÉM XIÊN & NÉM NGANG NÂNG CAO ---
@@ -1547,4 +1816,346 @@
 
         // --- 3. XỬ LÝ BANK MODAL & COPY STK ---
         function toggleBankModal() {
-            const
+            const modal = document.getElementById('bank-modal');
+            const content = document.getElementById('bank-modal-content');
+
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+        }
+
+        function copyTextToClipboard(text, successMessage) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            showToast(successMessage);
+        }
+
+        function copyBankInfo() {
+            copyTextToClipboard("8888818756723", "Đã sao chép STK Agribank: 8888818756723");
+        }
+
+        function copyPhoneNumber() {
+            copyTextToClipboard("0818756723", "Đã sao chép SĐT Zalo: 0818 756 723");
+        }
+
+        function copyCurrentLink() {
+            copyTextToClipboard(window.location.href, "Đã sao chép liên kết danh thiếp!");
+        }
+
+        // --- 4. TẠO & LƯU TỆP vCARD (.VCF) ---
+        function saveVCard() {
+            const vcardContent = [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                "N:Nguyễn Lê;Nhật Minh;;;",
+                "FN:Nguyễn Lê Nhật Minh",
+                "ORG:Trường THPT Chuyên Bến Tre",
+                "TITLE:Học sinh Chuyên Vật Lý",
+                "TEL;TYPE=CELL,VOICE:0818756723",
+                "EMAIL:cbter.nguyenminh.vn@gmail.com",
+                "URL:https://www.facebook.com/share/1KLQaQE5Zk/",
+                "NOTE:Danh thiếp điện tử cá nhân - Nguyễn Lê Nhật Minh | HCV Bơi lội, HCĐ Điền kinh | Tích cực hoạt động tập thể trường, lớp & cộng đồng",
+                "END:VCARD"
+            ].join("\n");
+
+            const blob = new Blob([vcardContent], { type: "text/vcard;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "Nguyen_Le_Nhat_Minh.vcf");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast("Đang tải tệp danh bạ (.vcf) về thiết bị...");
+        }
+
+        // --- 5. XỬ LÝ MODAL MÃ QR CHIA SẺ TRANG ---
+        let qrGenerated = false;
+        function toggleShareQRModal() {
+            const modal = document.getElementById('qr-modal');
+            const content = document.getElementById('qr-modal-content');
+
+            if (!qrGenerated) {
+                const container = document.getElementById("qrcode-container");
+                container.innerHTML = "";
+                new QRCode(container, {
+                    text: window.location.href,
+                    width: 180,
+                    height: 180,
+                    colorDark: "#09090b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                qrGenerated = true;
+            }
+
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+        }
+
+        // --- 6. HIỆU ỨNG NGHIÊNG THẺ 3D THEO CHUỘT ---
+        let is3DTiltEnabled = true;
+        const card = document.getElementById('business-card');
+
+        function toggle3DTilt() {
+            is3DTiltEnabled = !is3DTiltEnabled;
+            const statusText = document.getElementById('tilt-status-text');
+            if (is3DTiltEnabled) {
+                statusText.innerText = "3D: Bật";
+                showToast("Đã bật hiệu ứng nghiêng 3D tương tác");
+            } else {
+                statusText.innerText = "3D: Tắt";
+                card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
+                showToast("Đã tắt hiệu ứng nghiêng 3D");
+            }
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (!is3DTiltEnabled || window.innerWidth < 768 || currentPage !== 'card') return;
+            const rect = card.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+            
+            const angleX = (e.clientY - cardCenterY) / 35;
+            const angleY = (cardCenterX - e.clientX) / 35;
+
+            card.style.transform = `perspective(1200px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            if (!is3DTiltEnabled) return;
+            card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
+        });
+
+        // --- 7. HẠT BAY TỰ DO (GIẢM ĐỘ HÚT CHUỘT) & ICON VẬT LÝ KHI BẤM CHUỘT ---
+        const canvas = document.getElementById('physics-canvas');
+        const ctx = canvas.getContext('2d');
+        const fieldCore = document.getElementById('mouse-field-core');
+        const fieldRing = document.getElementById('mouse-field-ring');
+        let particles = [];
+        let fieldWaves = [];
+        let clickPhysicsIcons = [];
+        const PHYSICS_SYMBOLS = ['⚛', '🧲', '⚡', 'λ', 'Ω', 'g'];
+        let mouse = { x: null, y: null, radius: 135 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            if (fieldCore) {
+                fieldCore.style.left = `${e.clientX}px`;
+                fieldCore.style.top = `${e.clientY}px`;
+                fieldCore.style.opacity = '1';
+            }
+            if (fieldRing) {
+                fieldRing.style.left = `${e.clientX}px`;
+                fieldRing.style.top = `${e.clientY}px`;
+                fieldRing.style.opacity = '1';
+            }
+        });
+
+        window.addEventListener('mousedown', (e) => {
+            if (fieldRing) fieldRing.classList.add('pulse');
+            fieldWaves.push({
+                x: e.clientX,
+                y: e.clientY,
+                radius: 10,
+                maxRadius: 120,
+                alpha: 0.65
+            });
+
+            const iconCount = 5;
+            for (let k = 0; k < iconCount; k++) {
+                const spreadAngle = -Math.PI * 0.85 + (k / Math.max(1, iconCount - 1)) * Math.PI * 0.7 + (Math.random() - 0.5) * 0.25;
+                const speed = 2.2 + Math.random() * 2.1;
+                clickPhysicsIcons.push({
+                    symbol: PHYSICS_SYMBOLS[Math.floor(Math.random() * PHYSICS_SYMBOLS.length)],
+                    x: e.clientX,
+                    y: e.clientY,
+                    vx: Math.cos(spreadAngle) * speed,
+                    vy: Math.sin(spreadAngle) * speed - 1.1,
+                    rotation: (Math.random() - 0.5) * 0.4,
+                    vRot: (Math.random() - 0.5) * 0.08,
+                    alpha: 1,
+                    size: 14 + Math.random() * 4
+                });
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (fieldRing) fieldRing.classList.remove('pulse');
+        });
+
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+            if (fieldCore) fieldCore.style.opacity = '0';
+            if (fieldRing) fieldRing.style.opacity = '0';
+        });
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+            resizeSolarOverlayCanvas();
+            resizeProjectileCanvas();
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.1 + 0.9;
+                this.baseVx = (Math.random() - 0.5) * 0.95;
+                this.baseVy = (Math.random() - 0.5) * 0.95;
+                this.vx = this.baseVx;
+                this.vy = this.baseVy;
+                this.attracted = false;
+            }
+            update() {
+                this.attracted = false;
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < mouse.radius && dist > 6) {
+                        this.attracted = true;
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+                        const gentlePull = ((mouse.radius - dist) / mouse.radius) * 0.09;
+                        this.vx += nx * gentlePull;
+                        this.vy += ny * gentlePull;
+                    } else {
+                        this.vx += (this.baseVx - this.vx) * 0.03;
+                        this.vy += (this.baseVy - this.vy) * 0.03;
+                    }
+                } else {
+                    this.vx += (this.baseVx - this.vx) * 0.03;
+                    this.vy += (this.baseVy - this.vy) * 0.03;
+                }
+
+                const maxSpeed = 2.1;
+                const spd = Math.hypot(this.vx, this.vy);
+                if (spd > maxSpeed) {
+                    this.vx = (this.vx / spd) * maxSpeed;
+                    this.vy = (this.vy / spd) * maxSpeed;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0) { this.x = 0; this.vx *= -1; this.baseVx *= -1; }
+                if (this.x > canvas.width) { this.x = canvas.width; this.vx *= -1; this.baseVx *= -1; }
+                if (this.y < 0) { this.y = 0; this.vy *= -1; this.baseVy *= -1; }
+                if (this.y > canvas.height) { this.y = canvas.height; this.vy *= -1; this.baseVy *= -1; }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.attracted ? this.size * 1.15 : this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.attracted
+                    ? "rgba(254, 240, 138, 0.78)"
+                    : "rgba(245, 158, 11, 0.52)";
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 13500), 90);
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ Hệ Mặt Trời hiển thị rõ trên canvas overlay
+            drawVisibleSolarSystem();
+
+            // Vẽ Game Ném Xiên & Ném Ngang nếu đang mở tab đó
+            drawProjectileGame();
+
+            // Sóng gợn nhẹ khi nhấp chuột
+            for (let r = fieldWaves.length - 1; r >= 0; r--) {
+                const wv = fieldWaves[r];
+                wv.radius += 3.6;
+                wv.alpha -= 0.025;
+                if (wv.alpha <= 0 || wv.radius > wv.maxRadius) {
+                    fieldWaves.splice(r, 1);
+                    continue;
+                }
+                ctx.beginPath();
+                ctx.arc(wv.x, wv.y, wv.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(251, 191, 36, ${wv.alpha.toFixed(3)})`;
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+            }
+
+            // Hạt bay tự do
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+
+            // Icon Vật lý xuất hiện khi bấm chuột
+            for (let idx = clickPhysicsIcons.length - 1; idx >= 0; idx--) {
+                const ic = clickPhysicsIcons[idx];
+                ic.vy += 0.08;
+                ic.x += ic.vx;
+                ic.y += ic.vy;
+                ic.rotation += ic.vRot;
+                ic.alpha -= 0.022;
+
+                if (ic.alpha <= 0) {
+                    clickPhysicsIcons.splice(idx, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.translate(ic.x, ic.y);
+                ctx.rotate(ic.rotation);
+                ctx.globalAlpha = Math.max(0, ic.alpha);
+                ctx.font = `700 ${Math.round(ic.size)}px 'Be Vietnam Pro', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#fde047';
+                ctx.fillText(ic.symbol, 0, 0);
+                ctx.restore();
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.onload = function() {
+            resizeCanvas();
+            renderSolarDetailContent(BG_SOLAR_BODIES[0]);
+            updateProjectileSliders();
+            spawnProjectileRings();
+            animateParticles();
+        };
+    </script>
+</body>
+</html>
