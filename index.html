@@ -193,10 +193,10 @@
 
     <!-- MAIN CONTENT CONTAINER -->
     <main class="w-full max-w-4xl px-4 py-6 z-10 flex-grow flex items-center justify-center">
-        <div class="w-full space-y-5">
+        <div class="w-full space-y-8">
 
-            <!-- ==================== TRANG 1: THẺ DANH THIẾP CHÍNH ==================== -->
-            <div id="page-card" class="space-y-5">
+            <!-- ==================== TRANG 1: THẺ DANH THIẾP CHÍNH & LIÊN HỆ DỰ ÁN ==================== -->
+            <div id="page-card" class="space-y-8">
                 <div id="business-card" class="glass-card shimmer-card rounded-3xl p-6 sm:p-8 md:p-10 transition-transform duration-200 ease-out" style="transform-style: preserve-3d;">
                     
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
@@ -347,6 +347,115 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- PHẦN LIÊN HỆ & GỬI TIN NHẮN DỰ ÁN (THÔNG TIN SẼ ĐƯỢC ĐIỀN SAU) -->
+                <section id="contact-section" class="glass-card rounded-3xl p-6 sm:p-8 md:p-10 space-y-8">
+                    <!-- Tiêu đề phần liên hệ -->
+                    <div class="text-center space-y-2">
+                        <span class="text-[11px] font-bold tracking-[0.22em] uppercase text-amber-400 block">
+                            LIÊN HỆ
+                        </span>
+                        <h2 class="heading-font text-2xl sm:text-3xl font-extrabold gold-text-gradient">
+                            Bắt đầu một dự án cùng nhau?
+                        </h2>
+                    </div>
+
+                    <!-- Bố cục 2 cột: Thông tin liên lạc & Form gửi tin nhắn -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                        
+                        <!-- Cột trái: Thông tin liên lạc (5 cột) -->
+                        <div class="md:col-span-5 space-y-6">
+                            <div class="space-y-2">
+                                <h3 class="heading-font text-lg sm:text-xl font-bold text-white">
+                                    Thông tin liên lạc
+                                </h3>
+                                <p class="text-xs sm:text-[13px] text-zinc-400 leading-relaxed">
+                                    Đừng ngần ngại gửi tin nhắn cho tôi nếu bạn có ý tưởng dự án mới, thắc mắc hoặc đơn giản là muốn kết nối!
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <!-- Email (Điền sau) -->
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-base shrink-0">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">EMAIL</div>
+                                        <div class="text-xs sm:text-sm font-semibold text-zinc-200">[Điền email của bạn sau]</div>
+                                    </div>
+                                </div>
+
+                                <!-- Điện thoại / Zalo -->
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-base shrink-0">
+                                        <i class="fa-solid fa-phone"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">ĐIỆN THOẠI / ZALO</div>
+                                        <div class="text-xs sm:text-sm font-semibold text-zinc-200 font-mono">+84 818 756 723</div>
+                                    </div>
+                                </div>
+
+                                <!-- Địa chỉ (Điền sau) -->
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-base shrink-0">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">ĐỊA CHỈ</div>
+                                        <div class="text-xs sm:text-sm font-semibold text-zinc-200">[Điền địa chỉ của bạn sau]</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cột phải: Form gửi tin nhắn (7 cột) -->
+                        <div class="md:col-span-7">
+                            <form id="project-contact-form" onsubmit="handleContactSubmit(event)" class="p-5 sm:p-6 rounded-2xl bg-zinc-900/75 border border-zinc-800/90 space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label for="contact-name" class="block text-xs font-semibold text-zinc-300">
+                                            Họ và tên <span class="text-amber-400">*</span>
+                                        </label>
+                                        <input type="text" id="contact-name" required placeholder="Nguyễn Văn B" 
+                                               class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/90 border border-zinc-800 focus:border-amber-500/60 focus:outline-none text-xs sm:text-sm text-zinc-100 placeholder-zinc-600 transition-colors">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label for="contact-email" class="block text-xs font-semibold text-zinc-300">
+                                            Email <span class="text-amber-400">*</span>
+                                        </label>
+                                        <input type="email" id="contact-email" required placeholder="email@example.com" 
+                                               class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/90 border border-zinc-800 focus:border-amber-500/60 focus:outline-none text-xs sm:text-sm text-zinc-100 placeholder-zinc-600 transition-colors">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="contact-subject" class="block text-xs font-semibold text-zinc-300">
+                                        Chủ đề
+                                    </label>
+                                    <input type="text" id="contact-subject" placeholder="Tư vấn dự án Website..." 
+                                           class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/90 border border-zinc-800 focus:border-amber-500/60 focus:outline-none text-xs sm:text-sm text-zinc-100 placeholder-zinc-600 transition-colors">
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="contact-message" class="block text-xs font-semibold text-zinc-300">
+                                        Nội dung tin nhắn <span class="text-amber-400">*</span>
+                                    </label>
+                                    <textarea id="contact-message" rows="4" required placeholder="Hãy mô tả chi tiết về nhu cầu dự án của bạn..." 
+                                              class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/90 border border-zinc-800 focus:border-amber-500/60 focus:outline-none text-xs sm:text-sm text-zinc-100 placeholder-zinc-600 transition-colors resize-none"></textarea>
+                                </div>
+
+                                <button type="submit" 
+                                        class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-98 shadow-lg shadow-amber-500/15">
+                                    <span>Gửi tin nhắn</span>
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </section>
             </div>
 
             <!-- ==================== TRANG 2: PHÒNG THÍ NGHIỆM TỪ TRƯỜNG CHUYÊN SÂU ==================== -->
@@ -601,6 +710,14 @@
 
     <!-- JAVASCRIPT XỬ LÝ INTERACTION, THÍ NGHIỆM TỪ TRƯỜNG CHUYÊN SÂU, HIỆU ỨNG CHUỘT & PARTICLES -->
     <script>
+        // --- XỬ LÝ GỬI FORM LIÊN HỆ ---
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            const senderName = document.getElementById('contact-name').value.trim();
+            showToast(`Cảm ơn ${senderName || 'bạn'}! Tin nhắn đã được ghi nhận.`);
+            event.target.reset();
+        }
+
         // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & TRANG THÍ NGHIỆM TỪ TRƯỜNG ---
         let currentPage = 'card';
         function switchPage(pageName) {
