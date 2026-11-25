@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Lê Nhật Minh | Danh Thiếp Cá Nhân</title>
+    <title>Nguyễn Lê Nhật Minh | Danh Thiếp & Mô Phỏng Vật Lý</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,12 +39,25 @@
             letter-spacing: -0.01em;
         }
 
+        /* Thanh tiến độ cuộn trang ở mép trên */
+        #scroll-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, #f59e0b, #fde047, #fbbf24);
+            z-index: 70;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.7);
+            transition: width 0.08s linear;
+        }
+
         /* Hiệu ứng kính mờ sang trọng (Royal Glassmorphism) */
         .glass-card {
-            background: linear-gradient(145deg, rgba(24, 24, 27, 0.86) 0%, rgba(12, 12, 14, 0.94) 100%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            background: linear-gradient(145deg, rgba(24, 24, 27, 0.82) 0%, rgba(12, 12, 14, 0.90) 100%);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(245, 158, 11, 0.28);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 
                         0 0 30px rgba(245, 158, 11, 0.08);
         }
@@ -172,19 +185,25 @@
 </head>
 <body class="min-h-screen flex flex-col justify-center items-center relative selection:bg-amber-500 selection:text-black">
 
+    <!-- THANH TIẾN TRÌNH CUỘN TRANG -->
+    <div id="scroll-progress-bar"></div>
+
     <!-- TRƯỜNG HÚT CON CHUỘT: TÂM HÚT & VÒNG TRƯỜNG LỰC -->
     <div id="mouse-field-ring"></div>
     <div id="mouse-field-core"></div>
 
-    <!-- CANVAS NỀN HỆ MẶT TRỜI + HẠT BAY TỰ DO + ICON VẬT LÝ KHI BẤM CHUỘT -->
+    <!-- CANVAS NỀN HẠT BAY TỰ DO + ICON VẬT LÝ KHI BẤM CHUỘT -->
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <!-- CANVAS HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN (KHÔNG BỊ ẨN SAU DANH THIẾP) -->
+    <canvas id="solar-overlay-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-20"></canvas>
 
     <!-- ÁNH SÁNG AMBIENT GLOW PHÍA SAU -->
     <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
     <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
     <!-- THANH ĐIỀU HƯỚNG NHANH TRÊN CÙNG (DESKTOP & MOBILE) -->
-    <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-10 flex flex-wrap justify-between items-center gap-3">
+    <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-30 flex flex-wrap justify-between items-center gap-3">
         <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center text-black font-extrabold heading-font shadow-lg">
                 <i class="fa-solid fa-atom text-sm"></i>
@@ -195,7 +214,7 @@
         </div>
 
         <!-- THANH CHUYỂN TRANG -->
-        <nav class="flex items-center p-1 rounded-full bg-zinc-900/90 border border-amber-500/30 shadow-lg flex-wrap gap-1">
+        <nav class="flex items-center p-1 rounded-full bg-zinc-900/95 border border-amber-500/35 shadow-lg flex-wrap gap-1">
             <button id="nav-card-btn" onclick="switchPage('card')" class="px-3.5 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Danh Thiếp</span>
@@ -212,13 +231,13 @@
 
         <div class="flex items-center gap-2">
             <!-- Nút bật/tắt Hệ Mặt Trời trên nền -->
-            <button id="toggle-solar-bg-btn" onclick="toggleBackgroundSolar()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md" title="Bật/tắt Hệ Mặt Trời ở nền">
+            <button id="toggle-solar-bg-btn" onclick="toggleBackgroundSolar()" class="px-3 py-1.5 rounded-full bg-zinc-900/85 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md" title="Bật/tắt Hệ Mặt Trời trên nền">
                 <i class="fa-solid fa-sun"></i>
                 <span id="solar-bg-status-text" class="hidden sm:inline">Hệ MT: Bật</span>
             </button>
 
             <!-- Nút bật/tắt hiệu ứng chuyển động 3D -->
-            <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md">
+            <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3.5 py-1.5 rounded-full bg-zinc-900/85 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md">
                 <i class="fa-solid fa-atom"></i>
                 <span id="tilt-status-text">3D: Bật</span>
             </button>
@@ -226,7 +245,7 @@
     </header>
 
     <!-- MAIN CONTENT CONTAINER -->
-    <main class="w-full max-w-4xl px-4 py-6 z-10 flex-grow flex items-center justify-center">
+    <main class="w-full max-w-4xl px-4 py-6 z-30 flex-grow flex items-center justify-center">
         <div class="w-full space-y-8">
 
             <!-- ==================== TRANG 1: THẺ DANH THIẾP CHÍNH & LIÊN HỆ DỰ ÁN ==================== -->
@@ -569,6 +588,28 @@
 
                     </div>
 
+                    <!-- Khối định hướng & giá trị đề án đại học -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-zinc-900/65 border border-amber-500/20 space-y-2.5">
+                        <div class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            Định Hướng Nghiên Cứu & Phát Triển Đề Án Đại Học
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-zinc-300">
+                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
+                                <div class="font-bold text-amber-300 mb-1">Mô Phỏng Động Lực Học</div>
+                                <span>Trực quan hóa phương trình chuyển động & quỹ đạo thời gian thực.</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
+                                <div class="font-bold text-amber-300 mb-1">Ứng Dụng AI & STEM</div>
+                                <span>Kết hợp tư duy thuật toán, mô hình hóa dữ liệu và kỹ thuật hiện đại.</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
+                                <div class="font-bold text-amber-300 mb-1">Trải Nghiệm Tương Tác</div>
+                                <span>Thiết kế giao diện tối giản, mượt mà, tối ưu trên đa thiết bị.</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Chân trang điều hướng nhanh -->
                     <div class="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
                         <span class="text-xs text-zinc-400">
@@ -584,7 +625,7 @@
                 </div>
             </div>
 
-            <!-- ==================== TRANG 3: GAME NÉM XIÊN & NÉM NGANG ==================== -->
+            <!-- ==================== TRANG 3: GAME NÉM XIÊN & NÉM NGANG HẤP DẪN ==================== -->
             <div id="page-projectile" class="hidden space-y-5">
                 <div class="glass-card rounded-3xl p-5 sm:p-7 border border-amber-500/35 space-y-5">
                     
@@ -593,10 +634,10 @@
                         <div>
                             <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
                                 <i class="fa-solid fa-arrow-trend-up"></i>
-                                Chuyển Động Ném Xiên & Ném Ngang • g = 9.8 m/s²
+                                Động Lực Học Ném Xiên & Ném Ngang • Chướng Ngại & Trọng Lực
                             </div>
                             <h2 class="heading-font text-lg sm:text-2xl font-bold gold-text-gradient">
-                                Thử Thách Quỹ Đạo Parabol
+                                Thử Thách Quỹ Đạo Parabol Nâng Cao
                             </h2>
                         </div>
 
@@ -621,12 +662,12 @@
                         
                         <!-- Canvas Trò Chơi (8 cột) -->
                         <div class="lg:col-span-8 relative rounded-2xl overflow-hidden bg-zinc-950 border border-amber-500/30 shadow-inner">
-                            <canvas id="projectile-canvas" class="w-full h-[350px] sm:h-[390px] block"></canvas>
+                            <canvas id="projectile-canvas" class="w-full h-[360px] sm:h-[405px] block"></canvas>
                             
                             <!-- Nhãn hướng dẫn góc trên canvas -->
                             <div class="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-black/75 border border-amber-500/25 text-[11px] text-amber-200 backdrop-blur-md pointer-events-none flex items-center gap-1.5">
                                 <i class="fa-solid fa-compass text-amber-400"></i>
-                                <span>Di chuột trên canvas để chỉnh góc & vận tốc • Nhấp chuột để phóng vật</span>
+                                <span>Di chuột / nhấp ngắm hướng & lực phóng • Xuyên qua vòng vàng, tránh khối chắn!</span>
                             </div>
 
                             <!-- Phương trình quỹ đạo góc dưới canvas -->
@@ -656,26 +697,26 @@
 
                                 <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
                                     <div>
-                                        <div class="text-[11px] text-zinc-400">Tầm Xa Lý Thuyết (L)</div>
-                                        <div id="proj-range" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">42.5 m</div>
+                                        <div class="text-[11px] text-zinc-400">Độ Cao Cực Đại (Hₘₐₓ)</div>
+                                        <div id="proj-max-height" class="text-sm sm:text-base font-mono font-bold text-sky-400 mt-0.5">12.3 m</div>
                                     </div>
-                                    <i class="fa-solid fa-ruler-horizontal text-amber-400/50 text-lg"></i>
+                                    <i class="fa-solid fa-arrows-up-to-line text-sky-400/50 text-lg"></i>
                                 </div>
 
                                 <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
                                     <div>
-                                        <div class="text-[11px] text-zinc-400">Vòng Mục Tiêu Còn Lại</div>
-                                        <div id="proj-targets-left" class="text-sm sm:text-base font-mono font-bold text-zinc-100 mt-0.5">3 Vòng</div>
+                                        <div class="text-[11px] text-zinc-400">Tầm Xa Lý Thuyết (L)</div>
+                                        <div id="proj-range" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">49.4 m</div>
                                     </div>
-                                    <i class="fa-solid fa-circle-dot text-amber-400/60 text-lg"></i>
+                                    <i class="fa-solid fa-ruler-horizontal text-amber-400/50 text-lg"></i>
                                 </div>
                             </div>
 
                             <div class="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 leading-relaxed">
                                 <span class="text-amber-400 font-semibold block mb-1">
-                                    <i class="fa-solid fa-lightbulb mr-1"></i> Nguyên Lý Ném Xiên & Ném Ngang
+                                    <i class="fa-solid fa-lightbulb mr-1"></i> Điểm Thưởng & Thử Thách
                                 </span>
-                                Trong <strong>Ném xiên</strong>, chuyển động tách thành thẳng đều theo phương ngang ($x = v_0\cos\alpha \cdot t$) và nhanh/chậm dần đều theo phương thẳng đứng. Trong <strong>Ném ngang</strong> ($\alpha = 0^\circ$), thời gian rơi phụ thuộc độ cao bệ phóng $t = \sqrt{2h/g}$.
+                                Xuyên tâm vòng vàng nhận thưởng cao hơn, chuỗi liên tiếp tăng hệ số điểm lên đến <strong>x8</strong>. Khối chắn màu đỏ hấp thụ vật phóng — hãy điều chỉnh góc $\alpha$ và vận tốc $v_0$ khéo léo!
                             </div>
                         </div>
                     </div>
@@ -838,8 +879,17 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, HỆ MẶT TRỜI TRÊN NỀN, HẠT BAY TỰ DO & ICON VẬT LÝ KHI BẤM CHUỘT -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, HỆ MẶT TRỜI HIỂN THỊ RÕ, GAME NÉM XIÊN & NGANG NÂNG CAO, HẠT BAY TỰ DO & ICON VẬT LÝ -->
     <script>
+        // --- THANH TIẾN TRÌNH CUỘN TRANG ---
+        window.addEventListener('scroll', () => {
+            const bar = document.getElementById('scroll-progress-bar');
+            if (!bar) return;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = docHeight > 0 ? Math.min(100, Math.max(0, (window.scrollY / docHeight) * 100)) : 0;
+            bar.style.width = `${pct}%`;
+        });
+
         // --- XỬ LÝ GỬI FORM LIÊN HỆ ---
         function handleContactSubmit(event) {
             event.preventDefault();
@@ -888,17 +938,20 @@
             }
         }
 
-        // --- HỆ MẶT TRỜI TÍCH HỢP TRÊN BACKGROUND ---
+        // --- HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN LỚP OVERLAY CANVAS (KHÔNG BỊ ẨN SAU DANH THIẾP) ---
+        const solarOverlayCanvas = document.getElementById('solar-overlay-canvas');
+        const solarOverlayCtx = solarOverlayCanvas ? solarOverlayCanvas.getContext('2d') : null;
+
         const BG_SOLAR_BODIES = [
-            { name: 'Mặt Trời', color: 'rgba(251, 191, 36, 0.32)', orbit: 0, size: 13, speed: 0, angle: 0 },
-            { name: 'Sao Thủy', color: 'rgba(161, 161, 170, 0.34)', orbit: 36, size: 3, speed: 0.016, angle: 0.5 },
-            { name: 'Sao Kim', color: 'rgba(234, 179, 8, 0.34)', orbit: 58, size: 4.5, speed: 0.011, angle: 1.8 },
-            { name: 'Trái Đất', color: 'rgba(56, 189, 248, 0.38)', orbit: 82, size: 5, speed: 0.0085, angle: 3.1 },
-            { name: 'Sao Hỏa', color: 'rgba(249, 115, 22, 0.36)', orbit: 106, size: 3.8, speed: 0.0065, angle: 4.6 },
-            { name: 'Sao Mộc', color: 'rgba(253, 186, 116, 0.34)', orbit: 138, size: 8.5, speed: 0.004, angle: 1.1 },
-            { name: 'Sao Thổ', color: 'rgba(253, 224, 71, 0.35)', orbit: 170, size: 7, speed: 0.003, angle: 2.7 },
-            { name: 'Thiên Vương', color: 'rgba(103, 232, 249, 0.32)', orbit: 198, size: 5.5, speed: 0.0021, angle: 4.2 },
-            { name: 'Hải Vương', color: 'rgba(96, 165, 250, 0.32)', orbit: 224, size: 5.3, speed: 0.0016, angle: 5.4 }
+            { name: 'Mặt Trời', color: '#fbbf24', orbit: 0, size: 15, speed: 0, angle: 0 },
+            { name: 'Sao Thủy', color: '#d4d4d8', orbit: 42, size: 3.6, speed: 0.016, angle: 0.5 },
+            { name: 'Sao Kim', color: '#facc15', orbit: 68, size: 5.2, speed: 0.011, angle: 1.8 },
+            { name: 'Trái Đất', color: '#38bdf8', orbit: 96, size: 5.8, speed: 0.0085, angle: 3.1 },
+            { name: 'Sao Hỏa', color: '#fb923c', orbit: 124, size: 4.4, speed: 0.0065, angle: 4.6 },
+            { name: 'Sao Mộc', color: '#fed7aa', orbit: 160, size: 9.5, speed: 0.004, angle: 1.1 },
+            { name: 'Sao Thổ', color: '#fef08a', orbit: 196, size: 8, speed: 0.003, angle: 2.7 },
+            { name: 'Thiên Vương', color: '#67e8f9', orbit: 228, size: 6.2, speed: 0.0021, angle: 4.2 },
+            { name: 'Hải Vương', color: '#60a5fa', orbit: 256, size: 6, speed: 0.0016, angle: 5.4 }
         ];
 
         let isSolarBgEnabled = true;
@@ -908,16 +961,30 @@
             if (label) {
                 label.innerText = isSolarBgEnabled ? "Hệ MT: Bật" : "Hệ MT: Tắt";
             }
-            showToast(isSolarBgEnabled ? "Đã bật Hệ Mặt Trời trên nền" : "Đã tắt Hệ Mặt Trời trên nền");
+            if (!isSolarBgEnabled && solarOverlayCtx && solarOverlayCanvas) {
+                solarOverlayCtx.clearRect(0, 0, solarOverlayCanvas.width, solarOverlayCanvas.height);
+            }
+            showToast(isSolarBgEnabled ? "Đã bật Hệ Mặt Trời hiển thị rõ trên nền" : "Đã ẩn Hệ Mặt Trời");
         }
 
-        function drawBackgroundSolarSystem(ctxTarget, w, h) {
+        function resizeSolarOverlayCanvas() {
+            if (!solarOverlayCanvas) return;
+            solarOverlayCanvas.width = window.innerWidth;
+            solarOverlayCanvas.height = window.innerHeight;
+        }
+
+        function drawVisibleSolarSystem() {
+            if (!solarOverlayCtx || !solarOverlayCanvas) return;
+            solarOverlayCtx.clearRect(0, 0, solarOverlayCanvas.width, solarOverlayCanvas.height);
             if (!isSolarBgEnabled) return;
 
-            const cx = w * 0.5;
-            const cy = h * 0.52;
-            const maxSpan = Math.min(w, h) * 0.44;
-            const scale = Math.max(0.45, Math.min(1.25, maxSpan / 224));
+            const w = solarOverlayCanvas.width;
+            const h = solarOverlayCanvas.height;
+            // Đặt tâm lệch sang bên phải dưới để lộ rõ các quỹ đạo & hành tinh ngay cạnh thẻ danh thiếp
+            const cx = w > 1024 ? w * 0.78 : w * 0.5;
+            const cy = w > 1024 ? h * 0.52 : h * 0.78;
+            const maxSpan = Math.min(w * 0.36, h * 0.42);
+            const scale = Math.max(0.45, Math.min(1.15, maxSpan / 256));
 
             BG_SOLAR_BODIES.forEach((b) => {
                 if (b.speed > 0) {
@@ -928,56 +995,64 @@
                     const rx = b.orbit * scale;
                     const ry = b.orbit * scale * 0.68;
 
-                    ctxTarget.beginPath();
-                    ctxTarget.ellipse(cx, cy, rx, ry, -0.14, 0, Math.PI * 2);
-                    ctxTarget.strokeStyle = "rgba(245, 158, 11, 0.08)";
-                    ctxTarget.lineWidth = 0.8;
-                    ctxTarget.stroke();
+                    solarOverlayCtx.beginPath();
+                    solarOverlayCtx.ellipse(cx, cy, rx, ry, -0.14, 0, Math.PI * 2);
+                    solarOverlayCtx.strokeStyle = "rgba(251, 191, 36, 0.22)";
+                    solarOverlayCtx.lineWidth = 1;
+                    solarOverlayCtx.stroke();
 
                     const localX = Math.cos(b.angle) * rx;
                     const localY = Math.sin(b.angle) * ry;
                     const rot = -0.14;
                     const px = cx + localX * Math.cos(rot) - localY * Math.sin(rot);
                     const py = cy + localX * Math.sin(rot) + localY * Math.cos(rot);
-                    const rPlanet = Math.max(2, b.size * scale);
+                    const rPlanet = Math.max(2.6, b.size * scale);
 
                     if (b.name === 'Sao Thổ') {
-                        ctxTarget.save();
-                        ctxTarget.translate(px, py);
-                        ctxTarget.rotate(-0.35);
-                        ctxTarget.beginPath();
-                        ctxTarget.ellipse(0, 0, rPlanet * 1.9, rPlanet * 0.5, 0, 0, Math.PI * 2);
-                        ctxTarget.strokeStyle = "rgba(253, 224, 71, 0.24)";
-                        ctxTarget.lineWidth = 1;
-                        ctxTarget.stroke();
-                        ctxTarget.restore();
+                        solarOverlayCtx.save();
+                        solarOverlayCtx.translate(px, py);
+                        solarOverlayCtx.rotate(-0.35);
+                        solarOverlayCtx.beginPath();
+                        solarOverlayCtx.ellipse(0, 0, rPlanet * 2.0, rPlanet * 0.55, 0, 0, Math.PI * 2);
+                        solarOverlayCtx.strokeStyle = "rgba(254, 240, 138, 0.65)";
+                        solarOverlayCtx.lineWidth = 1.2;
+                        solarOverlayCtx.stroke();
+                        solarOverlayCtx.restore();
                     }
 
-                    ctxTarget.beginPath();
-                    ctxTarget.arc(px, py, rPlanet, 0, Math.PI * 2);
-                    ctxTarget.fillStyle = b.color;
-                    ctxTarget.fill();
+                    solarOverlayCtx.beginPath();
+                    solarOverlayCtx.arc(px, py, rPlanet, 0, Math.PI * 2);
+                    solarOverlayCtx.fillStyle = b.color;
+                    solarOverlayCtx.globalAlpha = 0.78;
+                    solarOverlayCtx.fill();
+
+                    if (w >= 640) {
+                        solarOverlayCtx.font = "600 10px 'Be Vietnam Pro', sans-serif";
+                        solarOverlayCtx.fillStyle = "rgba(254, 240, 138, 0.65)";
+                        solarOverlayCtx.fillText(b.name, px + rPlanet + 4, py + 3);
+                    }
+                    solarOverlayCtx.globalAlpha = 1;
                 } else {
-                    const sunR = Math.max(8, b.size * scale);
-                    const glow = ctxTarget.createRadialGradient(cx, cy, sunR * 0.2, cx, cy, sunR * 3.2);
-                    glow.addColorStop(0, "rgba(254, 240, 138, 0.25)");
-                    glow.addColorStop(0.5, "rgba(245, 158, 11, 0.08)");
+                    const sunR = Math.max(10, b.size * scale);
+                    const glow = solarOverlayCtx.createRadialGradient(cx, cy, sunR * 0.2, cx, cy, sunR * 3.4);
+                    glow.addColorStop(0, "rgba(254, 240, 138, 0.65)");
+                    glow.addColorStop(0.5, "rgba(245, 158, 11, 0.22)");
                     glow.addColorStop(1, "rgba(245, 158, 11, 0)");
 
-                    ctxTarget.beginPath();
-                    ctxTarget.arc(cx, cy, sunR * 3.2, 0, Math.PI * 2);
-                    ctxTarget.fillStyle = glow;
-                    ctxTarget.fill();
+                    solarOverlayCtx.beginPath();
+                    solarOverlayCtx.arc(cx, cy, sunR * 3.4, 0, Math.PI * 2);
+                    solarOverlayCtx.fillStyle = glow;
+                    solarOverlayCtx.fill();
 
-                    ctxTarget.beginPath();
-                    ctxTarget.arc(cx, cy, sunR, 0, Math.PI * 2);
-                    ctxTarget.fillStyle = "rgba(251, 191, 36, 0.36)";
-                    ctxTarget.fill();
+                    solarOverlayCtx.beginPath();
+                    solarOverlayCtx.arc(cx, cy, sunR, 0, Math.PI * 2);
+                    solarOverlayCtx.fillStyle = "rgba(251, 191, 36, 0.88)";
+                    solarOverlayCtx.fill();
                 }
             });
         }
 
-        // --- GAME NÉM XIÊN & NÉM NGANG (PROJECTILE KINEMATICS ARCADE) ---
+        // --- GAME NÉM XIÊN & NÉM NGANG NÂNG CAO ---
         const projCanvas = document.getElementById('projectile-canvas');
         const projCtx = projCanvas ? projCanvas.getContext('2d') : null;
         const GRAVITY = 9.8; // m/s^2
@@ -992,7 +1067,9 @@
             level: 1,
             projectiles: [],
             rings: [],
-            particles: []
+            obstacles: [],
+            particles: [],
+            floatingTexts: []
         };
 
         function resizeProjectileCanvas() {
@@ -1005,10 +1082,10 @@
         }
 
         function getLauncherPos() {
-            const h = projCanvas ? (projCanvas.height || 380) : 380;
+            const h = projCanvas ? (projCanvas.height || 390) : 390;
             const groundY = h - 34;
-            const x = 48;
-            const y = projGame.mode === 'horizontal' ? h * 0.34 : groundY - 12;
+            const x = 52;
+            const y = projGame.mode === 'horizontal' ? h * 0.32 : groundY - 12;
             return { x, y, groundY };
         }
 
@@ -1060,40 +1137,60 @@
             const hMeters = Math.max(0.5, (groundY - y) / PX_PER_METER);
 
             let rangeMeters = 0;
+            let maxHeightMeters = 0;
             if (projGame.mode === 'oblique') {
                 rangeMeters = (projGame.v0 * projGame.v0 * Math.sin(2 * rad)) / GRAVITY;
+                maxHeightMeters = hMeters + (Math.pow(projGame.v0 * Math.sin(rad), 2)) / (2 * GRAVITY);
             } else {
                 const tFlight = Math.sqrt((2 * hMeters) / GRAVITY);
                 rangeMeters = projGame.v0 * tFlight;
+                maxHeightMeters = hMeters;
             }
 
             scoreEl.innerText = projGame.score.toLocaleString('vi-VN');
             document.getElementById('proj-streak-level').innerText = `x${projGame.streak} • Màn ${projGame.level}`;
+            document.getElementById('proj-max-height').innerText = `${Math.max(0, maxHeightMeters).toFixed(1)} m`;
             document.getElementById('proj-range').innerText = `${Math.max(0, rangeMeters).toFixed(1)} m`;
-            document.getElementById('proj-targets-left').innerText = `${projGame.rings.length} Vòng`;
         }
 
         function spawnProjectileRings() {
             const w = projCanvas ? (projCanvas.width || 600) : 600;
-            const h = projCanvas ? (projCanvas.height || 380) : 380;
+            const h = projCanvas ? (projCanvas.height || 390) : 390;
             const { groundY } = getLauncherPos();
             projGame.rings = [];
+            projGame.obstacles = [];
 
             const count = Math.min(2 + projGame.level, 5);
             for (let i = 0; i < count; i++) {
                 const rx = w * (0.34 + (i / Math.max(1, count - 1)) * 0.54);
                 const ry = projGame.mode === 'horizontal'
-                    ? Math.min(groundY - 26, h * (0.42 + i * 0.14))
-                    : Math.min(groundY - 28, h * (0.26 + ((i % 2) * 0.25) + i * 0.06));
+                    ? Math.min(groundY - 28, h * (0.42 + i * 0.14))
+                    : Math.min(groundY - 30, h * (0.25 + ((i % 2) * 0.25) + i * 0.06));
 
                 projGame.rings.push({
                     x: rx,
                     y: ry,
                     baseY: ry,
                     radius: 22,
-                    phase: i * 1.1
+                    phase: i * 1.15
                 });
             }
+
+            // Thêm khối chắn thử thách từ màn 1 trở đi
+            const obsCount = Math.min(1 + Math.floor(projGame.level * 0.6), 3);
+            for (let o = 0; o < obsCount; o++) {
+                const ox = w * (0.28 + o * 0.24);
+                const oy = groundY - 46 - (o % 2) * 58;
+                projGame.obstacles.push({
+                    x: ox,
+                    y: oy,
+                    baseY: oy,
+                    w: 14,
+                    h: 44,
+                    phase: o * 1.7
+                });
+            }
+
             updateProjectileStatsUI();
         }
 
@@ -1118,6 +1215,7 @@
             projGame.level = 1;
             projGame.projectiles = [];
             projGame.particles = [];
+            projGame.floatingTexts = [];
             spawnProjectileRings();
             updateProjectileStatsUI();
             showToast("Đã đặt lại màn chơi Ném Xiên & Ném Ngang!");
@@ -1177,6 +1275,7 @@
             const speedPx = projGame.v0 * 0.26;
             const gPxPerFrame = GRAVITY * 0.016;
 
+            // Mặt đất tham chiếu
             projCtx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
             projCtx.lineWidth = 1.5;
             projCtx.beginPath();
@@ -1184,8 +1283,9 @@
             projCtx.lineTo(w, groundY);
             projCtx.stroke();
 
+            // Quỹ đạo dự báo parabol
             projCtx.beginPath();
-            for (let step = 0; step <= 48; step++) {
+            for (let step = 0; step <= 52; step++) {
                 const t = step * 1.4;
                 const px = lx + Math.cos(rad) * speedPx * t;
                 const py = ly - Math.sin(rad) * speedPx * t + 0.5 * gPxPerFrame * t * t;
@@ -1193,12 +1293,13 @@
                 if (step === 0) projCtx.moveTo(px, py);
                 else projCtx.lineTo(px, py);
             }
-            projCtx.strokeStyle = 'rgba(253, 224, 71, 0.32)';
+            projCtx.strokeStyle = 'rgba(253, 224, 71, 0.35)';
             projCtx.setLineDash([5, 6]);
             projCtx.lineWidth = 1.4;
             projCtx.stroke();
             projCtx.setLineDash([]);
 
+            // Bệ phóng ném ngang
             if (projGame.mode === 'horizontal') {
                 projCtx.fillStyle = 'rgba(245, 158, 11, 0.18)';
                 projCtx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
@@ -1206,6 +1307,7 @@
                 projCtx.strokeRect(0, ly + 6, lx + 12, groundY - (ly + 6));
             }
 
+            // Nòng phóng
             projCtx.save();
             projCtx.translate(lx, ly);
             projCtx.rotate(-rad);
@@ -1215,6 +1317,20 @@
             projCtx.fill();
             projCtx.restore();
 
+            // Vẽ khối chắn thử thách
+            projGame.obstacles.forEach((obs) => {
+                obs.phase += 0.02;
+                obs.y = obs.baseY + Math.sin(obs.phase) * 12;
+                projCtx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+                projCtx.strokeStyle = '#f87171';
+                projCtx.lineWidth = 1.5;
+                projCtx.beginPath();
+                projCtx.roundRect(obs.x - obs.w / 2, obs.y - obs.h / 2, obs.w, obs.h, 4);
+                projCtx.fill();
+                projCtx.stroke();
+            });
+
+            // Vẽ các vòng mục tiêu
             for (let i = projGame.rings.length - 1; i >= 0; i--) {
                 const ring = projGame.rings[i];
                 ring.phase += 0.025;
@@ -1232,6 +1348,7 @@
                 projCtx.fill();
             }
 
+            // Cập nhật & vẽ các vật thể đang bay
             for (let i = projGame.projectiles.length - 1; i >= 0; i--) {
                 const p = projGame.projectiles[i];
                 p.vy += gPxPerFrame;
@@ -1239,7 +1356,7 @@
                 p.y += p.vy;
 
                 p.trail.push({ x: p.x, y: p.y });
-                if (p.trail.length > 34) p.trail.shift();
+                if (p.trail.length > 38) p.trail.shift();
 
                 if (p.trail.length > 1) {
                     projCtx.beginPath();
@@ -1247,34 +1364,71 @@
                     for (let k = 1; k < p.trail.length; k++) {
                         projCtx.lineTo(p.trail[k].x, p.trail[k].y);
                     }
-                    projCtx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
-                    projCtx.lineWidth = 2.2;
+                    projCtx.strokeStyle = 'rgba(253, 224, 71, 0.88)';
+                    projCtx.lineWidth = 2.4;
                     projCtx.stroke();
                 }
 
                 projCtx.beginPath();
-                projCtx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                projCtx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
                 projCtx.fillStyle = '#fef08a';
                 projCtx.fill();
 
+                // Va chạm khối chắn
+                let hitObstacle = false;
+                for (let oIdx = 0; oIdx < projGame.obstacles.length; oIdx++) {
+                    const obs = projGame.obstacles[oIdx];
+                    if (
+                        Math.abs(p.x - obs.x) <= obs.w / 2 + 5 &&
+                        Math.abs(p.y - obs.y) <= obs.h / 2 + 5
+                    ) {
+                        hitObstacle = true;
+                        projGame.streak = 1;
+                        projGame.floatingTexts.push({
+                            text: "Chạm khối chắn!",
+                            x: p.x,
+                            y: p.y - 10,
+                            alpha: 1,
+                            color: "#f87171"
+                        });
+                        updateProjectileStatsUI();
+                        break;
+                    }
+                }
+                if (hitObstacle) {
+                    projGame.projectiles.splice(i, 1);
+                    continue;
+                }
+
+                // Xuyên qua vòng mục tiêu
                 for (let rIdx = projGame.rings.length - 1; rIdx >= 0; rIdx--) {
                     const ring = projGame.rings[rIdx];
-                    if (Math.hypot(p.x - ring.x, p.y - ring.y) <= ring.radius + 4) {
-                        const pts = 100 * projGame.streak;
+                    const distCenter = Math.hypot(p.x - ring.x, p.y - ring.y);
+                    if (distCenter <= ring.radius + 4) {
+                        const isBullseye = distCenter <= 8;
+                        const pts = (isBullseye ? 150 : 100) * projGame.streak;
                         projGame.score += pts;
                         projGame.streak = Math.min(8, projGame.streak + 1);
-                        for (let s = 0; s < 14; s++) {
-                            const ang = (s / 14) * Math.PI * 2;
+
+                        projGame.floatingTexts.push({
+                            text: `${isBullseye ? "XUYÊN TÂM " : ""}+${pts}`,
+                            x: ring.x,
+                            y: ring.y - 14,
+                            alpha: 1,
+                            color: "#fef08a"
+                        });
+
+                        for (let s = 0; s < 18; s++) {
+                            const ang = (s / 18) * Math.PI * 2;
                             projGame.particles.push({
                                 x: ring.x,
                                 y: ring.y,
-                                vx: Math.cos(ang) * 2.8,
-                                vy: Math.sin(ang) * 2.8,
+                                vx: Math.cos(ang) * 3.2,
+                                vy: Math.sin(ang) * 3.2,
                                 life: 1
                             });
                         }
                         projGame.rings.splice(rIdx, 1);
-                        showToast(`Xuyên vòng chuẩn xác! +${pts} điểm (Chuỗi x${projGame.streak})`);
                         updateProjectileStatsUI();
                         break;
                     }
@@ -1289,21 +1443,41 @@
                 }
             }
 
+            // Tia sáng khi xuyên vòng
             for (let s = projGame.particles.length - 1; s >= 0; s--) {
                 const sp = projGame.particles[s];
                 sp.x += sp.vx;
                 sp.y += sp.vy;
-                sp.life -= 0.04;
+                sp.life -= 0.035;
                 if (sp.life <= 0) {
                     projGame.particles.splice(s, 1);
                     continue;
                 }
                 projCtx.beginPath();
-                projCtx.arc(sp.x, sp.y, 2.5, 0, Math.PI * 2);
+                projCtx.arc(sp.x, sp.y, 2.8, 0, Math.PI * 2);
                 projCtx.fillStyle = `rgba(253, 224, 71, ${sp.life.toFixed(2)})`;
                 projCtx.fill();
             }
 
+            // Chữ điểm nổi trên canvas
+            for (let f = projGame.floatingTexts.length - 1; f >= 0; f--) {
+                const ft = projGame.floatingTexts[f];
+                ft.y -= 0.9;
+                ft.alpha -= 0.02;
+                if (ft.alpha <= 0) {
+                    projGame.floatingTexts.splice(f, 1);
+                    continue;
+                }
+                projCtx.save();
+                projCtx.globalAlpha = Math.max(0, ft.alpha);
+                projCtx.font = "700 12px 'Be Vietnam Pro', sans-serif";
+                projCtx.textAlign = "center";
+                projCtx.fillStyle = ft.color;
+                projCtx.fillText(ft.text, ft.x, ft.y);
+                projCtx.restore();
+            }
+
+            // Lên màn khi hoàn thành hết vòng
             if (projGame.rings.length === 0) {
                 projGame.level += 1;
                 showToast(`Hoàn thành! Bước sang Màn ${projGame.level}`);
@@ -1519,7 +1693,6 @@
                 alpha: 0.65
             });
 
-            // Tạo các icon/ký hiệu Vật lý tỏa ra khi bấm chuột
             const iconCount = 5;
             for (let k = 0; k < iconCount; k++) {
                 const spreadAngle = -Math.PI * 0.85 + (k / Math.max(1, iconCount - 1)) * Math.PI * 0.7 + (Math.random() - 0.5) * 0.25;
@@ -1553,6 +1726,7 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             initParticles();
+            resizeSolarOverlayCanvas();
             resizeProjectileCanvas();
         }
 
@@ -1570,7 +1744,6 @@
             update() {
                 this.attracted = false;
 
-                // Giảm độ hút của con chuột lên các hạt tự do
                 if (mouse.x !== null && mouse.y !== null) {
                     const dx = mouse.x - this.x;
                     const dy = mouse.y - this.y;
@@ -1592,7 +1765,6 @@
                     this.vy += (this.baseVy - this.vy) * 0.03;
                 }
 
-                // Hạn chế vận tốc tối đa để hạt giữ nét bay tự do nhẹ nhàng
                 const maxSpeed = 2.1;
                 const spd = Math.hypot(this.vx, this.vy);
                 if (spd > maxSpeed) {
@@ -1629,13 +1801,13 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Vẽ Hệ Mặt Trời tích hợp trên nền
-            drawBackgroundSolarSystem(ctx, canvas.width, canvas.height);
+            // Vẽ Hệ Mặt Trời hiển thị rõ trên canvas overlay
+            drawVisibleSolarSystem();
 
-            // 2. Vẽ Game Ném Xiên & Ném Ngang nếu đang mở tab đó
+            // Vẽ Game Ném Xiên & Ném Ngang nếu đang mở tab đó
             drawProjectileGame();
 
-            // 3. Vẽ sóng gợn nhẹ khi nhấp chuột
+            // Sóng gợn nhẹ khi nhấp chuột
             for (let r = fieldWaves.length - 1; r >= 0; r--) {
                 const wv = fieldWaves[r];
                 wv.radius += 3.6;
@@ -1651,13 +1823,13 @@
                 ctx.stroke();
             }
 
-            // 4. Cập nhật & vẽ các hạt bay tự do
+            // Hạt bay tự do
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
             }
 
-            // 5. Cập nhật & vẽ các icon Vật lý xuất hiện khi bấm chuột
+            // Icon Vật lý xuất hiện khi bấm chuột
             for (let idx = clickPhysicsIcons.length - 1; idx >= 0; idx--) {
                 const ic = clickPhysicsIcons[idx];
                 ic.vy += 0.08;
