@@ -610,28 +610,6 @@
 
                     </div>
 
-                    <!-- Khối định hướng & giá trị đề án đại học -->
-                    <div class="p-4 sm:p-5 rounded-2xl bg-zinc-900/65 border border-amber-500/20 space-y-2.5">
-                        <div class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            Định Hướng Nghiên Cứu & Phát Triển Đề Án Đại Học
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-zinc-300">
-                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                                <div class="font-bold text-amber-300 mb-1">Mô Phỏng Động Lực Học</div>
-                                <span>Trực quan hóa phương trình chuyển động & quỹ đạo thời gian thực.</span>
-                            </div>
-                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                                <div class="font-bold text-amber-300 mb-1">Ứng Dụng AI & STEM</div>
-                                <span>Kết hợp tư duy thuật toán, mô hình hóa dữ liệu và kỹ thuật hiện đại.</span>
-                            </div>
-                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                                <div class="font-bold text-amber-300 mb-1">Trải Nghiệm Tương Tác</div>
-                                <span>Thiết kế giao diện tối giản, mượt mà, tối ưu trên đa thiết bị.</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Chân trang điều hướng nhanh -->
                     <div class="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
                         <span class="text-xs text-zinc-400">
@@ -1210,7 +1188,6 @@
         // Lắng nghe nhấp vào phần Hệ Mặt Trời phía sau danh thiếp ở trang chính
         document.addEventListener('click', (e) => {
             if (!isSolarBgEnabled || currentPage !== 'card') return;
-            // Không can thiệp nếu nhấp vào các phần tử tương tác/nút/link/modal
             if (e.target.closest('a, button, input, textarea, select, form, nav, #avatar-modal, #bank-modal, #qr-modal, #solar-detail-modal')) {
                 return;
             }
@@ -1324,7 +1301,6 @@
 
             hoveredSolarBody = currentHover;
 
-            // Nhãn gợi ý nhỏ khi trỏ vào thiên thể trên trang chính
             if (hoveredSolarBody && currentPage === 'card') {
                 const target = solarHitTargets.find((t) => t.body.name === hoveredSolarBody.name);
                 if (target) {
