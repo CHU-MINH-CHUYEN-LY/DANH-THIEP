@@ -147,12 +147,20 @@
                     <!-- CỘT 1: PROFILE HEADER & BADGES (MD: 5 COLUMNS) -->
                     <div class="md:col-span-5 flex flex-col items-center text-center space-y-4 md:border-r md:border-zinc-800/80 md:pr-6">
                         
-                        <!-- Avatar với khung viền vàng ánh kim Quý Ông -->
+                        <!-- KHUNG AVATAR VỚI VIỀN VÀNG ÁNH KIM -->
                         <div class="relative group">
                             <div class="absolute -inset-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-700 rounded-full blur opacity-80 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
                             <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-zinc-950 flex items-center justify-center">
-                                <!-- Hiển thị Avatar Chân Dung Nhật Minh với Fallback sang trọng -->
-                                <img src=" images/avatar.jpg>
+                                <!-- Đặt file ảnh của bạn vào thư mục images/avatar.jpg trên GitHub -->
+                                <img src="images/avatar.jpg" 
+                                     alt="Nguyễn Lê Nhật Minh" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <!-- Khung dự phòng hiển thị khi chưa tải ảnh lên -->
+                                <div class="hidden w-full h-full flex-col items-center justify-center bg-gradient-to-br from-zinc-900 to-black text-amber-400">
+                                    <span class="heading-font text-3xl sm:text-4xl font-bold tracking-wider">NM</span>
+                                    <span class="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">images/avatar.jpg</span>
+                                </div>
                             </div>
                             <!-- Verified Badge -->
                             <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - THPT Chuyên Bến Tre">
@@ -246,7 +254,7 @@
                                     </div>
                                     <div class="text-left">
                                         <div class="font-bold text-sm tracking-wide">Tài Khoản Ngân Hàng</div>
-                                        <div class="text-xs opacity-75">Agribank • Xem thông tin & Sao chép STK</div>
+                                        <div class="text-xs opacity-75">Agribank • Quét mã QR & Sao chép STK</div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -282,18 +290,35 @@
         </div>
     </main>
 
-    <!-- MODAL HIỂN THỊ TÀI KHOẢN NGÂN HÀNG MẶC ĐỊNH -->
+    <!-- MODAL HIỂN THỊ TÀI KHOẢN & MÃ QR NGÂN HÀNG -->
     <div id="bank-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
-        <div class="glass-card rounded-3xl p-5 sm:p-6 max-w-sm w-full text-center space-y-5 transform scale-90 transition-transform duration-300 border border-amber-500/40" id="bank-modal-content">
+        <div class="glass-card rounded-3xl p-5 sm:p-6 max-w-sm w-full text-center space-y-4 transform scale-90 transition-transform duration-300 border border-amber-500/40 max-h-[92vh] overflow-y-auto" id="bank-modal-content">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold heading-font text-base sm:text-lg text-amber-400 uppercase tracking-wider">Tài Khoản Ngân Hàng</h3>
                 <button onclick="toggleBankModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
+
+            <!-- KHUNG CHÈN MÃ QR NGÂN HÀNG -->
+            <div class="flex flex-col items-center justify-center">
+                <div class="w-48 h-48 sm:w-52 sm:h-52 p-2.5 bg-white rounded-2xl shadow-xl border-2 border-amber-500/50 flex items-center justify-center overflow-hidden">
+                    <!-- Đặt ảnh mã QR ngân hàng vào thư mục images/qr-bank.jpg trên GitHub -->
+                    <img src="images/qr-bank.jpg" 
+                         alt="Mã QR Ngân Hàng Agribank" 
+                         class="w-full h-full object-contain rounded-xl"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <!-- Khung dự phòng hiển thị khi chưa tải ảnh QR lên -->
+                    <div class="hidden w-full h-full flex-col items-center justify-center border-2 border-dashed border-zinc-300 rounded-xl text-zinc-500 p-3 text-center">
+                        <i class="fa-solid fa-qrcode text-4xl text-amber-600 mb-2"></i>
+                        <span class="text-[11px] font-bold text-zinc-700">Khung Mã QR Ngân Hàng</span>
+                        <span class="text-[9px] text-zinc-400 mt-1">Tải ảnh lên: images/qr-bank.jpg</span>
+                    </div>
+                </div>
+            </div>
             
-            <!-- Thẻ thông tin ngân hàng mặc định sang trọng (Không dùng hình ảnh) -->
-            <div class="rounded-2xl p-5 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border border-amber-500/30 text-left space-y-4 shadow-inner relative overflow-hidden">
+            <!-- Thẻ thông tin ngân hàng -->
+            <div class="rounded-2xl p-4 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border border-amber-500/30 text-left space-y-3 shadow-inner relative overflow-hidden">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-widest text-amber-400 flex items-center gap-2">
                         <i class="fa-solid fa-building-columns"></i>
@@ -304,9 +329,9 @@
                     </span>
                 </div>
 
-                <div class="space-y-1">
-                    <div class="text-[11px] text-zinc-500 uppercase tracking-wider">Số tài khoản</div>
-                    <div class="text-xl sm:text-2xl font-mono font-bold text-white tracking-wider select-all">
+                <div class="space-y-0.5">
+                    <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Số tài khoản</div>
+                    <div class="text-lg sm:text-xl font-mono font-bold text-white tracking-wider select-all">
                         8888818756723
                     </div>
                 </div>
