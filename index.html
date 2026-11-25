@@ -94,44 +94,49 @@
             }
         }
 
-        /* Thanh trượt kiểu thiết bị phòng lab */
-        input[type="range"].lab-slider {
-            -webkit-appearance: none;
-            appearance: none;
+        /* Con trỏ vật lý chuyên nghiệp & phá cách (Field Reticle + Ring) */
+        #physics-cursor {
+            position: fixed;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            pointer-events: none;
+            z-index: 40;
+            transform: translate(-50%, -50%);
+            border: 1.5px solid rgba(251, 191, 36, 0.75);
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.35), inset 0 0 10px rgba(251, 191, 36, 0.15);
+            transition: width 0.18s ease, height 0.18s ease, border-color 0.18s ease, opacity 0.25s ease;
+            opacity: 0;
+        }
+        #physics-cursor::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
             height: 6px;
             border-radius: 999px;
-            background: rgba(39, 39, 42, 0.95);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            outline: none;
-        }
-        input[type="range"].lab-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #fde68a, #f59e0b);
-            border: 2px solid #09090b;
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
-            cursor: pointer;
-            transition: transform 0.15s ease;
-        }
-        input[type="range"].lab-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.18);
-        }
-
-        /* Quầng sáng bám theo con trỏ chuột */
-        #cursor-aura {
-            position: fixed;
-            width: 340px;
-            height: 340px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
+            background: #fde047;
             transform: translate(-50%, -50%);
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0.04) 40%, transparent 70%);
-            transition: opacity 0.3s ease;
-            opacity: 0;
+            box-shadow: 0 0 10px #fbbf24;
+        }
+        #physics-cursor::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            width: 2px;
+            height: 8px;
+            background: rgba(253, 224, 71, 0.85);
+            transform: translateX(-50%);
+        }
+        #physics-cursor.repel-mode {
+            border-color: rgba(251, 113, 133, 0.9);
+            box-shadow: 0 0 22px rgba(244, 63, 94, 0.45), inset 0 0 12px rgba(244, 63, 94, 0.2);
+        }
+        #physics-cursor.active-click {
+            width: 58px;
+            height: 58px;
         }
 
         /* Tùy chỉnh thanh cuộn */
@@ -149,8 +154,8 @@
 </head>
 <body class="min-h-screen flex flex-col justify-center items-center relative selection:bg-amber-500 selection:text-black">
 
-    <!-- QUẦNG SÁNG BÁM THEO CHUỘT -->
-    <div id="cursor-aura"></div>
+    <!-- CON TRỎ VẬT LÝ TƯƠNG TÁC -->
+    <div id="physics-cursor"></div>
 
     <!-- CANVAS NỀN HẠT VẬT LÝ TƯƠNG TÁC THÔNG MINH -->
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
@@ -163,14 +168,14 @@
     <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-10 flex flex-wrap justify-between items-center gap-3">
         <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center text-black font-extrabold heading-font shadow-lg">
-                M
+                <i class="fa-solid fa-atom text-sm"></i>
             </div>
             <span class="text-xs tracking-[0.2em] uppercase text-amber-400/85 font-semibold hidden md:inline">
-                Official Digital Card
+                Physics Digital Card
             </span>
         </div>
 
-        <!-- THANH CHUYỂN TRANG (DANH THIẾP / THÍ NGHIỆM TỪ TRƯỜNG) -->
+        <!-- THANH CHUYỂN TRANG (DANH THIẾP / TRÒ CHƠI VẬT LÝ TỪ TRƯỜNG) -->
         <nav class="flex items-center p-1 rounded-full bg-zinc-900/90 border border-amber-500/30 shadow-lg">
             <button id="nav-card-btn" onclick="switchPage('card')" class="px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-id-card"></i>
@@ -178,15 +183,21 @@
             </button>
             <button id="nav-magnetic-btn" onclick="switchPage('magnetic')" class="px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-magnet"></i>
-                <span>Thí Nghiệm Từ Trường</span>
+                <span>Game Từ Trường</span>
             </button>
         </nav>
 
         <div class="flex items-center gap-2">
+            <!-- Nút chuyển chế độ trường chuột (Hút / Đẩy) -->
+            <button id="toggle-field-mode-btn" onclick="toggleCursorFieldMode()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md" title="Chuyển chế độ từ trường của con trỏ chuột">
+                <i class="fa-solid fa-wave-square"></i>
+                <span id="field-mode-text">Trường Chuột: Hút</span>
+            </button>
+
             <!-- Nút bật/tắt hiệu ứng chuyển động 3D -->
             <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span id="tilt-status-text">Hiệu Ứng 3D: Bật</span>
+                <i class="fa-solid fa-atom"></i>
+                <span id="tilt-status-text">3D: Bật</span>
             </button>
         </div>
     </header>
@@ -225,7 +236,7 @@
                                 </div>
                                 <!-- Verified Badge -->
                                 <div class="absolute bottom-1 right-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs font-bold shadow-xl border border-amber-300" title="Chuyên Lý - THPT Chuyên Bến Tre">
-                                    <i class="fa-solid fa-crown text-[11px] md:text-xs"></i>
+                                    <i class="fa-solid fa-magnet text-[11px] md:text-xs"></i>
                                 </div>
                             </div>
 
@@ -247,9 +258,9 @@
                             <div class="pt-2 w-full">
                                 <div class="p-3.5 rounded-2xl bg-zinc-900/75 border border-zinc-800/90 text-xs text-zinc-300 leading-relaxed">
                                     <span class="text-amber-400 font-semibold block mb-1">
-                                        <i class="fa-solid fa-star mr-1"></i> Dấu Ấn Cá Nhân
+                                        <i class="fa-solid fa-bolt mr-1"></i> Dấu Ấn Vật Lý & Sáng Tạo
                                     </span>
-                                    Tư duy logic Vật lý sắc bén • Thành thạo đa lĩnh vực • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
+                                    Tư duy logic Vật lý sắc bén • Khám phá điện từ & cơ học • Phong thái đĩnh đạc & Sáng tạo không giới hạn.
                                 </div>
                             </div>
                         </div>
@@ -259,7 +270,7 @@
                             
                             <div class="space-y-1">
                                 <h2 class="heading-font text-sm sm:text-base font-bold text-amber-400 tracking-wide uppercase flex items-center gap-2">
-                                    <span class="w-6 h-[2px] bg-amber-500 rounded-full"></span>
+                                    <i class="fa-solid fa-satellite-dish text-xs"></i>
                                     Kết Nối Trực Tiếp
                                 </h2>
                                 <p class="text-xs sm:text-[13px] text-zinc-400 leading-relaxed">
@@ -348,11 +359,12 @@
                     </div>
                 </div>
 
-                <!-- PHẦN LIÊN HỆ & GỬI TIN NHẮN DỰ ÁN (THÔNG TIN SẼ ĐƯỢC ĐIỀN SAU) -->
+                <!-- PHẦN LIÊN HỆ & GỬI TIN NHẮN DỰ ÁN -->
                 <section id="contact-section" class="glass-card rounded-3xl p-6 sm:p-8 md:p-10 space-y-8">
                     <!-- Tiêu đề phần liên hệ -->
                     <div class="text-center space-y-2">
-                        <span class="text-[11px] font-bold tracking-[0.22em] uppercase text-amber-400 block">
+                        <span class="text-[11px] font-bold tracking-[0.22em] uppercase text-amber-400 inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-wave-square"></i>
                             LIÊN HỆ
                         </span>
                         <h2 class="heading-font text-2xl sm:text-3xl font-extrabold gold-text-gradient">
@@ -375,14 +387,16 @@
                             </div>
 
                             <div class="space-y-4">
-                                <!-- Email (Điền sau) -->
+                                <!-- Gmail liên hệ -->
                                 <div class="flex items-center gap-3.5">
                                     <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-base shrink-0">
                                         <i class="fa-solid fa-envelope"></i>
                                     </div>
                                     <div class="text-left">
                                         <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">EMAIL</div>
-                                        <div class="text-xs sm:text-sm font-semibold text-zinc-200">[Điền email của bạn sau]</div>
+                                        <a href="mailto:cbter.nguyenminh.vn@gmail.com" class="text-xs sm:text-sm font-semibold text-amber-300 hover:text-amber-400 break-all transition-colors">
+                                            cbter.nguyenminh.vn@gmail.com
+                                        </a>
                                     </div>
                                 </div>
 
@@ -458,127 +472,112 @@
                 </section>
             </div>
 
-            <!-- ==================== TRANG 2: PHÒNG THÍ NGHIỆM TỪ TRƯỜNG CHUYÊN SÂU ==================== -->
+            <!-- ==================== TRANG 2: TRÒ CHƠI TƯƠNG TÁC VẬT LÝ TỪ TRƯỜNG ==================== -->
             <div id="page-magnetic" class="hidden space-y-5">
                 <div class="glass-card rounded-3xl p-5 sm:p-7 border border-amber-500/35 space-y-5">
                     
-                    <!-- Header Trang Thí Nghiệm -->
+                    <!-- Header Trò Chơi Vật Lý -->
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
                         <div>
                             <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
                                 <i class="fa-solid fa-magnet"></i>
-                                Phòng Thí Nghiệm Điện Từ Học
+                                Magnetic Flux Arcade • Lực Lorenxơ & Từ Trường
                             </div>
                             <h2 class="heading-font text-lg sm:text-2xl font-bold gold-text-gradient">
-                                Tương Tác Đường Sức Từ, La Bàn & Lực Lorenxơ
+                                Bắn Phá Quỹ Đạo Từ Trường
                             </h2>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="toggleDualMagnet()" id="dual-magnet-btn" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/35 text-xs font-semibold transition-all active:scale-95 flex items-center gap-1.5">
-                                <i class="fa-solid fa-clone"></i>
-                                <span id="dual-magnet-text">Chế Độ: 1 Nam Châm</span>
-                            </button>
-                            <button onclick="flipMagnetPolarity()" class="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/35 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5">
+                            <button onclick="toggleGameFieldPolarity()" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/35 text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5">
                                 <i class="fa-solid fa-arrows-rotate"></i>
-                                <span>Đảo Cực (N ⇄ S)</span>
+                                <span id="game-polarity-text">Trường B: Hướng Vào (⊙)</span>
                             </button>
-                            <button onclick="fireElectronBeam()" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold transition-all active:scale-95 shadow-lg flex items-center gap-1.5">
+                            <button onclick="shootMagneticProjectile()" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black text-xs font-bold transition-all active:scale-95 shadow-lg flex items-center gap-1.5">
                                 <i class="fa-solid fa-bolt"></i>
-                                <span>Phóng Chùm Hạt</span>
+                                <span>Bắn Hạt (Space)</span>
+                            </button>
+                            <button onclick="resetMagneticGame()" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold transition-all active:scale-95 flex items-center gap-1.5">
+                                <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                                <span>Chơi Lại</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Khung Canvas Thí Nghiệm Từ Trường + Bảng Chỉ Số Đo -->
+                    <!-- Khung Canvas Trò Chơi + Bảng Điểm & Chỉ Số Vật Lý -->
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                         
-                        <!-- Canvas Thí Nghiệm (8 cột) -->
+                        <!-- Canvas Trò Chơi (8 cột) -->
                         <div class="lg:col-span-8 relative rounded-2xl overflow-hidden bg-zinc-950 border border-amber-500/30 shadow-inner">
-                            <canvas id="magnetic-canvas" class="w-full h-[330px] sm:h-[370px] block cursor-crosshair"></canvas>
+                            <canvas id="magnetic-canvas" class="w-full h-[350px] sm:h-[390px] block cursor-crosshair"></canvas>
                             
                             <!-- Nhãn hướng dẫn góc trên canvas -->
                             <div class="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-black/75 border border-amber-500/25 text-[11px] text-amber-200 backdrop-blur-md pointer-events-none flex items-center gap-1.5">
                                 <i class="fa-solid fa-compass text-amber-400"></i>
-                                <span>Di chuột để đo vectơ cảm ứng từ bằng La Bàn • Kéo để xoay trục</span>
+                                <span>Di chuột để ngắm pháo từ • Nhấp chuột/Space để bắn • Hạt cong theo lực Lorenxơ!</span>
                             </div>
 
                             <!-- Công thức góc dưới canvas -->
-                            <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/80 border border-zinc-800 text-[11px] font-mono text-zinc-300 pointer-events-none">
-                                B_tổng = B₁ + B₂ &nbsp;|&nbsp; F = |q|·v·B·sinα
+                            <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/80 border border-zinc-800 text-[11px] font-mono text-amber-300 pointer-events-none">
+                                F_L = q(v × B) &nbsp;|&nbsp; R = mv / (|q|B)
                             </div>
                         </div>
 
-                        <!-- Bảng Thông Số & Nguyên Lý (4 cột) -->
+                        <!-- Bảng Điểm & Thông Số Vật Lý (4 cột) -->
                         <div class="lg:col-span-4 flex flex-col justify-between space-y-3">
                             <div class="grid grid-cols-2 lg:grid-cols-1 gap-2.5">
-                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90">
-                                    <div class="text-[11px] text-zinc-400">Cảm Ứng Từ Tại Đầu Dò (B)</div>
-                                    <div id="mag-readout-probe" class="text-sm sm:text-base font-mono font-bold text-amber-400 mt-0.5">0.84 Tesla</div>
+                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-[11px] text-zinc-400">Điểm Năng Lượng</div>
+                                        <div id="game-score" class="text-lg font-mono font-extrabold text-amber-400">0</div>
+                                    </div>
+                                    <i class="fa-solid fa-atom text-amber-500/50 text-xl"></i>
                                 </div>
-                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90">
-                                    <div class="text-[11px] text-zinc-400">Trạng Thái Tương Tác</div>
-                                    <div id="mag-readout-state" class="text-sm sm:text-base font-semibold text-emerald-400 mt-0.5">Trường Đơn Cực Kép</div>
+
+                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-[11px] text-zinc-400">Chuỗi Combo & Cấp</div>
+                                        <div id="game-combo-level" class="text-sm sm:text-base font-mono font-bold text-emerald-400 mt-0.5">x1 • Cấp 1</div>
+                                    </div>
+                                    <i class="fa-solid fa-bolt text-emerald-400/50 text-lg"></i>
                                 </div>
-                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90">
-                                    <div class="text-[11px] text-zinc-400">Góc Vectơ Cảm Ứng Từ (φ)</div>
-                                    <div id="mag-readout-angle" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">0° • N → S</div>
+
+                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-[11px] text-zinc-400">Năng Lượng Pháo (J)</div>
+                                        <div id="game-energy" class="text-sm sm:text-base font-mono font-bold text-amber-300 mt-0.5">100%</div>
+                                    </div>
+                                    <i class="fa-solid fa-wave-square text-amber-400/50 text-lg"></i>
                                 </div>
-                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90">
-                                    <div class="text-[11px] text-zinc-400">Lực Lorenxơ Cực Đại (F)</div>
-                                    <div id="mag-readout-force" class="text-sm sm:text-base font-mono font-bold text-zinc-100 mt-0.5">2.00 × 10⁻¹³ N</div>
+
+                                <div class="p-3 rounded-2xl bg-zinc-900/85 border border-zinc-800/90 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-[11px] text-zinc-400">Mục Tiêu Còn Lại</div>
+                                        <div id="game-targets-left" class="text-sm sm:text-base font-mono font-bold text-zinc-100 mt-0.5">4 Lõi Từ</div>
+                                    </div>
+                                    <i class="fa-solid fa-magnet text-rose-400/60 text-lg"></i>
                                 </div>
                             </div>
 
                             <div class="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 leading-relaxed">
                                 <span class="text-amber-400 font-semibold block mb-1">
-                                    <i class="fa-solid fa-lightbulb mr-1"></i> Điểm Thú Vị Của Thí Nghiệm
+                                    <i class="fa-solid fa-lightbulb mr-1"></i> Luật Chơi Vật Lý Ngoạn Mục
                                 </span>
-                                Bật <strong>Chế Độ 2 Nam Châm</strong> rồi bấm <strong>Đảo Cực</strong> để thấy rõ sự khác biệt giữa <em>hai cực cùng tên đẩy nhau</em> (đường sức bị ép bật ngược ra ngoài) và <em>hai cực trái tên hút nhau</em> (đường sức nối liền hai cực).
+                                Hạt điện tích bay qua vùng từ trường <strong>B</strong> sẽ chịu <strong>lực Lorenxơ vuông góc</strong> làm quỹ đạo uốn cong. Hãy tính toán độ cong để bắn trúng các <strong>Lõi Từ Vàng</strong>, tránh <strong>Tâm Phản Từ Đỏ</strong> và bấm <strong>Đảo Chiều B</strong> khi cần bẻ lái!
                             </div>
                         </div>
                     </div>
 
-                    <!-- 3 Thanh Trượt Điều Chỉnh Thí Nghiệm Từ Trường -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                        <div class="p-3.5 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-2">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-semibold text-amber-300">Cảm Ứng Từ Nguồn (B₀)</span>
-                                <span id="mag-b-label" class="font-mono text-zinc-300">1.25 T</span>
-                            </div>
-                            <input id="mag-b-slider" type="range" min="30" max="250" value="125" oninput="updateMagneticParams()" class="w-full lab-slider">
-                            <p class="text-[11px] text-zinc-400">Tăng độ mạnh từ trường và độ uốn cong quỹ đạo điện tích.</p>
-                        </div>
-
-                        <div class="p-3.5 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-2">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-semibold text-amber-300">Mật Độ Đường Sức</span>
-                                <span id="mag-lines-label" class="font-mono text-zinc-300">12 đường</span>
-                            </div>
-                            <input id="mag-lines-slider" type="range" min="6" max="18" step="2" value="12" oninput="updateMagneticParams()" class="w-full lab-slider">
-                            <p class="text-[11px] text-zinc-400">Điều chỉnh số lượng đường sức từ hiển thị trong không gian.</p>
-                        </div>
-
-                        <div class="p-3.5 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-2">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-semibold text-amber-300">Khoảng Cách / Tốc Độ Hạt</span>
-                                <span id="mag-flow-label" class="font-mono text-zinc-300">1.2x</span>
-                            </div>
-                            <input id="mag-flow-slider" type="range" min="3" max="30" value="12" oninput="updateMagneticParams()" class="w-full lab-slider">
-                            <p class="text-[11px] text-zinc-400">Điều chỉnh tốc độ dòng hạt chạy dọc theo đường sức từ.</p>
-                        </div>
-                    </div>
-
-                    <!-- Thanh điều hướng nhanh dưới đáy trang thí nghiệm -->
+                    <!-- Thanh điều hướng nhanh dưới đáy trang game -->
                     <div class="pt-2 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
                         <button onclick="switchPage('card')" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 text-xs font-semibold flex items-center gap-2 transition-all">
                             <i class="fa-solid fa-arrow-left text-amber-400"></i>
                             <span>Quay Lại Danh Thiếp</span>
                         </button>
-                        <button onclick="resetMagneticLab()" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all">
-                            <i class="fa-solid fa-rotate-left"></i>
-                            <span>Đặt Lại Thí Nghiệm</span>
-                        </button>
+                        <span class="text-[11px] text-zinc-400 font-mono">
+                            <i class="fa-solid fa-compass text-amber-400 mr-1"></i>
+                            Mẹo: Đảo chiều B (⊙ / ⊗) đổi chiều cong quỹ đạo tức thì
+                        </span>
                     </div>
                 </div>
             </div>
@@ -708,17 +707,17 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, THÍ NGHIỆM TỪ TRƯỜNG CHUYÊN SÂU, HIỆU ỨNG CHUỘT & PARTICLES -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, TRÒ CHƠI VẬT LÝ TỪ TRƯỜNG, CON TRỎ VẬT LÝ & PARTICLES -->
     <script>
         // --- XỬ LÝ GỬI FORM LIÊN HỆ ---
         function handleContactSubmit(event) {
             event.preventDefault();
             const senderName = document.getElementById('contact-name').value.trim();
-            showToast(`Cảm ơn ${senderName || 'bạn'}! Tin nhắn đã được ghi nhận.`);
+            showToast(`Cảm ơn ${senderName || 'bạn'}! Tin nhắn đã được ghi nhận tới cbter.nguyenminh.vn@gmail.com.`);
             event.target.reset();
         }
 
-        // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & TRANG THÍ NGHIỆM TỪ TRƯỜNG ---
+        // --- CHUYỂN ĐỔI GIỮA TRANG DANH THIẾP & TRÒ CHƠI VẬT LÝ TỪ TRƯỜNG ---
         let currentPage = 'card';
         function switchPage(pageName) {
             currentPage = pageName;
@@ -738,26 +737,30 @@
                 btnMag.className = "px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold transition-all flex items-center gap-1.5";
                 btnCard.className = "px-4 py-1.5 rounded-full text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5";
                 resizeMagneticCanvas();
-                updateMagneticParams();
+                if (gameState.targets.length === 0) {
+                    spawnGameWave();
+                }
+                syncGameHUD();
             }
         }
 
-        // --- MÔ PHỎNG THÍ NGHIỆM TỪ TRƯỜNG CHUYÊN SÂU (1 HOẶC 2 NAM CHÂM + LA BÀN ĐO + LỰC LORENXƠ) ---
+        // --- TRÒ CHƠI TƯƠNG TÁC VẬT LÝ: BẮN PHÁ QUỸ ĐẠO TỪ TRƯỜNG (LORENTZ ARCADE) ---
         const magCanvas = document.getElementById('magnetic-canvas');
         const magCtx = magCanvas ? magCanvas.getContext('2d') : null;
-        let magState = {
-            B: 1.25,            // Tesla
-            numLines: 12,       // Mật độ đường sức
-            flowSpeed: 1.2,     // Tốc độ hạt trên đường sức
-            polarity: 1,        // 1: N->S, -1: S<-N (cho nam châm 1; nam châm 2 giữ cố định N->S để tạo đẩy/hút)
-            dualMode: false,    // false: 1 nam châm, true: 2 nam châm tương tác
-            angle: 0,           // Góc xoay nam châm 1
-            phase: 0,
-            isDragging: false,
-            probeX: null,
-            probeY: null
+
+        const gameState = {
+            score: 0,
+            combo: 1,
+            level: 1,
+            energy: 100,
+            fieldDir: 1,       // 1: B hướng vào (⊗/⊙), -1: đảo chiều lực Lorenxơ
+            aimAngle: -0.25,
+            projectiles: [],
+            targets: [],
+            hazards: [],
+            sparks: [],
+            pulsePhase: 0
         };
-        let lorentzCharges = [];
 
         function resizeMagneticCanvas() {
             if (!magCanvas) return;
@@ -765,434 +768,357 @@
             if (rect.width > 0 && rect.height > 0) {
                 magCanvas.width = rect.width;
                 magCanvas.height = rect.height;
-                if (magState.probeX === null) {
-                    magState.probeX = rect.width * 0.5;
-                    magState.probeY = rect.height * 0.25;
-                }
             }
         }
 
-        // Tính vectơ cảm ứng từ B tại điểm (x, y) từ tập các cực từ
-        function getMagneticPoles() {
-            const w = magCanvas.width || 600;
-            const h = magCanvas.height || 350;
-            const cx = w / 2;
-            const cy = h / 2;
-            const poles = [];
+        function syncGameHUD() {
+            const scoreEl = document.getElementById('game-score');
+            const comboEl = document.getElementById('game-combo-level');
+            const energyEl = document.getElementById('game-energy');
+            const leftEl = document.getElementById('game-targets-left');
+            if (!scoreEl) return;
 
-            if (!magState.dualMode) {
-                const halfSpan = Math.min(82, w * 0.16);
-                const cosA = Math.cos(magState.angle);
-                const sinA = Math.sin(magState.angle);
-                poles.push({
-                    x: cx - halfSpan * cosA,
-                    y: cy - halfSpan * sinA,
-                    q: magState.polarity * magState.B * 18000
-                });
-                poles.push({
-                    x: cx + halfSpan * cosA,
-                    y: cy + halfSpan * sinA,
-                    q: -magState.polarity * magState.B * 18000
-                });
-            } else {
-                // Nam châm 1 bên trái (đảo cực theo magState.polarity)
-                const m1x = cx - w * 0.23;
-                const halfSpan = Math.min(58, w * 0.11);
-                const cosA = Math.cos(magState.angle);
-                const sinA = Math.sin(magState.angle);
-                poles.push({
-                    x: m1x - halfSpan * cosA,
-                    y: cy - halfSpan * sinA,
-                    q: magState.polarity * magState.B * 15000
-                });
-                poles.push({
-                    x: m1x + halfSpan * cosA,
-                    y: cy + halfSpan * sinA,
-                    q: -magState.polarity * magState.B * 15000
-                });
+            scoreEl.innerText = gameState.score.toLocaleString('vi-VN');
+            comboEl.innerText = `x${gameState.combo} • Cấp ${gameState.level}`;
+            energyEl.innerText = `${Math.round(gameState.energy)}%`;
+            leftEl.innerText = `${gameState.targets.length} Lõi Từ`;
+        }
 
-                // Nam châm 2 bên phải (cố định cực Bắc N bên trái, cực Nam S bên phải)
-                const m2x = cx + w * 0.23;
-                poles.push({
-                    x: m2x - halfSpan,
-                    y: cy,
-                    q: 1 * magState.B * 15000
-                });
-                poles.push({
-                    x: m2x + halfSpan,
-                    y: cy,
-                    q: -1 * magState.B * 15000
+        function spawnGameWave() {
+            const w = magCanvas ? (magCanvas.width || 600) : 600;
+            const h = magCanvas ? (magCanvas.height || 380) : 380;
+            gameState.targets = [];
+            gameState.hazards = [];
+
+            const targetCount = Math.min(4 + Math.floor(gameState.level / 2), 7);
+            for (let i = 0; i < targetCount; i++) {
+                const tx = w * (0.45 + Math.random() * 0.44);
+                const ty = h * (0.18 + ((i + 0.5) / targetCount) * 0.64);
+                gameState.targets.push({
+                    x: tx,
+                    y: ty,
+                    baseY: ty,
+                    r: 16,
+                    phase: Math.random() * Math.PI * 2,
+                    orbitSpeed: 0.015 + gameState.level * 0.0025,
+                    orbitAmp: 14 + Math.min(gameState.level * 3, 24)
                 });
             }
-            return poles;
-        }
 
-        function computeBFieldAt(x, y, poles) {
-            let bx = 0;
-            let by = 0;
-            for (const p of poles) {
-                const dx = x - p.x;
-                const dy = y - p.y;
-                const r2 = dx * dx + dy * dy + 420; // làm mượt tâm cực
-                const r = Math.sqrt(r2);
-                const factor = p.q / (r2 * r);
-                bx += factor * dx;
-                by += factor * dy;
+            const hazardCount = Math.min(1 + Math.floor(gameState.level / 2), 4);
+            for (let j = 0; j < hazardCount; j++) {
+                gameState.hazards.push({
+                    x: w * (0.35 + j * 0.18),
+                    y: h * (j % 2 === 0 ? 0.3 : 0.7),
+                    baseY: h * (j % 2 === 0 ? 0.3 : 0.7),
+                    r: 15,
+                    phase: j * 1.4
+                });
             }
-            return { bx, by, mag: Math.sqrt(bx * bx + by * by) };
+            syncGameHUD();
         }
 
-        function updateMagneticParams() {
-            const bVal = Number(document.getElementById('mag-b-slider').value) / 100;
-            const linesVal = Number(document.getElementById('mag-lines-slider').value);
-            const flowVal = Number(document.getElementById('mag-flow-slider').value) / 10;
-
-            magState.B = bVal;
-            magState.numLines = linesVal;
-            magState.flowSpeed = flowVal;
-
-            document.getElementById('mag-b-label').innerText = `${bVal.toFixed(2)} T`;
-            document.getElementById('mag-lines-label').innerText = `${linesVal} đường`;
-            document.getElementById('mag-flow-label').innerText = `${flowVal.toFixed(1)}x`;
-
-            const stateEl = document.getElementById('mag-readout-state');
-            if (!magState.dualMode) {
-                stateEl.innerText = "Trường Lưỡng Cực Đơn";
-                stateEl.className = "text-sm sm:text-base font-semibold text-emerald-400 mt-0.5";
-            } else if (magState.polarity === 1) {
-                stateEl.innerText = "Hai Cực Trái Tên • Hút Nhau";
-                stateEl.className = "text-sm sm:text-base font-semibold text-amber-300 mt-0.5";
-            } else {
-                stateEl.innerText = "Hai Cực Cùng Tên • Đẩy Nhau";
-                stateEl.className = "text-sm sm:text-base font-semibold text-rose-400 mt-0.5";
+        function toggleGameFieldPolarity() {
+            gameState.fieldDir *= -1;
+            const label = document.getElementById('game-polarity-text');
+            if (label) {
+                label.innerText = gameState.fieldDir === 1 ? "Trường B: Hướng Vào (⊙)" : "Trường B: Hướng Ra (⊗)";
             }
-
-            const forceVal = (1.6 * bVal).toFixed(2);
-            document.getElementById('mag-readout-force').innerText = `${forceVal} × 10⁻¹³ N`;
-            updateProbeReadout();
+            showToast(gameState.fieldDir === 1 ? "Đã đổi chiều từ trường B (quỹ đạo uốn theo chiều dương)" : "Đã đảo chiều từ trường B (quỹ đạo uốn ngược chiều)");
         }
 
-        function updateProbeReadout() {
-            if (!magCanvas || magState.probeX === null) return;
-            const poles = getMagneticPoles();
-            const field = computeBFieldAt(magState.probeX, magState.probeY, poles);
-            const bLocal = Math.min(2.95, field.mag * 1.45).toFixed(2);
-            const deg = Math.round(((Math.atan2(field.by, field.bx) * 180 / Math.PI) % 360 + 360) % 360);
-            const dirLabel = magState.polarity === 1 ? "N → S" : "S ← N";
-
-            document.getElementById('mag-readout-probe').innerText = `${bLocal} Tesla`;
-            document.getElementById('mag-readout-angle').innerText = `${deg}° • ${dirLabel}`;
-        }
-
-        function toggleDualMagnet() {
-            magState.dualMode = !magState.dualMode;
-            magState.angle = 0;
-            document.getElementById('dual-magnet-text').innerText = magState.dualMode ? "Chế Độ: 2 Nam Châm" : "Chế Độ: 1 Nam Châm";
-            updateMagneticParams();
-            showToast(magState.dualMode ? "Đã bật 2 nam châm tương tác từ trường!" : "Đã chuyển về 1 nam châm lưỡng cực");
-        }
-
-        function flipMagnetPolarity() {
-            magState.polarity *= -1;
-            updateMagneticParams();
-            if (magState.dualMode) {
-                showToast(magState.polarity === 1 ? "Cực S đối diện cực N: Hai nam châm HÚT nhau!" : "Cực N đối diện cực N: Hai nam châm ĐẨY nhau!");
-            } else {
-                showToast(magState.polarity === 1 ? "Cực Bắc (N) bên trái • Cực Nam (S) bên phải" : "Đã đảo cực từ: Cực Nam (S) bên trái • Cực Bắc (N) bên phải");
+        function createBurstSparks(x, y, color = '#fbbf24', count = 16) {
+            for (let i = 0; i < count; i++) {
+                const ang = (i / count) * Math.PI * 2 + Math.random() * 0.3;
+                const spd = 1.5 + Math.random() * 3.8;
+                gameState.sparks.push({
+                    x, y,
+                    vx: Math.cos(ang) * spd,
+                    vy: Math.sin(ang) * spd,
+                    life: 1,
+                    color
+                });
             }
         }
 
-        function fireElectronBeam() {
-            if (!magCanvas) return;
-            const h = magCanvas.height || 350;
-            for (let i = 0; i < 7; i++) {
-                lorentzCharges.push({
-                    x: 16,
-                    y: h * (0.24 + i * 0.085),
-                    vx: 3.5 + Math.random() * 0.5,
-                    vy: 0,
-                    trail: [],
-                    charge: i % 2 === 0 ? 1 : -1
-                });
+        function shootMagneticProjectile() {
+            if (!magCanvas || currentPage !== 'magnetic') return;
+            if (gameState.energy < 15) {
+                showToast("Năng lượng từ đang nạp lại (cần tối thiểu 15%)!", true);
+                return;
             }
-            showToast("Đã phóng chùm hạt điện tích qua vùng từ trường!");
+            gameState.energy = Math.max(0, gameState.energy - 15);
+
+            const h = magCanvas.height || 380;
+            const cannonX = 42;
+            const cannonY = h * 0.5;
+            const speed = 5.4;
+
+            gameState.projectiles.push({
+                x: cannonX + Math.cos(gameState.aimAngle) * 26,
+                y: cannonY + Math.sin(gameState.aimAngle) * 26,
+                vx: Math.cos(gameState.aimAngle) * speed,
+                vy: Math.sin(gameState.aimAngle) * speed,
+                trail: []
+            });
+            createBurstSparks(cannonX + Math.cos(gameState.aimAngle) * 24, cannonY + Math.sin(gameState.aimAngle) * 24, '#fde047', 7);
+            syncGameHUD();
         }
 
-        function resetMagneticLab() {
-            magState.B = 1.25;
-            magState.numLines = 12;
-            magState.flowSpeed = 1.2;
-            magState.polarity = 1;
-            magState.dualMode = false;
-            magState.angle = 0;
-            lorentzCharges = [];
-            document.getElementById('dual-magnet-text').innerText = "Chế Độ: 1 Nam Châm";
-            document.getElementById('mag-b-slider').value = 125;
-            document.getElementById('mag-lines-slider').value = 12;
-            document.getElementById('mag-flow-slider').value = 12;
-            updateMagneticParams();
-            showToast("Đã đặt lại thí nghiệm từ trường về mặc định");
+        function resetMagneticGame() {
+            gameState.score = 0;
+            gameState.combo = 1;
+            gameState.level = 1;
+            gameState.energy = 100;
+            gameState.fieldDir = 1;
+            gameState.projectiles = [];
+            gameState.sparks = [];
+            const label = document.getElementById('game-polarity-text');
+            if (label) label.innerText = "Trường B: Hướng Vào (⊙)";
+            spawnGameWave();
+            showToast("Đã khởi động lại trò chơi Bắn Phá Quỹ Đạo Từ Trường!");
         }
 
         if (magCanvas) {
-            const handlePointerMove = (clientX, clientY) => {
+            magCanvas.addEventListener('mousemove', (e) => {
+                if (currentPage !== 'magnetic') return;
                 const rect = magCanvas.getBoundingClientRect();
-                magState.probeX = clientX - rect.left;
-                magState.probeY = clientY - rect.top;
-
-                if (magState.isDragging) {
-                    const cx = magState.dualMode ? rect.left + rect.width * 0.27 : rect.left + rect.width / 2;
-                    const cy = rect.top + rect.height / 2;
-                    magState.angle = Math.atan2(clientY - cy, clientX - cx);
-                }
-                updateProbeReadout();
-            };
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                const cannonX = 42;
+                const cannonY = rect.height * 0.5;
+                gameState.aimAngle = Math.atan2(my - cannonY, mx - cannonX);
+            });
 
             magCanvas.addEventListener('mousedown', (e) => {
-                magState.isDragging = true;
-                handlePointerMove(e.clientX, e.clientY);
-            });
-            magCanvas.addEventListener('mousemove', (e) => {
-                if (currentPage === 'magnetic') {
-                    handlePointerMove(e.clientX, e.clientY);
-                }
-            });
-            window.addEventListener('mouseup', () => {
-                magState.isDragging = false;
-            });
-
-            magCanvas.addEventListener('touchstart', (e) => {
-                if (e.touches.length > 0) {
-                    magState.isDragging = true;
-                    handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            }, { passive: true });
-            magCanvas.addEventListener('touchmove', (e) => {
-                if (e.touches.length > 0) {
-                    handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            }, { passive: true });
-            magCanvas.addEventListener('touchend', () => {
-                magState.isDragging = false;
+                if (currentPage !== 'magnetic') return;
+                const rect = magCanvas.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                const cannonX = 42;
+                const cannonY = rect.height * 0.5;
+                gameState.aimAngle = Math.atan2(my - cannonY, mx - cannonX);
+                shootMagneticProjectile();
             });
         }
 
-        function drawBarMagnet(ctx, x, y, width, height, angle, leftIsNorth) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
+        window.addEventListener('keydown', (e) => {
+            if (currentPage === 'magnetic' && e.code === 'Space') {
+                e.preventDefault();
+                shootMagneticProjectile();
+            }
+        });
 
-            // Hào quang chiều sâu dưới thanh nam châm
-            ctx.shadowColor = 'rgba(245, 158, 11, 0.35)';
-            ctx.shadowBlur = 18;
-
-            // Nửa trái
-            ctx.fillStyle = leftIsNorth ? '#b45309' : '#18181b';
-            ctx.strokeStyle = '#fbbf24';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.roundRect(-width / 2, -height / 2, width / 2, height, [8, 0, 0, 8]);
-            ctx.fill();
-            ctx.stroke();
-
-            // Nửa phải
-            ctx.fillStyle = !leftIsNorth ? '#b45309' : '#18181b';
-            ctx.beginPath();
-            ctx.roundRect(0, -height / 2, width / 2, height, [0, 8, 8, 0]);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.shadowBlur = 0;
-
-            // Nhãn cực N và S
-            ctx.font = 'bold 14px "Be Vietnam Pro", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = leftIsNorth ? '#fef3c7' : '#fbbf24';
-            ctx.fillText(leftIsNorth ? 'N' : 'S', -width / 4, 1);
-            ctx.fillStyle = !leftIsNorth ? '#fef3c7' : '#fbbf24';
-            ctx.fillText(!leftIsNorth ? 'N' : 'S', width / 4, 1);
-
-            ctx.restore();
-        }
-
-        function drawMagneticSimulation() {
+        function drawMagneticGame() {
             if (!magCtx || currentPage !== 'magnetic') return;
             const w = magCanvas.width;
             const h = magCanvas.height;
             magCtx.clearRect(0, 0, w, h);
 
-            // Nền chiều sâu tỏa sáng từ tâm
-            const bgGrad = magCtx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, Math.max(w, h) * 0.65);
-            bgGrad.addColorStop(0, 'rgba(245, 158, 11, 0.08)');
-            bgGrad.addColorStop(1, 'rgba(9, 9, 11, 0)');
-            magCtx.fillStyle = bgGrad;
-            magCtx.fillRect(0, 0, w, h);
+            gameState.pulsePhase += 0.04;
+            gameState.energy = Math.min(100, gameState.energy + 0.24);
 
-            // Lưới tọa độ đo đạc mờ phía sau
-            magCtx.strokeStyle = 'rgba(245, 158, 11, 0.05)';
-            magCtx.lineWidth = 1;
-            const step = 30;
-            for (let x = 0; x < w; x += step) {
-                magCtx.beginPath();
-                magCtx.moveTo(x, 0);
-                magCtx.lineTo(x, h);
-                magCtx.stroke();
-            }
-            for (let y = 0; y < h; y += step) {
-                magCtx.beginPath();
-                magCtx.moveTo(0, y);
-                magCtx.lineTo(w, y);
-                magCtx.stroke();
-            }
+            // Vẽ vùng từ trường trung tâm (từ x = 0.22*w đến 0.92*w)
+            const fieldStartX = w * 0.22;
+            const fieldWidth = w * 0.72;
+            const fieldGrad = magCtx.createLinearGradient(fieldStartX, 0, fieldStartX + fieldWidth, h);
+            fieldGrad.addColorStop(0, 'rgba(245, 158, 11, 0.07)');
+            fieldGrad.addColorStop(1, 'rgba(251, 191, 36, 0.02)');
+            magCtx.fillStyle = fieldGrad;
+            magCtx.fillRect(fieldStartX, 12, fieldWidth, h - 24);
+            magCtx.strokeStyle = 'rgba(251, 191, 36, 0.22)';
+            magCtx.setLineDash([6, 6]);
+            magCtx.strokeRect(fieldStartX, 12, fieldWidth, h - 24);
+            magCtx.setLineDash([]);
 
-            const poles = getMagneticPoles();
-            magState.phase = (magState.phase + 0.02 * magState.flowSpeed) % 1;
-
-            // Vẽ các đường sức từ bằng phương pháp tích phân đường trường (Field Line Tracing)
-            const intensityAlpha = Math.min(0.85, 0.28 + (magState.B / 2.5) * 0.5);
-            const northPoles = poles.filter(p => p.q > 0);
-            const linesPerNorth = Math.max(4, Math.round(magState.numLines / northPoles.length));
-
-            for (const np of northPoles) {
-                for (let i = 0; i < linesPerNorth; i++) {
-                    const startAngle = (i / linesPerNorth) * Math.PI * 2;
-                    let sx = np.x + Math.cos(startAngle) * 14;
-                    let sy = np.y + Math.sin(startAngle) * 14;
-
-                    const points = [{ x: sx, y: sy }];
-                    for (let stepIdx = 0; stepIdx < 95; stepIdx++) {
-                        const field = computeBFieldAt(sx, sy, poles);
-                        if (field.mag < 0.0001) break;
-                        const nx = field.bx / field.mag;
-                        const ny = field.by / field.mag;
-                        sx += nx * 6;
-                        sy += ny * 6;
-                        points.push({ x: sx, y: sy });
-
-                        // Dừng nếu chạm cực Nam (q < 0) hoặc ra ngoài khung quá xa
-                        let hitSouth = false;
-                        for (const sp of poles) {
-                            if (sp.q < 0 && Math.hypot(sx - sp.x, sy - sp.y) < 14) {
-                                hitSouth = true;
-                                break;
-                            }
-                        }
-                        if (hitSouth || sx < -40 || sx > w + 40 || sy < -40 || sy > h + 40) break;
-                    }
-
-                    if (points.length > 2) {
-                        magCtx.beginPath();
-                        magCtx.moveTo(points[0].x, points[0].y);
-                        for (let p = 1; p < points.length; p++) {
-                            magCtx.lineTo(points[p].x, points[p].y);
-                        }
-                        magCtx.strokeStyle = `rgba(251, 191, 36, ${intensityAlpha.toFixed(3)})`;
-                        magCtx.lineWidth = 1.25;
-                        magCtx.stroke();
-
-                        // Hạt sáng chạy dọc chiều N -> S trên đường sức
-                        const posFloat = ((magState.phase + (i * 0.17)) % 1) * (points.length - 1);
-                        const idx = Math.floor(posFloat);
-                        const pt = points[idx];
-                        if (pt) {
-                            magCtx.beginPath();
-                            magCtx.arc(pt.x, pt.y, 2.2, 0, Math.PI * 2);
-                            magCtx.fillStyle = '#fef08a';
-                            magCtx.fill();
-                        }
-                    }
+            // Ký hiệu vectơ từ trường B đều trong vùng
+            magCtx.font = 'bold 12px monospace';
+            magCtx.fillStyle = 'rgba(251, 191, 36, 0.34)';
+            for (let gx = fieldStartX + 28; gx < fieldStartX + fieldWidth - 16; gx += 54) {
+                for (let gy = 38; gy < h - 24; gy += 52) {
+                    magCtx.fillText(gameState.fieldDir === 1 ? '⊙ B' : '⊗ B', gx - 10, gy);
                 }
             }
 
-            // Vẽ thanh nam châm
-            const cx = w / 2;
-            const cy = h / 2;
-            if (!magState.dualMode) {
-                const magnetW = Math.min(165, w * 0.34);
-                drawBarMagnet(magCtx, cx, cy, magnetW, 38, magState.angle, magState.polarity === 1);
-            } else {
-                const magnetW = Math.min(120, w * 0.23);
-                drawBarMagnet(magCtx, cx - w * 0.23, cy, magnetW, 34, magState.angle, magState.polarity === 1);
-                drawBarMagnet(magCtx, cx + w * 0.23, cy, magnetW, 34, 0, true);
+            // Cập nhật & vẽ các Lõi Từ mục tiêu (Vàng)
+            for (const t of gameState.targets) {
+                t.phase += t.orbitSpeed;
+                t.y = t.baseY + Math.sin(t.phase) * t.orbitAmp;
+
+                const ringR = t.r + 5 + Math.sin(gameState.pulsePhase * 2 + t.phase) * 2.5;
+                magCtx.beginPath();
+                magCtx.arc(t.x, t.y, ringR, 0, Math.PI * 2);
+                magCtx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+                magCtx.lineWidth = 1.4;
+                magCtx.stroke();
+
+                magCtx.beginPath();
+                magCtx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+                magCtx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+                magCtx.fill();
+                magCtx.strokeStyle = '#fbbf24';
+                magCtx.lineWidth = 2;
+                magCtx.stroke();
+
+                magCtx.beginPath();
+                magCtx.arc(t.x, t.y, 5, 0, Math.PI * 2);
+                magCtx.fillStyle = '#fef08a';
+                magCtx.fill();
             }
 
-            // Vẽ và cập nhật chùm hạt điện tích chịu lực Lorenxơ
-            for (let i = lorentzCharges.length - 1; i >= 0; i--) {
-                const c = lorentzCharges[i];
-                const field = computeBFieldAt(c.x, c.y, poles);
-                const bz = Math.max(-2.5, Math.min(2.5, (field.bx - field.by) * 1.4));
+            // Cập nhật & vẽ Tâm Phản Từ nguy hiểm (Đỏ)
+            for (const hz of gameState.hazards) {
+                hz.phase += 0.022;
+                hz.y = hz.baseY + Math.cos(hz.phase) * 22;
 
-                const ax = -c.vy * bz * 0.045 * c.charge;
-                const ay = c.vx * bz * 0.045 * c.charge;
+                magCtx.beginPath();
+                magCtx.arc(hz.x, hz.y, hz.r, 0, Math.PI * 2);
+                magCtx.fillStyle = 'rgba(244, 63, 94, 0.22)';
+                magCtx.fill();
+                magCtx.strokeStyle = '#fb7185';
+                magCtx.lineWidth = 2;
+                magCtx.stroke();
 
-                c.vx += ax;
-                c.vy += ay;
-                c.x += c.vx;
-                c.y += c.vy;
+                magCtx.font = 'bold 11px monospace';
+                magCtx.fillStyle = '#fda4af';
+                magCtx.textAlign = 'center';
+                magCtx.textBaseline = 'middle';
+                magCtx.fillText('S−', hz.x, hz.y + 1);
+            }
 
-                c.trail.push({ x: c.x, y: c.y });
-                if (c.trail.length > 24) c.trail.shift();
+            // Vẽ Pháo Từ Trường bên trái
+            const cannonX = 42;
+            const cannonY = h * 0.5;
+            magCtx.save();
+            magCtx.translate(cannonX, cannonY);
+            magCtx.rotate(gameState.aimAngle);
 
-                if (c.trail.length > 1) {
+            // Đường ngắm dự báo quỹ đạo cong nhẹ
+            magCtx.beginPath();
+            magCtx.moveTo(22, 0);
+            magCtx.lineTo(68, 0);
+            magCtx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+            magCtx.setLineDash([4, 4]);
+            magCtx.stroke();
+            magCtx.setLineDash([]);
+
+            magCtx.fillStyle = '#18181b';
+            magCtx.strokeStyle = '#fbbf24';
+            magCtx.lineWidth = 2;
+            magCtx.beginPath();
+            magCtx.roundRect(-14, -12, 36, 24, 6);
+            magCtx.fill();
+            magCtx.stroke();
+
+            magCtx.fillStyle = '#f59e0b';
+            magCtx.fillRect(16, -5, 10, 10);
+            magCtx.restore();
+
+            // Vẽ bệ pháo tròn
+            magCtx.beginPath();
+            magCtx.arc(cannonX, cannonY, 18, 0, Math.PI * 2);
+            magCtx.fillStyle = '#09090b';
+            magCtx.fill();
+            magCtx.strokeStyle = '#f59e0b';
+            magCtx.lineWidth = 2;
+            magCtx.stroke();
+
+            // Cập nhật & vẽ Hạt Điện Tích chịu lực Lorenxơ (F_L = q * v x B)
+            const lorentzStrength = (0.042 + gameState.level * 0.004) * gameState.fieldDir;
+            for (let i = gameState.projectiles.length - 1; i >= 0; i--) {
+                const p = gameState.projectiles[i];
+                if (p.x > fieldStartX) {
+                    const ax = -p.vy * lorentzStrength;
+                    const ay = p.vx * lorentzStrength;
+                    p.vx += ax;
+                    p.vy += ay;
+                }
+                p.x += p.vx;
+                p.y += p.vy;
+
+                p.trail.push({ x: p.x, y: p.y });
+                if (p.trail.length > 26) p.trail.shift();
+
+                if (p.trail.length > 1) {
                     magCtx.beginPath();
-                    magCtx.moveTo(c.trail[0].x, c.trail[0].y);
-                    for (let p = 1; p < c.trail.length; p++) {
-                        magCtx.lineTo(c.trail[p].x, c.trail[p].y);
+                    magCtx.moveTo(p.trail[0].x, p.trail[0].y);
+                    for (let k = 1; k < p.trail.length; k++) {
+                        magCtx.lineTo(p.trail[k].x, p.trail[k].y);
                     }
-                    magCtx.strokeStyle = c.charge > 0 ? 'rgba(251, 191, 36, 0.78)' : 'rgba(52, 211, 153, 0.8)';
-                    magCtx.lineWidth = 2;
+                    magCtx.strokeStyle = 'rgba(253, 224, 71, 0.8)';
+                    magCtx.lineWidth = 2.4;
                     magCtx.stroke();
                 }
 
                 magCtx.beginPath();
-                magCtx.arc(c.x, c.y, 3.3, 0, Math.PI * 2);
-                magCtx.fillStyle = c.charge > 0 ? '#fde68a' : '#6ee7b7';
+                magCtx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                magCtx.fillStyle = '#fef08a';
                 magCtx.fill();
 
-                if (c.x < -20 || c.x > w + 20 || c.y < -20 || c.y > h + 20) {
-                    lorentzCharges.splice(i, 1);
+                // Va chạm với Lõi Từ mục tiêu
+                let hitSomething = false;
+                for (let tIdx = gameState.targets.length - 1; tIdx >= 0; tIdx--) {
+                    const t = gameState.targets[tIdx];
+                    if (Math.hypot(p.x - t.x, p.y - t.y) <= t.r + 5) {
+                        const gained = 100 * gameState.combo;
+                        gameState.score += gained;
+                        gameState.combo = Math.min(8, gameState.combo + 1);
+                        gameState.energy = Math.min(100, gameState.energy + 12);
+                        createBurstSparks(t.x, t.y, '#fde047', 18);
+                        gameState.targets.splice(tIdx, 1);
+                        hitSomething = true;
+                        showToast(`Chính xác! +${gained} điểm (Combo x${gameState.combo})`);
+                        break;
+                    }
                 }
+
+                // Va chạm với Tâm Phản Từ nguy hiểm
+                if (!hitSomething) {
+                    for (const hz of gameState.hazards) {
+                        if (Math.hypot(p.x - hz.x, p.y - hz.y) <= hz.r + 4) {
+                            gameState.combo = 1;
+                            gameState.score = Math.max(0, gameState.score - 50);
+                            createBurstSparks(p.x, p.y, '#fb7185', 14);
+                            hitSomething = true;
+                            showToast("Va chạm Tâm Phản Từ! Reset hệ số Combo", true);
+                            break;
+                        }
+                    }
+                }
+
+                if (hitSomething || p.x < -30 || p.x > w + 30 || p.y < -30 || p.y > h + 30) {
+                    if (!hitSomething && p.x > w + 20) {
+                        gameState.combo = 1;
+                    }
+                    gameState.projectiles.splice(i, 1);
+                }
+                syncGameHUD();
             }
 
-            // Vẽ Kim La Bàn Cảm Biến (Probe Compass) tại vị trí con trỏ
-            if (magState.probeX !== null && magState.probeY !== null) {
-                const field = computeBFieldAt(magState.probeX, magState.probeY, poles);
-                const angle = Math.atan2(field.by, field.bx);
+            // Lên cấp khi phá hết Lõi Từ của đợt hiện tại
+            if (gameState.targets.length === 0) {
+                gameState.level += 1;
+                gameState.energy = 100;
+                showToast(`Hoàn thành đợt! Tiến lên Cấp ${gameState.level}!`);
+                spawnGameWave();
+            }
 
-                magCtx.save();
-                magCtx.translate(magState.probeX, magState.probeY);
-
-                // Vòng tròn la bàn
+            // Vẽ tia năng lượng / hạt nổ
+            for (let s = gameState.sparks.length - 1; s >= 0; s--) {
+                const sp = gameState.sparks[s];
+                sp.x += sp.vx;
+                sp.y += sp.vy;
+                sp.life -= 0.035;
+                if (sp.life <= 0) {
+                    gameState.sparks.splice(s, 1);
+                    continue;
+                }
                 magCtx.beginPath();
-                magCtx.arc(0, 0, 18, 0, Math.PI * 2);
-                magCtx.fillStyle = 'rgba(9, 9, 11, 0.78)';
+                magCtx.arc(sp.x, sp.y, 2.5 * sp.life + 0.6, 0, Math.PI * 2);
+                magCtx.fillStyle = sp.color;
+                magCtx.globalAlpha = Math.max(0, sp.life);
                 magCtx.fill();
-                magCtx.strokeStyle = 'rgba(251, 191, 36, 0.65)';
-                magCtx.lineWidth = 1.3;
-                magCtx.stroke();
-
-                // Xoay kim chỉ hướng vectơ B
-                magCtx.rotate(angle);
-                // Đầu Bắc kim (vàng rực)
-                magCtx.beginPath();
-                magCtx.moveTo(13, 0);
-                magCtx.lineTo(-2, -4);
-                magCtx.lineTo(-2, 4);
-                magCtx.closePath();
-                magCtx.fillStyle = '#f59e0b';
-                magCtx.fill();
-
-                // Đuôi Nam kim (bạc)
-                magCtx.beginPath();
-                magCtx.moveTo(-13, 0);
-                magCtx.lineTo(-2, -3.5);
-                magCtx.lineTo(-2, 3.5);
-                magCtx.closePath();
-                magCtx.fillStyle = '#a1a1aa';
-                magCtx.fill();
-
-                magCtx.restore();
+                magCtx.globalAlpha = 1;
             }
         }
 
@@ -1282,6 +1208,7 @@
                 "ORG:Trường THPT Chuyên Bến Tre",
                 "TITLE:Học sinh Chuyên Vật Lý",
                 "TEL;TYPE=CELL,VOICE:0818756723",
+                "EMAIL:cbter.nguyenminh.vn@gmail.com",
                 "URL:https://www.facebook.com/share/1KLQaQE5Zk/",
                 "NOTE:Danh thiếp điện tử cá nhân - Nguyễn Lê Nhật Minh",
                 "END:VCARD"
@@ -1339,10 +1266,10 @@
             is3DTiltEnabled = !is3DTiltEnabled;
             const statusText = document.getElementById('tilt-status-text');
             if (is3DTiltEnabled) {
-                statusText.innerText = "Hiệu Ứng 3D: Bật";
+                statusText.innerText = "3D: Bật";
                 showToast("Đã bật hiệu ứng nghiêng 3D tương tác");
             } else {
-                statusText.innerText = "Hiệu Ứng 3D: Tắt";
+                statusText.innerText = "3D: Tắt";
                 card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
                 showToast("Đã tắt hiệu ứng nghiêng 3D");
             }
@@ -1365,48 +1292,68 @@
             card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
         });
 
-        // --- 7. HỆ THỐNG HẠT VẬT LÝ & HIỆU ỨNG CHUỘT TƯƠNG TÁC (AURA + CLICK RIPPLE + TRAIL) ---
+        // --- 7. CON TRỎ VẬT LÝ CHUYÊN NGHIỆP & HỆ THỐNG HẠT TƯƠNG TÁC LỰC TỪ ---
         const canvas = document.getElementById('physics-canvas');
         const ctx = canvas.getContext('2d');
-        const cursorAura = document.getElementById('cursor-aura');
+        const physicsCursor = document.getElementById('physics-cursor');
         let particles = [];
         let clickRipples = [];
         let cursorTrail = [];
-        let mouse = { x: null, y: null, radius: 155 };
+        let cursorAttractMode = true; // true: hút nhẹ hạt về trường chuột, false: đẩy hạt bật ra
+        let mouse = { x: null, y: null, radius: 175 };
+
+        function toggleCursorFieldMode() {
+            cursorAttractMode = !cursorAttractMode;
+            const textEl = document.getElementById('field-mode-text');
+            if (cursorAttractMode) {
+                textEl.innerText = "Trường Chuột: Hút";
+                physicsCursor.classList.remove('repel-mode');
+                showToast("Con trỏ vật lý: Chế độ Hút Từ Trường");
+            } else {
+                textEl.innerText = "Trường Chuột: Đẩy";
+                physicsCursor.classList.add('repel-mode');
+                showToast("Con trỏ vật lý: Chế độ Đẩy Phản Từ");
+            }
+        }
 
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.clientX;
             mouse.y = e.clientY;
 
-            if (cursorAura) {
-                cursorAura.style.left = `${e.clientX}px`;
-                cursorAura.style.top = `${e.clientY}px`;
-                cursorAura.style.opacity = '1';
+            if (physicsCursor) {
+                physicsCursor.style.left = `${e.clientX}px`;
+                physicsCursor.style.top = `${e.clientY}px`;
+                physicsCursor.style.opacity = '1';
             }
 
             cursorTrail.push({
                 x: e.clientX,
                 y: e.clientY,
-                alpha: 0.7,
-                size: 2.8
+                alpha: 0.75,
+                size: 3
             });
-            if (cursorTrail.length > 18) cursorTrail.shift();
+            if (cursorTrail.length > 20) cursorTrail.shift();
         });
 
         window.addEventListener('mousedown', (e) => {
+            if (physicsCursor) physicsCursor.classList.add('active-click');
             clickRipples.push({
                 x: e.clientX,
                 y: e.clientY,
-                radius: 6,
-                maxRadius: 110,
-                alpha: 0.75
+                radius: 8,
+                maxRadius: 130,
+                alpha: 0.85
             });
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (physicsCursor) physicsCursor.classList.remove('active-click');
         });
 
         window.addEventListener('mouseout', () => {
             mouse.x = null;
             mouse.y = null;
-            if (cursorAura) cursorAura.style.opacity = '0';
+            if (physicsCursor) physicsCursor.style.opacity = '0';
         });
 
         function resizeCanvas() {
@@ -1420,21 +1367,42 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.6;
-                this.vx = (Math.random() - 0.5) * 0.65;
-                this.vy = (Math.random() - 0.5) * 0.65;
+                this.size = Math.random() * 2 + 0.7;
+                this.vx = (Math.random() - 0.5) * 0.7;
+                this.vy = (Math.random() - 0.5) * 0.7;
             }
             update() {
-                // Hạt phản ứng nhẹ với vòng gợn sóng khi nhấp chuột
+                // Tương tác lực hút hoặc đẩy quanh con trỏ vật lý
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < mouse.radius && dist > 4) {
+                        const force = ((mouse.radius - dist) / mouse.radius) * 0.045;
+                        const dir = cursorAttractMode ? 1 : -1;
+                        this.vx += (dx / dist) * force * dir;
+                        this.vy += (dy / dist) * force * dir;
+                    }
+                }
+
+                // Hạt phản ứng với sóng xung kích khi nhấp chuột
                 clickRipples.forEach((rip) => {
                     const dx = this.x - rip.x;
                     const dy = this.y - rip.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (Math.abs(dist - rip.radius) < 22 && dist > 1) {
-                        this.x += (dx / dist) * 1.8;
-                        this.y += (dy / dist) * 1.8;
+                    if (Math.abs(dist - rip.radius) < 24 && dist > 1) {
+                        this.x += (dx / dist) * 2.1;
+                        this.y += (dy / dist) * 2.1;
                     }
                 });
+
+                // Giới hạn vận tốc để quỹ đạo ổn định
+                const maxSpeed = 2.6;
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > maxSpeed) {
+                    this.vx = (this.vx / speed) * maxSpeed;
+                    this.vy = (this.vy / speed) * maxSpeed;
+                }
 
                 this.x += this.vx;
                 this.y += this.vy;
@@ -1445,14 +1413,14 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(245, 158, 11, 0.55)";
+                ctx.fillStyle = cursorAttractMode ? "rgba(245, 158, 11, 0.58)" : "rgba(251, 113, 133, 0.55)";
                 ctx.fill();
             }
         }
 
         function initParticles() {
             particles = [];
-            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 90);
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 13500), 95);
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle());
             }
@@ -1461,17 +1429,19 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Vẽ khung thí nghiệm từ trường nếu đang ở trang Từ Trường
-            drawMagneticSimulation();
+            // Vẽ trò chơi vật lý từ trường nếu đang ở tab Game Từ Trường
+            drawMagneticGame();
 
-            // Vẽ vệt sáng đuôi chuột (Cursor Spark Trail)
+            // Vẽ vệt sáng đuôi chuột (Magnetic Trail)
             for (let t = 0; t < cursorTrail.length; t++) {
                 const item = cursorTrail[t];
-                item.alpha *= 0.9;
-                item.size *= 0.94;
+                item.alpha *= 0.89;
+                item.size *= 0.93;
                 ctx.beginPath();
                 ctx.arc(item.x, item.y, item.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(253, 224, 71, ${item.alpha.toFixed(3)})`;
+                ctx.fillStyle = cursorAttractMode
+                    ? `rgba(253, 224, 71, ${item.alpha.toFixed(3)})`
+                    : `rgba(251, 113, 133, ${item.alpha.toFixed(3)})`;
                 ctx.fill();
             }
             cursorTrail = cursorTrail.filter(item => item.alpha > 0.04);
@@ -1479,16 +1449,18 @@
             // Vẽ vòng gợn sóng khi nhấp chuột (Click Ripple)
             for (let r = clickRipples.length - 1; r >= 0; r--) {
                 const rip = clickRipples[r];
-                rip.radius += 3.8;
-                rip.alpha -= 0.025;
+                rip.radius += 4.2;
+                rip.alpha -= 0.026;
                 if (rip.alpha <= 0 || rip.radius > rip.maxRadius) {
                     clickRipples.splice(r, 1);
                     continue;
                 }
                 ctx.beginPath();
                 ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(251, 191, 36, ${rip.alpha.toFixed(3)})`;
-                ctx.lineWidth = 1.4;
+                ctx.strokeStyle = cursorAttractMode
+                    ? `rgba(251, 191, 36, ${rip.alpha.toFixed(3)})`
+                    : `rgba(251, 113, 133, ${rip.alpha.toFixed(3)})`;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
             }
 
@@ -1512,7 +1484,7 @@
                     }
                 }
 
-                // Tương tác kết nối phát sáng với con trỏ chuột
+                // Tương tác đường sức kết nối với con trỏ vật lý
                 if (mouse.x !== null && mouse.y !== null) {
                     const dxMouse = particles[i].x - mouse.x;
                     const dyMouse = particles[i].y - mouse.y;
@@ -1520,7 +1492,9 @@
 
                     if (distMouse < mouse.radius) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(251, 191, 36, ${(0.42 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
+                        ctx.strokeStyle = cursorAttractMode
+                            ? `rgba(251, 191, 36, ${(0.45 * (1 - distMouse / mouse.radius)).toFixed(3)})`
+                            : `rgba(251, 113, 133, ${(0.45 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
                         ctx.lineWidth = 0.9;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(mouse.x, mouse.y);
@@ -1534,7 +1508,7 @@
         window.addEventListener('resize', resizeCanvas);
         window.onload = function() {
             resizeCanvas();
-            updateMagneticParams();
+            spawnGameWave();
             animateParticles();
         };
     </script>
