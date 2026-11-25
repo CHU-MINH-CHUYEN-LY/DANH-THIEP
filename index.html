@@ -300,13 +300,14 @@
                 </button>
             </div>
 
-            <!-- KHUNG CHÈN MÃ QR NGÂN HÀNG -->
+            <!-- KHUNG CHÈN MÃ QR NGÂN HÀNG (ĐÃ ZOOM VỪA KHUNG) -->
             <div class="flex flex-col items-center justify-center">
-                <div class="w-48 h-48 sm:w-52 sm:h-52 p-2.5 bg-white rounded-2xl shadow-xl border-2 border-amber-500/50 flex items-center justify-center overflow-hidden">
-                    <!-- Đặt ảnh mã QR ngân hàng vào thư mục images/qr-bank.jpg trên GitHub -->
+                <div class="w-48 h-48 sm:w-52 sm:h-52 bg-white rounded-2xl shadow-xl border-2 border-amber-500/50 flex items-center justify-center overflow-hidden">
+                    <!-- Zoom tập trung vào vùng mã QR trong ảnh images/qr-bank.jpg -->
                     <img src="images/qr-bank.jpg" 
                          alt="Mã QR Ngân Hàng Agribank" 
-                         class="w-full h-full object-contain rounded-xl"
+                         class="w-full h-full object-contain"
+                         style="transform: scale(2.2); transform-origin: 50% 41%;"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <!-- Khung dự phòng hiển thị khi chưa tải ảnh QR lên -->
                     <div class="hidden w-full h-full flex-col items-center justify-center border-2 border-dashed border-zinc-300 rounded-xl text-zinc-500 p-3 text-center">
