@@ -93,6 +93,32 @@
             }
         }
 
+        /* Thanh trượt kiểu thiết bị phòng lab */
+        input[type="range"].lab-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(39, 39, 42, 0.95);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            outline: none;
+        }
+        input[type="range"].lab-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fde68a, #f59e0b);
+            border: 2px solid #09090b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        input[type="range"].lab-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.18);
+        }
+
         /* Tùy chỉnh thanh cuộn */
         ::-webkit-scrollbar {
             width: 6px;
@@ -112,8 +138,8 @@
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
     <!-- ÁNH SÁNG AMBIENT GLOW PHÍA SAU -->
-    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
-    <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div id="glow-left" class="fixed top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px] pointer-events-none z-0 transition-all duration-500"></div>
+    <div id="glow-right" class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none z-0 transition-all duration-500"></div>
 
     <!-- THANH ĐIỀU HƯỚNG NHANH TRÊN CÙNG (DESKTOP & MOBILE) -->
     <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-10 flex justify-between items-center">
@@ -126,7 +152,13 @@
             </span>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Nút bật/tắt Bảng Điều Khiển Cơ - Điện - Sáng -->
+            <button id="toggle-lab-btn" onclick="toggleLabConsole()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-black text-xs font-medium transition-all flex items-center gap-1.5 shadow-md">
+                <i class="fa-solid fa-sliders"></i>
+                <span id="lab-status-text">Bảng Lab: Mở</span>
+            </button>
+
             <!-- Nút bật/tắt hiệu ứng chuyển động 3D -->
             <button id="toggle-tilt-btn" onclick="toggle3DTilt()" class="px-3 py-1.5 rounded-full bg-zinc-900/80 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black text-xs font-medium transition-all flex items-center gap-1.5 shadow-md">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -137,7 +169,7 @@
 
     <!-- MAIN CONTENT CONTAINER -->
     <main class="w-full max-w-4xl px-4 py-6 z-10 flex-grow flex items-center justify-center">
-        <div class="w-full space-y-6">
+        <div class="w-full space-y-5">
 
             <!-- THẺ DANH THIẾP CHÍNH (3D TILT INTERACTIVE CARD) -->
             <div id="business-card" class="glass-card shimmer-card rounded-3xl p-6 sm:p-8 md:p-10 transition-transform duration-200 ease-out" style="transform-style: preserve-3d;">
@@ -171,7 +203,7 @@
                         <!-- Thông Tin Tên & Trường Học -->
                         <div class="space-y-1.5 w-full">
                             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-semibold tracking-wider uppercase">
-                                <i class="fa-solid fa-atom animate-spin-slow"></i>
+                                <i id="atom-icon" class="fa-solid fa-atom animate-spin-slow"></i>
                                 Chuyên Vật Lý
                             </div>
                             <h1 class="heading-font text-2xl sm:text-3xl font-bold gold-text-gradient tracking-wide pt-1">
@@ -287,6 +319,88 @@
                 </div>
             </div>
 
+            <!-- BẢNG ĐIỀU KHIỂN CƠ - ĐIỆN - SÁNG THU NHỎ (DIY & LAB CONSOLE) -->
+            <section id="lab-console" class="glass-card rounded-3xl p-5 sm:p-6 border border-amber-500/30 space-y-4 transition-all duration-300">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        <h3 class="heading-font text-xs sm:text-sm font-bold text-amber-400 tracking-wider uppercase">
+                            Bảng Điều Khiển Cơ - Điện - Sáng
+                        </h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="triggerPulseWave()" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 text-[11px] font-semibold transition-all active:scale-95">
+                            <i class="fa-solid fa-bolt mr-1"></i>Phát Xung
+                        </button>
+                        <button onclick="resetLabControls()" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700/80 text-[11px] font-medium transition-all active:scale-95">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>Mặc Định
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Màn hình chỉ số đo phòng lab thu nhỏ -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-left">
+                    <div class="px-3 py-2 rounded-2xl bg-zinc-950/90 border border-zinc-800/90">
+                        <div class="text-[10px] uppercase tracking-wider text-zinc-500">Ánh Sáng (Optic)</div>
+                        <div id="readout-optic" class="text-xs sm:text-sm font-mono font-bold text-amber-300 mt-0.5">450 LM • WARM</div>
+                    </div>
+                    <div class="px-3 py-2 rounded-2xl bg-zinc-950/90 border border-zinc-800/90">
+                        <div class="text-[10px] uppercase tracking-wider text-zinc-500">Cơ Khí (Motor)</div>
+                        <div id="readout-motor" class="text-xs sm:text-sm font-mono font-bold text-amber-400 mt-0.5">120 RPM</div>
+                    </div>
+                    <div class="px-3 py-2 rounded-2xl bg-zinc-950/90 border border-zinc-800/90">
+                        <div class="text-[10px] uppercase tracking-wider text-zinc-500">Tín Hiệu (Signal)</div>
+                        <div id="readout-signal" class="text-xs sm:text-sm font-mono font-bold text-emerald-400 mt-0.5">STANDBY</div>
+                    </div>
+                    <div class="px-3 py-2 rounded-2xl bg-zinc-950/90 border border-zinc-800/90">
+                        <div class="text-[10px] uppercase tracking-wider text-zinc-500">Trường (Field)</div>
+                        <div id="readout-field" class="text-xs sm:text-sm font-mono font-bold text-zinc-200 mt-0.5">COUPLED • 1.0x</div>
+                    </div>
+                </div>
+
+                <!-- 3 cụm điều khiển: Ánh sáng ấm - Tốc độ cơ khí - Chế độ quét tín hiệu -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                    <!-- 1. SÁNG: Ánh sáng ấm / vàng kim -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-900/65 border border-zinc-800/80 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb"></i> Ánh Sáng Ấm
+                            </span>
+                            <span id="light-value-label" class="font-mono text-zinc-400">50%</span>
+                        </div>
+                        <input id="light-slider" type="range" min="15" max="100" value="50" oninput="updateLightLevel(this.value)" class="w-full lab-slider">
+                        <p class="text-[11px] text-zinc-500">Điều chỉnh quầng sáng vàng ấm & độ rực quét nền.</p>
+                    </div>
+
+                    <!-- 2. CƠ: Tốc độ chuyển động mô hình -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-900/65 border border-zinc-800/80 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-gear"></i> Tốc Độ Cơ Khí
+                            </span>
+                            <span id="speed-value-label" class="font-mono text-zinc-400">1.0x</span>
+                        </div>
+                        <input id="speed-slider" type="range" min="2" max="30" value="10" oninput="updateMotorSpeed(this.value)" class="w-full lab-slider">
+                        <p class="text-[11px] text-zinc-500">Tinh chỉnh vận tốc hạt & chu kỳ quay viền nguyên tử.</p>
+                    </div>
+
+                    <!-- 3. ĐIỆN / TÍN HIỆU: Chế độ quét tín hiệu -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-900/65 border border-zinc-800/80 flex flex-col justify-between space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-wave-square"></i> Quét Tín Hiệu
+                            </span>
+                            <span id="scan-badge" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono">MODE 1/3</span>
+                        </div>
+                        <button onclick="cycleScanMode()" class="w-full py-2 px-3 rounded-xl bg-zinc-950 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/35 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                            <span id="scan-btn-label">Đổi Chế Độ Quét</span>
+                        </button>
+                        <p class="text-[11px] text-zinc-500">Chuyển giữa Ổn định, Quét tia ngang & Xung cộng hưởng.</p>
+                    </div>
+                </div>
+            </section>
+
         </div>
     </main>
 
@@ -307,7 +421,7 @@
                     <img src="images/qr-bank.jpg" 
                          alt="Mã QR Ngân Hàng Agribank" 
                          class="w-full h-full object-contain"
-                         style="transform: scale(2.2); transform-origin: 50% 50%;"
+                         style="transform: scale(2.2); transform-origin: 50% 41%;"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <!-- Khung dự phòng hiển thị khi chưa tải ảnh QR lên -->
                     <div class="hidden w-full h-full flex-col items-center justify-center border-2 border-dashed border-zinc-300 rounded-xl text-zinc-500 p-3 text-center">
@@ -386,8 +500,111 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, 3D TILT & PARTICLES -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, 3D TILT, LAB CONSOLE & PARTICLES -->
     <script>
+        // --- TRẠNG THÁI BẢNG ĐIỀU KHIỂN CƠ - ĐIỆN - SÁNG ---
+        let labState = {
+            lightPercent: 50,     // 15% - 100%
+            speedFactor: 1.0,     // 0.2x - 3.0x
+            scanModeIndex: 0      // 0: STANDBY, 1: RADAR SWEEP, 2: PULSE WAVE
+        };
+        const scanModes = [
+            { code: "STANDBY", badge: "MODE 1/3", field: "COUPLED", colorClass: "text-emerald-400" },
+            { code: "RADAR SWEEP", badge: "MODE 2/3", field: "SCANNING", colorClass: "text-amber-300" },
+            { code: "PULSE WAVE", badge: "MODE 3/3", field: "RESONANCE", colorClass: "text-yellow-200" }
+        ];
+        let pulseWaves = [];
+        let scanBeamY = 0;
+
+        function updateTelemetryReadouts() {
+            const lumens = Math.round(180 + (labState.lightPercent / 100) * 720);
+            const warmTag = labState.lightPercent >= 65 ? "GOLD-HI" : (labState.lightPercent >= 35 ? "WARM" : "DIM");
+            document.getElementById('readout-optic').innerText = `${lumens} LM • ${warmTag}`;
+            document.getElementById('light-value-label').innerText = `${labState.lightPercent}%`;
+
+            const rpm = Math.round(labState.speedFactor * 120);
+            document.getElementById('readout-motor').innerText = `${rpm} RPM`;
+            document.getElementById('speed-value-label').innerText = `${labState.speedFactor.toFixed(1)}x`;
+
+            const mode = scanModes[labState.scanModeIndex];
+            const signalEl = document.getElementById('readout-signal');
+            signalEl.innerText = mode.code;
+            signalEl.className = `text-xs sm:text-sm font-mono font-bold mt-0.5 ${mode.colorClass}`;
+            document.getElementById('scan-badge').innerText = mode.badge;
+            document.getElementById('readout-field').innerText = `${mode.field} • ${labState.speedFactor.toFixed(1)}x`;
+
+            // Điều chỉnh ánh sáng quầng nền & tốc độ quay huy hiệu nguyên tử
+            const glowOpacity = (labState.lightPercent / 100) * 0.26;
+            const glowSize = Math.round(280 + (labState.lightPercent / 100) * 260);
+            const glowLeft = document.getElementById('glow-left');
+            const glowRight = document.getElementById('glow-right');
+            [glowLeft, glowRight].forEach((el) => {
+                el.style.width = `${glowSize}px`;
+                el.style.height = `${glowSize}px`;
+                el.style.backgroundColor = `rgba(245, 158, 11, ${glowOpacity.toFixed(3)})`;
+            });
+
+            const spinDuration = Math.max(1.8, (8 / labState.speedFactor)).toFixed(1);
+            document.querySelectorAll('.animate-spin-slow').forEach((icon) => {
+                icon.style.animationDuration = `${spinDuration}s`;
+            });
+        }
+
+        function updateLightLevel(val) {
+            labState.lightPercent = Number(val);
+            updateTelemetryReadouts();
+        }
+
+        function updateMotorSpeed(val) {
+            labState.speedFactor = Number(val) / 10;
+            updateTelemetryReadouts();
+        }
+
+        function cycleScanMode() {
+            labState.scanModeIndex = (labState.scanModeIndex + 1) % scanModes.length;
+            updateTelemetryReadouts();
+            if (labState.scanModeIndex === 2) {
+                triggerPulseWave();
+            }
+            showToast(`Chế độ tín hiệu: ${scanModes[labState.scanModeIndex].code}`);
+        }
+
+        function triggerPulseWave() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            pulseWaves.push({
+                x: centerX,
+                y: centerY,
+                radius: 10,
+                maxRadius: Math.max(window.innerWidth, window.innerHeight) * 0.65,
+                alpha: 0.75
+            });
+            showToast("Đã phát xung từ trường lan tỏa!");
+        }
+
+        function resetLabControls() {
+            labState.lightPercent = 50;
+            labState.speedFactor = 1.0;
+            labState.scanModeIndex = 0;
+            document.getElementById('light-slider').value = 50;
+            document.getElementById('speed-slider').value = 10;
+            updateTelemetryReadouts();
+            showToast("Đã đặt lại thông số phòng lab mặc định");
+        }
+
+        function toggleLabConsole() {
+            const consoleEl = document.getElementById('lab-console');
+            const labelEl = document.getElementById('lab-status-text');
+            const isHidden = consoleEl.classList.contains('hidden');
+            if (isHidden) {
+                consoleEl.classList.remove('hidden');
+                labelEl.innerText = "Bảng Lab: Mở";
+            } else {
+                consoleEl.classList.add('hidden');
+                labelEl.innerText = "Bảng Lab: Ẩn";
+            }
+        }
+
         // --- 1. TOAST NOTIFICATION ---
         function showToast(message, isWarning = false) {
             const toast = document.getElementById('toast');
@@ -572,16 +789,28 @@
                 this.vy = (Math.random() - 0.5) * 0.6;
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                // Đẩy nhẹ hạt khi có vòng xung lan tỏa
+                pulseWaves.forEach((wave) => {
+                    const dx = this.x - wave.x;
+                    const dy = this.y - wave.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (Math.abs(dist - wave.radius) < 28 && dist > 1) {
+                        this.x += (dx / dist) * 2.2;
+                        this.y += (dy / dist) * 2.2;
+                    }
+                });
+
+                this.x += this.vx * labState.speedFactor;
+                this.y += this.vy * labState.speedFactor;
 
                 if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
                 if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
             }
             draw() {
+                const lightBoost = 0.35 + (labState.lightPercent / 100) * 0.55;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(245, 158, 11, 0.55)';
+                ctx.fillStyle = `rgba(245, 158, 11, ${lightBoost.toFixed(2)})`;
                 ctx.fill();
             }
         }
@@ -597,6 +826,35 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Chế độ quét tín hiệu RADAR SWEEP: vẽ tia quét ngang
+            if (labState.scanModeIndex === 1) {
+                scanBeamY = (scanBeamY + 2.5 * labState.speedFactor) % canvas.height;
+                const grad = ctx.createLinearGradient(0, scanBeamY - 18, 0, scanBeamY + 18);
+                grad.addColorStop(0, "rgba(245, 158, 11, 0)");
+                grad.addColorStop(0.5, "rgba(251, 191, 36, 0.24)");
+                grad.addColorStop(1, "rgba(245, 158, 11, 0)");
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, scanBeamY - 18, canvas.width, 36);
+            }
+
+            // Vẽ các vòng xung PULSE WAVE
+            for (let w = pulseWaves.length - 1; w >= 0; w--) {
+                const wave = pulseWaves[w];
+                wave.radius += 5.5 * Math.max(0.7, labState.speedFactor);
+                wave.alpha -= 0.012;
+                if (wave.alpha <= 0 || wave.radius > wave.maxRadius) {
+                    pulseWaves.splice(w, 1);
+                    continue;
+                }
+                ctx.beginPath();
+                ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(251, 191, 36, ${wave.alpha.toFixed(3)})`;
+                ctx.lineWidth = 1.6;
+                ctx.stroke();
+            }
+
+            const lineIntensity = 0.08 + (labState.lightPercent / 100) * 0.16;
+
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
@@ -609,7 +867,7 @@
 
                     if (distance < 110) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(245, 158, 11, ${0.15 * (1 - distance / 110)})`;
+                        ctx.strokeStyle = `rgba(245, 158, 11, ${(lineIntensity * (1 - distance / 110)).toFixed(3)})`;
                         ctx.lineWidth = 0.6;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
@@ -625,7 +883,7 @@
 
                     if (distMouse < mouse.radius) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(251, 191, 36, ${0.35 * (1 - distMouse / mouse.radius)})`;
+                        ctx.strokeStyle = `rgba(251, 191, 36, ${(0.35 * (1 - distMouse / mouse.radius)).toFixed(3)})`;
                         ctx.lineWidth = 0.8;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(mouse.x, mouse.y);
@@ -639,6 +897,7 @@
         window.addEventListener('resize', resizeCanvas);
         window.onload = function() {
             resizeCanvas();
+            updateTelemetryReadouts();
             animateParticles();
         };
     </script>
