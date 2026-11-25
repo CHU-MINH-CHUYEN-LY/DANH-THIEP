@@ -62,6 +62,16 @@
                         0 0 30px rgba(245, 158, 11, 0.08);
         }
 
+        /* HUD Trạm đo thông số Vật lý bên trái */
+        .telemetry-hud {
+            background: linear-gradient(160deg, rgba(20, 20, 24, 0.78) 0%, rgba(9, 9, 11, 0.88) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.24);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.85),
+                        inset 0 1px 0 rgba(254, 240, 138, 0.08);
+        }
+
         /* Hiệu ứng ánh sáng lướt qua thẻ (Shimmer Sweep) */
         .shimmer-card {
             position: relative;
@@ -195,12 +205,91 @@
     <!-- CANVAS NỀN HẠT BAY TỰ DO + ICON VẬT LÝ KHI BẤM CHUỘT -->
     <canvas id="physics-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
-    <!-- CANVAS HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN (HỖ TRỢ NHẤN CHỌN CHI TIẾT TRÊN TRANG CHÍNH) -->
+    <!-- CANVAS HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN (HIỂN THỊ ĐỦ 8 HÀNH TINH & MẶT TRỜI) -->
     <canvas id="solar-overlay-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-20"></canvas>
 
     <!-- ÁNH SÁNG AMBIENT GLOW PHÍA SAU -->
     <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
     <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- TRẠM ĐO THÔNG SỐ VẬT LÝ THỜI GIAN THỰC (HUD BÊN TRÁI TRANG CHÍNH) -->
+    <aside id="physics-telemetry-hud" class="telemetry-hud fixed left-5 top-1/2 -translate-y-1/2 hidden xl:flex flex-col w-[228px] rounded-2xl p-4 z-30 space-y-3.5 select-none pointer-events-none transition-opacity duration-300">
+        <!-- Header HUD -->
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-2.5">
+            <div class="flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                </span>
+                <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300">
+                    Physics Telemetry
+                </span>
+            </div>
+            <span class="text-[9px] font-mono text-zinc-500">LAB-01</span>
+        </div>
+
+        <!-- Khối 1: Tọa độ trường lực & Cường độ từ trường -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">
+                <span>Tọa độ trường lực</span>
+                <i class="fa-solid fa-crosshairs text-amber-400/80"></i>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
+                <div class="px-2.5 py-1.5 rounded-lg bg-zinc-950/85 border border-zinc-800/90 flex items-center justify-between">
+                    <span class="text-zinc-500">X:</span>
+                    <span id="hud-coord-x" class="text-amber-300 font-semibold">000px</span>
+                </div>
+                <div class="px-2.5 py-1.5 rounded-lg bg-zinc-950/85 border border-zinc-800/90 flex items-center justify-between">
+                    <span class="text-zinc-500">Y:</span>
+                    <span id="hud-coord-y" class="text-amber-300 font-semibold">000px</span>
+                </div>
+            </div>
+
+            <!-- Thanh cường độ từ trường tương tác -->
+            <div class="p-2.5 rounded-xl bg-zinc-950/75 border border-zinc-800/80 space-y-1.5">
+                <div class="flex items-center justify-between text-[10px] font-mono">
+                    <span class="text-zinc-400">Cảm ứng từ B</span>
+                    <span id="hud-field-strength" class="text-amber-400 font-bold">1.20 mT</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+                    <div id="hud-field-bar" class="h-full w-1/4 rounded-full bg-gradient-to-r from-amber-600 via-amber-400 to-yellow-200 transition-all duration-100"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khối 2: Sóng dao động điều hòa (Oscilloscope Wave) -->
+        <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-[10px]">
+                <span class="text-zinc-400 uppercase tracking-wider font-semibold">Dao động điều hòa</span>
+                <span id="hud-wave-freq" class="font-mono text-amber-300 text-[10px]">1.0 Hz</span>
+            </div>
+            <div class="rounded-xl bg-zinc-950/90 border border-amber-500/20 p-1.5 overflow-hidden">
+                <canvas id="hud-oscilloscope-canvas" width="192" height="54" class="w-full h-[54px] block"></canvas>
+            </div>
+        </div>
+
+        <!-- Khối 3: Hằng số Vật lý nền -->
+        <div class="space-y-1.5 pt-0.5 border-t border-zinc-800/80">
+            <div class="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold flex items-center justify-between">
+                <span>Hằng số Vật lý nền</span>
+                <i class="fa-solid fa-atom text-amber-400/75"></i>
+            </div>
+            <div class="space-y-1 font-mono text-[10px]">
+                <div class="flex items-center justify-between px-2 py-1 rounded-md bg-zinc-900/70 text-zinc-300">
+                    <span class="text-amber-400 font-bold">g</span>
+                    <span>9.81 m/s²</span>
+                </div>
+                <div class="flex items-center justify-between px-2 py-1 rounded-md bg-zinc-900/70 text-zinc-300">
+                    <span class="text-amber-400 font-bold">c</span>
+                    <span>3.00 × 10⁸ m/s</span>
+                </div>
+                <div class="flex items-center justify-between px-2 py-1 rounded-md bg-zinc-900/70 text-zinc-300">
+                    <span class="text-amber-400 font-bold">h</span>
+                    <span>6.626 × 10⁻³⁴ J·s</span>
+                </div>
+            </div>
+        </div>
+    </aside>
 
     <!-- THANH ĐIỀU HƯỚNG NHANH TRÊN CÙNG (DESKTOP & MOBILE) -->
     <header class="w-full max-w-4xl px-4 pt-6 pb-2 z-30 flex flex-wrap justify-between items-center gap-3">
@@ -922,7 +1011,7 @@
         <span id="toast-message">Thông báo</span>
     </div>
 
-    <!-- JAVASCRIPT XỬ LÝ INTERACTION, HỆ MẶT TRỜI TƯƠNG TÁC CHI TIẾT, GAME NÉM XIÊN & NGANG NÂNG CAO, HẠT BAY TỰ DO & ICON VẬT LÝ -->
+    <!-- JAVASCRIPT XỬ LÝ INTERACTION, HUD VẬT LÝ, HỆ MẶT TRỜI ĐẦY ĐỦ, GAME NÉM XIÊN & NGANG, HẠT BAY TỰ DO -->
     <script>
         // --- THANH TIẾN TRÌNH CUỘN TRANG ---
         window.addEventListener('scroll', () => {
@@ -948,6 +1037,7 @@
             const pageCard = document.getElementById('page-card');
             const pageAbout = document.getElementById('page-about');
             const pageProj = document.getElementById('page-projectile');
+            const telemetryHud = document.getElementById('physics-telemetry-hud');
 
             const btnCard = document.getElementById('nav-card-btn');
             const btnAbout = document.getElementById('nav-about-btn');
@@ -967,12 +1057,15 @@
             if (pageName === 'card') {
                 pageCard.classList.remove('hidden');
                 btnCard.className = activeCls;
+                if (telemetryHud) telemetryHud.classList.remove('opacity-0');
             } else if (pageName === 'about') {
                 pageAbout.classList.remove('hidden');
                 btnAbout.className = activeCls;
+                if (telemetryHud) telemetryHud.classList.add('opacity-0');
             } else {
                 pageProj.classList.remove('hidden');
                 btnProj.className = activeCls;
+                if (telemetryHud) telemetryHud.classList.add('opacity-0');
                 resizeProjectileCanvas();
                 if (projGame.rings.length === 0) {
                     spawnProjectileRings();
@@ -981,7 +1074,82 @@
             }
         }
 
-        // --- HỆ MẶT TRỜI HIỂN THỊ RÕ TRÊN NỀN & TƯƠNG TÁC NHẤN CHỌN CHI TIẾT TRÊN TRANG CHÍNH ---
+        // --- TRẠM ĐO THÔNG SỐ VẬT LÝ THỜI GIAN THỰC (HUD BÊN TRÁI) ---
+        const hudOscCanvas = document.getElementById('hud-oscilloscope-canvas');
+        const hudOscCtx = hudOscCanvas ? hudOscCanvas.getContext('2d') : null;
+        const telemetryState = {
+            lastX: null,
+            lastY: null,
+            speed: 0,
+            smoothedSpeed: 0,
+            phase: 0
+        };
+
+        function updateTelemetryHUD(clientX, clientY) {
+            const coordXEl = document.getElementById('hud-coord-x');
+            const coordYEl = document.getElementById('hud-coord-y');
+            if (coordXEl) coordXEl.innerText = `${String(Math.round(clientX)).padStart(3, '0')}px`;
+            if (coordYEl) coordYEl.innerText = `${String(Math.round(clientY)).padStart(3, '0')}px`;
+
+            if (telemetryState.lastX !== null && telemetryState.lastY !== null) {
+                const dist = Math.hypot(clientX - telemetryState.lastX, clientY - telemetryState.lastY);
+                telemetryState.speed = Math.min(85, dist);
+            }
+            telemetryState.lastX = clientX;
+            telemetryState.lastY = clientY;
+        }
+
+        function drawTelemetryOscilloscope() {
+            if (!hudOscCtx || !hudOscCanvas || currentPage !== 'card') return;
+
+            telemetryState.smoothedSpeed += (telemetryState.speed - telemetryState.smoothedSpeed) * 0.12;
+            telemetryState.speed *= 0.88;
+
+            const freq = 1.0 + (telemetryState.smoothedSpeed / 22);
+            const amp = Math.min(20, 6 + telemetryState.smoothedSpeed * 0.34);
+            const fieldValue = 1.2 + (telemetryState.smoothedSpeed / 14);
+            const barPct = Math.min(100, Math.max(18, (fieldValue / 7.5) * 100));
+
+            const freqEl = document.getElementById('hud-wave-freq');
+            const fieldEl = document.getElementById('hud-field-strength');
+            const barEl = document.getElementById('hud-field-bar');
+            if (freqEl) freqEl.innerText = `${freq.toFixed(1)} Hz`;
+            if (fieldEl) fieldEl.innerText = `${fieldValue.toFixed(2)} mT`;
+            if (barEl) barEl.style.width = `${barPct.toFixed(0)}%`;
+
+            const w = hudOscCanvas.width;
+            const h = hudOscCanvas.height;
+            const midY = h / 2;
+
+            hudOscCtx.clearRect(0, 0, w, h);
+
+            // Lưới tọa độ trục trung tâm
+            hudOscCtx.strokeStyle = 'rgba(251, 191, 36, 0.14)';
+            hudOscCtx.lineWidth = 1;
+            hudOscCtx.beginPath();
+            hudOscCtx.moveTo(0, midY);
+            hudOscCtx.lineTo(w, midY);
+            hudOscCtx.stroke();
+
+            // Sóng hình sin dao động điều hòa
+            telemetryState.phase += 0.055 * freq;
+            hudOscCtx.beginPath();
+            for (let x = 0; x <= w; x += 2) {
+                const normX = (x / w) * Math.PI * 4;
+                const envelope = Math.sin((x / w) * Math.PI);
+                const y = midY + Math.sin(normX - telemetryState.phase) * amp * (0.45 + 0.55 * envelope);
+                if (x === 0) hudOscCtx.moveTo(x, y);
+                else hudOscCtx.lineTo(x, y);
+            }
+            hudOscCtx.strokeStyle = '#fbbf24';
+            hudOscCtx.lineWidth = 1.8;
+            hudOscCtx.shadowColor = 'rgba(251, 191, 36, 0.65)';
+            hudOscCtx.shadowBlur = 6;
+            hudOscCtx.stroke();
+            hudOscCtx.shadowBlur = 0;
+        }
+
+        // --- HỆ MẶT TRỜI HIỂN THỊ ĐẦY ĐỦ 100% TRÊN NỀN & TƯƠNG TÁC NHẤN CHỌN CHI TIẾT ---
         const solarOverlayCanvas = document.getElementById('solar-overlay-canvas');
         const solarOverlayCtx = solarOverlayCanvas ? solarOverlayCanvas.getContext('2d') : null;
 
@@ -992,7 +1160,7 @@
                 distance: '0.00 AU',
                 color: '#fbbf24',
                 orbit: 0,
-                size: 15,
+                size: 14,
                 speed: 0,
                 angle: 0,
                 desc: 'Chiếm hơn 99,8% khối lượng Hệ Mặt Trời, tạo ra lực hấp dẫn chi phối toàn bộ quỹ đạo của các hành tinh và thiên thể quay quanh.'
@@ -1002,8 +1170,8 @@
                 category: 'Hành tinh đất đá',
                 distance: '0.39 AU',
                 color: '#d4d4d8',
-                orbit: 42,
-                size: 3.6,
+                orbit: 38,
+                size: 3.4,
                 speed: 0.016,
                 angle: 0.5,
                 desc: 'Hành tinh gần Mặt Trời nhất và nhỏ nhất, có chu kỳ tự quay và quỹ đạo nhanh nhất nên vận tốc góc trên quỹ đạo lớn nhất.'
@@ -1013,8 +1181,8 @@
                 category: 'Hành tinh đất đá',
                 distance: '0.72 AU',
                 color: '#facc15',
-                orbit: 68,
-                size: 5.2,
+                orbit: 62,
+                size: 4.8,
                 speed: 0.011,
                 angle: 1.8,
                 desc: 'Được bao phủ bởi lớp mây dày phản xạ ánh sáng mạnh, là thiên thể sáng nổi bật trên bầu trời gần Trái Đất.'
@@ -1024,8 +1192,8 @@
                 category: 'Hành tinh đất đá',
                 distance: '1.00 AU',
                 color: '#38bdf8',
-                orbit: 96,
-                size: 5.8,
+                orbit: 88,
+                size: 5.4,
                 speed: 0.0085,
                 angle: 3.1,
                 desc: 'Hành tinh thứ ba tính từ Mặt Trời với khí quyển, từ trường và thủy quyển cân bằng tạo điều kiện cho sự sống phát triển.'
@@ -1035,8 +1203,8 @@
                 category: 'Hành tinh đất đá',
                 distance: '1.52 AU',
                 color: '#fb923c',
-                orbit: 124,
-                size: 4.4,
+                orbit: 114,
+                size: 4.2,
                 speed: 0.0065,
                 angle: 4.6,
                 desc: 'Nổi bật với sắc đỏ cam đặc trưng của oxit sắt trên bề mặt, có các núi lửa lớn và thung lũng sâu bậc nhất hệ hành tinh.'
@@ -1046,8 +1214,8 @@
                 category: 'Hành tinh khí khổng lồ',
                 distance: '5.20 AU',
                 color: '#fed7aa',
-                orbit: 160,
-                size: 9.5,
+                orbit: 146,
+                size: 8.8,
                 speed: 0.004,
                 angle: 1.1,
                 desc: 'Hành tinh lớn nhất Hệ Mặt Trời với khối lượng gấp hơn hai lần tổng khối lượng các hành tinh khác cộng lại.'
@@ -1057,8 +1225,8 @@
                 category: 'Hành tinh khí khổng lồ',
                 distance: '9.58 AU',
                 color: '#fef08a',
-                orbit: 196,
-                size: 8,
+                orbit: 178,
+                size: 7.4,
                 speed: 0.003,
                 angle: 2.7,
                 desc: 'Nổi tiếng với hệ thống vành đai băng và đá rộng lớn, sắc nét bao quanh xích đạo hành tinh.'
@@ -1068,8 +1236,8 @@
                 category: 'Hành tinh băng khổng lồ',
                 distance: '19.2 AU',
                 color: '#67e8f9',
-                orbit: 228,
-                size: 6.2,
+                orbit: 208,
+                size: 5.8,
                 speed: 0.0021,
                 angle: 4.2,
                 desc: 'Có trục tự quay nghiêng lớn khiến hành tinh dường như lăn dọc theo quỹ đạo quanh Mặt Trời.'
@@ -1079,8 +1247,8 @@
                 category: 'Hành tinh băng khổng lồ',
                 distance: '30.1 AU',
                 color: '#60a5fa',
-                orbit: 256,
-                size: 6,
+                orbit: 236,
+                size: 5.6,
                 speed: 0.0016,
                 angle: 5.4,
                 desc: 'Hành tinh ngoài cùng trong hệ 8 hành tinh, chuyển động chậm nhất trên quỹ đạo rộng lớn ở vùng rìa hệ.'
@@ -1103,7 +1271,7 @@
                 solarOverlayCtx.clearRect(0, 0, solarOverlayCanvas.width, solarOverlayCanvas.height);
                 solarHitTargets = [];
             }
-            showToast(isSolarBgEnabled ? "Đã bật Hệ Mặt Trời hiển thị rõ trên nền" : "Đã ẩn Hệ Mặt Trời");
+            showToast(isSolarBgEnabled ? "Đã bật Hệ Mặt Trời hiển thị đầy đủ" : "Đã ẩn Hệ Mặt Trời");
         }
 
         function resizeSolarOverlayCanvas() {
@@ -1185,7 +1353,7 @@
             return null;
         }
 
-        // Lắng nghe nhấp vào phần Hệ Mặt Trời phía sau danh thiếp ở trang chính
+        // Lắng nghe nhấp vào phần Hệ Mặt Trời ở trang chính
         document.addEventListener('click', (e) => {
             if (!isSolarBgEnabled || currentPage !== 'card') return;
             if (e.target.closest('a, button, input, textarea, select, form, nav, #avatar-modal, #bank-modal, #qr-modal, #solar-detail-modal')) {
@@ -1201,14 +1369,37 @@
             if (!solarOverlayCtx || !solarOverlayCanvas) return;
             solarOverlayCtx.clearRect(0, 0, solarOverlayCanvas.width, solarOverlayCanvas.height);
             solarHitTargets = [];
-            if (!isSolarBgEnabled) return;
+            if (!isSolarBgEnabled || currentPage !== 'card') return;
 
             const w = solarOverlayCanvas.width;
             const h = solarOverlayCanvas.height;
-            const cx = w > 1024 ? w * 0.78 : w * 0.5;
-            const cy = w > 1024 ? h * 0.52 : h * 0.78;
-            const maxSpan = Math.min(w * 0.36, h * 0.42);
-            const scale = Math.max(0.45, Math.min(1.15, maxSpan / 256));
+            const maxOrbitBase = 236;
+            const margin = 52;
+
+            // Tính toán tâm và tỷ lệ sao cho toàn bộ 8 quỹ đạo hành tinh nằm trọn trong màn hình
+            let cx, cy, scale;
+            if (w >= 1280) {
+                cx = w * 0.80;
+                cy = h * 0.50;
+                const availRight = w - cx - margin;
+                const availVert = Math.min(cy - margin, h - cy - margin) / 0.72;
+                const maxRx = Math.max(135, Math.min(availRight, availVert, w * 0.21));
+                scale = maxRx / maxOrbitBase;
+            } else if (w >= 768) {
+                cx = w * 0.76;
+                cy = h * 0.50;
+                const availRight = w - cx - 38;
+                const availVert = Math.min(cy - 38, h - cy - 38) / 0.72;
+                const maxRx = Math.max(110, Math.min(availRight, availVert, w * 0.22));
+                scale = maxRx / maxOrbitBase;
+            } else {
+                cx = w * 0.50;
+                cy = h * 0.80;
+                const availHoriz = w * 0.50 - 34;
+                const availVert = (h - cy - 22) / 0.68;
+                const maxRx = Math.max(95, Math.min(availHoriz, availVert));
+                scale = maxRx / maxOrbitBase;
+            }
 
             let currentHover = null;
 
@@ -1219,11 +1410,11 @@
 
                 if (b.orbit > 0) {
                     const rx = b.orbit * scale;
-                    const ry = b.orbit * scale * 0.68;
+                    const ry = b.orbit * scale * 0.70;
 
                     solarOverlayCtx.beginPath();
                     solarOverlayCtx.ellipse(cx, cy, rx, ry, -0.14, 0, Math.PI * 2);
-                    solarOverlayCtx.strokeStyle = "rgba(251, 191, 36, 0.22)";
+                    solarOverlayCtx.strokeStyle = "rgba(251, 191, 36, 0.24)";
                     solarOverlayCtx.lineWidth = 1;
                     solarOverlayCtx.stroke();
 
@@ -1232,9 +1423,9 @@
                     const rot = -0.14;
                     const px = cx + localX * Math.cos(rot) - localY * Math.sin(rot);
                     const py = cy + localX * Math.sin(rot) + localY * Math.cos(rot);
-                    const rPlanet = Math.max(2.6, b.size * scale);
+                    const rPlanet = Math.max(2.6, b.size * Math.max(0.58, scale));
 
-                    const hitRadius = Math.max(14, rPlanet + 9);
+                    const hitRadius = Math.max(13, rPlanet + 8);
                     solarHitTargets.push({ body: b, x: px, y: py, hitRadius });
 
                     if (mouse.x !== null && mouse.y !== null && Math.hypot(mouse.x - px, mouse.y - py) <= hitRadius) {
@@ -1247,7 +1438,7 @@
                         solarOverlayCtx.rotate(-0.35);
                         solarOverlayCtx.beginPath();
                         solarOverlayCtx.ellipse(0, 0, rPlanet * 2.0, rPlanet * 0.55, 0, 0, Math.PI * 2);
-                        solarOverlayCtx.strokeStyle = "rgba(254, 240, 138, 0.65)";
+                        solarOverlayCtx.strokeStyle = "rgba(254, 240, 138, 0.72)";
                         solarOverlayCtx.lineWidth = 1.2;
                         solarOverlayCtx.stroke();
                         solarOverlayCtx.restore();
@@ -1256,7 +1447,7 @@
                     if (hoveredSolarBody && hoveredSolarBody.name === b.name) {
                         solarOverlayCtx.beginPath();
                         solarOverlayCtx.arc(px, py, rPlanet + 5, 0, Math.PI * 2);
-                        solarOverlayCtx.strokeStyle = "rgba(254, 240, 138, 0.9)";
+                        solarOverlayCtx.strokeStyle = "rgba(254, 240, 138, 0.95)";
                         solarOverlayCtx.lineWidth = 1.5;
                         solarOverlayCtx.stroke();
                     }
@@ -1264,37 +1455,37 @@
                     solarOverlayCtx.beginPath();
                     solarOverlayCtx.arc(px, py, rPlanet, 0, Math.PI * 2);
                     solarOverlayCtx.fillStyle = b.color;
-                    solarOverlayCtx.globalAlpha = 0.82;
+                    solarOverlayCtx.globalAlpha = 0.88;
                     solarOverlayCtx.fill();
 
                     if (w >= 640) {
-                        solarOverlayCtx.font = "600 10px 'Be Vietnam Pro', sans-serif";
-                        solarOverlayCtx.fillStyle = "rgba(254, 240, 138, 0.72)";
+                        solarOverlayCtx.font = "600 9.5px 'Be Vietnam Pro', sans-serif";
+                        solarOverlayCtx.fillStyle = "rgba(254, 240, 138, 0.78)";
                         solarOverlayCtx.fillText(b.name, px + rPlanet + 4, py + 3);
                     }
                     solarOverlayCtx.globalAlpha = 1;
                 } else {
-                    const sunR = Math.max(10, b.size * scale);
-                    const hitRadius = Math.max(22, sunR + 10);
+                    const sunR = Math.max(9, b.size * Math.max(0.62, scale));
+                    const hitRadius = Math.max(20, sunR + 9);
                     solarHitTargets.push({ body: b, x: cx, y: cy, hitRadius });
 
                     if (mouse.x !== null && mouse.y !== null && Math.hypot(mouse.x - cx, mouse.y - cy) <= hitRadius) {
                         currentHover = b;
                     }
 
-                    const glow = solarOverlayCtx.createRadialGradient(cx, cy, sunR * 0.2, cx, cy, sunR * 3.4);
-                    glow.addColorStop(0, "rgba(254, 240, 138, 0.65)");
-                    glow.addColorStop(0.5, "rgba(245, 158, 11, 0.22)");
+                    const glow = solarOverlayCtx.createRadialGradient(cx, cy, sunR * 0.2, cx, cy, sunR * 3.1);
+                    glow.addColorStop(0, "rgba(254, 240, 138, 0.70)");
+                    glow.addColorStop(0.5, "rgba(245, 158, 11, 0.24)");
                     glow.addColorStop(1, "rgba(245, 158, 11, 0)");
 
                     solarOverlayCtx.beginPath();
-                    solarOverlayCtx.arc(cx, cy, sunR * 3.4, 0, Math.PI * 2);
+                    solarOverlayCtx.arc(cx, cy, sunR * 3.1, 0, Math.PI * 2);
                     solarOverlayCtx.fillStyle = glow;
                     solarOverlayCtx.fill();
 
                     solarOverlayCtx.beginPath();
                     solarOverlayCtx.arc(cx, cy, sunR, 0, Math.PI * 2);
-                    solarOverlayCtx.fillStyle = "rgba(251, 191, 36, 0.9)";
+                    solarOverlayCtx.fillStyle = "rgba(251, 191, 36, 0.94)";
                     solarOverlayCtx.fill();
                 }
             });
@@ -1919,7 +2110,7 @@
 
         document.addEventListener('mouseleave', () => {
             if (!is3DTiltEnabled) return;
-            card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
+            card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
         });
 
         // --- 7. HẠT BAY TỰ DO (GIẢM ĐỘ HÚT CHUỘT) & ICON VẬT LÝ KHI BẤM CHUỘT ---
@@ -1936,6 +2127,7 @@
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.clientX;
             mouse.y = e.clientY;
+            updateTelemetryHUD(e.clientX, e.clientY);
 
             if (fieldCore) {
                 fieldCore.style.left = `${e.clientX}px`;
@@ -2067,7 +2259,10 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Vẽ Hệ Mặt Trời hiển thị rõ trên canvas overlay
+            // Vẽ sóng dao động điều hòa trên HUD bên trái
+            drawTelemetryOscilloscope();
+
+            // Vẽ Hệ Mặt Trời hiển thị đầy đủ 100% trên canvas overlay
             drawVisibleSolarSystem();
 
             // Vẽ Game Ném Xiên & Ném Ngang nếu đang mở tab đó
